@@ -13,17 +13,17 @@ import java.util.Vector;
  */
 public class Simulation implements Runnable {
 	private boolean running = false;
-	private static io.github.tanguygab.logicsim3.Simulation instance = null;
+	private static Simulation instance = null;
 	private Thread thread;
 
 	public static final int WIRE = 0;
 	public static final int GATE = 1;
 
-	Vector<io.github.tanguygab.logicsim3.LSLevelEvent> queue = new Vector<io.github.tanguygab.logicsim3.LSLevelEvent>();
+	Vector<LSLevelEvent> queue = new Vector<LSLevelEvent>();
 
-	public static io.github.tanguygab.logicsim3.Simulation getInstance() {
+	public static Simulation getInstance() {
 		if (instance == null)
-			instance = new io.github.tanguygab.logicsim3.Simulation();
+			instance = new Simulation();
 		return instance;
 	}
 
@@ -45,7 +45,7 @@ public class Simulation implements Runnable {
 		return running;
 	}
 
-	public synchronized void putEvent(io.github.tanguygab.logicsim3.LSLevelEvent evt) {
+	public synchronized void putEvent(LSLevelEvent evt) {
 		if (queue.size() > 1000)
 			return;
 		queue.add(evt);

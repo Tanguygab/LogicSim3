@@ -4,7 +4,7 @@ plugins {
 }
 
 group 'io.github.tanguygab'
-mainClassName 'io.github.tanguygab.logicsim3.logicsim.App'
+mainClassName 'io.github.tanguygab.logicsim3.App'
 version '1.0'
 
 repositories {

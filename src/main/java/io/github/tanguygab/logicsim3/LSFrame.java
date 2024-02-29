@@ -52,7 +52,7 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 
 	private static final long serialVersionUID = -5281157929385660575L;
 
-	io.github.tanguygab.logicsim3.LogicSimFile lsFile;
+	LogicSimFile lsFile;
 
 	JMenuBar mnuBar;
 	JToolBar btnBar;
@@ -60,7 +60,7 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 	DefaultListModel<Object> partListModel = new DefaultListModel<Object>();
 	JList<Object> lstParts = new JList<Object>(partListModel);
 	JComboBox<String> cbNumInputs = null;
-	io.github.tanguygab.logicsim3.LSPanel lspanel = new io.github.tanguygab.logicsim3.LSPanel();
+	LSPanel lspanel = new LSPanel();
 
 	JLabel sbText = new JLabel();
 	JLabel sbCoordinates = new JLabel();
@@ -73,7 +73,7 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 	public LSFrame(String title) {
 		enableEvents(AWTEvent.WINDOW_EVENT_MASK);
 
-		lsFile = new io.github.tanguygab.logicsim3.LogicSimFile(defaultCircuitFileName());
+		lsFile = new LogicSimFile(defaultCircuitFileName());
 		lsFile.circuit.setRepaintListener(lspanel);
 		lspanel.setChangeListener(this);
 
@@ -90,23 +90,23 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 	@Override
 	protected void processWindowEvent(WindowEvent e) {
 		if (e.getID() == WindowEvent.WINDOW_CLOSING) {
-			if (showDiscardDialog(io.github.tanguygab.logicsim3.I18N.tr(io.github.tanguygab.logicsim3.Lang.EXIT)) == false)
+			if (showDiscardDialog(I18N.tr(Lang.EXIT)) == false)
 				return;
 			System.exit(0);
 		}
 	}
 
 	private String defaultModuleFileName() {
-		String fn = io.github.tanguygab.logicsim3.App.getModulePath();
-		fn += io.github.tanguygab.logicsim3.I18N.tr(io.github.tanguygab.logicsim3.Lang.UNNAMED);
-		fn += "." + io.github.tanguygab.logicsim3.App.MODULE_FILE_SUFFIX;
+		String fn = App.getModulePath();
+		fn += I18N.tr(Lang.UNNAMED);
+		fn += "." + App.MODULE_FILE_SUFFIX;
 		return fn;
 	}
 
 	private String defaultCircuitFileName() {
-		String fn = io.github.tanguygab.logicsim3.App.getCircuitPath();
-		fn += io.github.tanguygab.logicsim3.I18N.tr(io.github.tanguygab.logicsim3.Lang.UNNAMED);
-		fn += "." + io.github.tanguygab.logicsim3.App.CIRCUIT_FILE_SUFFIX;
+		String fn = App.getCircuitPath();
+		fn += I18N.tr(Lang.UNNAMED);
+		fn += "." + App.CIRCUIT_FILE_SUFFIX;
 		return fn;
 	}
 
@@ -114,13 +114,13 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 	private void createUI() {
 		setTitle("LogicSim");
 
-		String mode = io.github.tanguygab.logicsim3.LSProperties.getInstance().getProperty(io.github.tanguygab.logicsim3.LSProperties.MODE, io.github.tanguygab.logicsim3.LSProperties.MODE_NORMAL);
+		String mode = LSProperties.getInstance().getProperty(LSProperties.MODE, LSProperties.MODE_NORMAL);
 
 		mnuBar = new JMenuBar();
 
-		JMenu mnu = new JMenu(io.github.tanguygab.logicsim3.I18N.tr(io.github.tanguygab.logicsim3.Lang.FILE));
+		JMenu mnu = new JMenu(I18N.tr(Lang.FILE));
 
-		JMenuItem m = createMenuItem(io.github.tanguygab.logicsim3.Lang.NEW, KeyEvent.VK_N, false);
+		JMenuItem m = createMenuItem(Lang.NEW, KeyEvent.VK_N, false);
 		m.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				actionNew(e);
@@ -128,7 +128,7 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 		});
 		mnu.add(m);
 
-		m = createMenuItem(io.github.tanguygab.logicsim3.Lang.OPEN, KeyEvent.VK_O, true);
+		m = createMenuItem(Lang.OPEN, KeyEvent.VK_O, true);
 		m.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				actionOpen(e);
@@ -138,7 +138,7 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 
 		mnu.addSeparator();
 
-		m = createMenuItem(io.github.tanguygab.logicsim3.Lang.SAVE, KeyEvent.VK_S, true);
+		m = createMenuItem(Lang.SAVE, KeyEvent.VK_S, true);
 		m.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				actionSave(e, false);
@@ -146,7 +146,7 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 		});
 		mnu.add(m);
 
-		m = createMenuItem(io.github.tanguygab.logicsim3.Lang.SAVEAS, 0, true);
+		m = createMenuItem(Lang.SAVEAS, 0, true);
 		m.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				actionSave(e, true);
@@ -156,7 +156,7 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 
 		mnu.addSeparator();
 
-		m = createMenuItem(io.github.tanguygab.logicsim3.Lang.MODULECREATE, 0, true);
+		m = createMenuItem(Lang.MODULECREATE, 0, true);
 		m.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				actionCreateModule(e);
@@ -164,10 +164,10 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 		});
 		mnu.add(m);
 
-		m = createMenuItem(io.github.tanguygab.logicsim3.Lang.PROPERTIES, 0, true);
+		m = createMenuItem(Lang.PROPERTIES, 0, true);
 		m.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (io.github.tanguygab.logicsim3.FileInfoDialog.showFileInfo(io.github.tanguygab.logicsim3.LSFrame.this, lsFile)) {
+				if (FileInfoDialog.showFileInfo(LSFrame.this, lsFile)) {
 					setAppTitle();
 				}
 			}
@@ -176,7 +176,7 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 
 		mnu.addSeparator();
 
-		m = createMenuItem(io.github.tanguygab.logicsim3.Lang.EXPORT, 0, true);
+		m = createMenuItem(Lang.EXPORT, 0, true);
 		m.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				exportImage();
@@ -184,7 +184,7 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 		});
 		mnu.add(m);
 
-		m = createMenuItem(io.github.tanguygab.logicsim3.Lang.PRINT, 0, true);
+		m = createMenuItem(Lang.PRINT, 0, true);
 		m.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				lspanel.doPrint();
@@ -194,10 +194,10 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 
 		mnu.addSeparator();
 
-		m = createMenuItem(io.github.tanguygab.logicsim3.Lang.EXIT, KeyEvent.VK_X, false);
+		m = createMenuItem(Lang.EXIT, KeyEvent.VK_X, false);
 		m.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (showDiscardDialog(io.github.tanguygab.logicsim3.I18N.tr(io.github.tanguygab.logicsim3.Lang.EXIT)) == false)
+				if (showDiscardDialog(I18N.tr(Lang.EXIT)) == false)
 					return;
 				System.exit(0);
 			}
@@ -208,9 +208,9 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 
 		// ------------------------------------------------------------------
 		// EDIT
-		mnu = new JMenu(io.github.tanguygab.logicsim3.I18N.tr(io.github.tanguygab.logicsim3.Lang.EDIT));
+		mnu = new JMenu(I18N.tr(Lang.EDIT));
 
-		m = createMenuItem(io.github.tanguygab.logicsim3.Lang.SELECTALL, KeyEvent.VK_A, false);
+		m = createMenuItem(Lang.SELECTALL, KeyEvent.VK_A, false);
 		m.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				lspanel.circuit.selectAll();
@@ -219,16 +219,16 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 		});
 		mnu.add(m);
 
-		m = createMenuItem(io.github.tanguygab.logicsim3.Lang.SELECT, 0, false);
+		m = createMenuItem(Lang.SELECT, 0, false);
 		m.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				lspanel.setAction(io.github.tanguygab.logicsim3.LSPanel.ACTION_SELECT);
+				lspanel.setAction(LSPanel.ACTION_SELECT);
 				lspanel.requestFocusInWindow();
 			}
 		});
 		mnu.add(m);
 
-		m = createMenuItem(io.github.tanguygab.logicsim3.Lang.SELECTNONE, 0, false);
+		m = createMenuItem(Lang.SELECTNONE, 0, false);
 		m.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				lspanel.circuit.deselectAll();
@@ -239,56 +239,56 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 
 		mnu.addSeparator();
 
-		m = createMenuItem(io.github.tanguygab.logicsim3.Lang.WIRENEW, KeyEvent.VK_W, false);
+		m = createMenuItem(Lang.WIRENEW, KeyEvent.VK_W, false);
 		m.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				getButtonWidget(io.github.tanguygab.logicsim3.Lang.WIRENEW).doClick();
+				getButtonWidget(Lang.WIRENEW).doClick();
 			}
 		});
-		m.setEnabled(io.github.tanguygab.logicsim3.LSProperties.MODE_EXPERT.equals(mode));
+		m.setEnabled(LSProperties.MODE_EXPERT.equals(mode));
 		mnu.add(m);
 
 		mnu.addSeparator();
 
-		m = createMenuItem(io.github.tanguygab.logicsim3.Lang.INPUTHIGH, 0, false);
+		m = createMenuItem(Lang.INPUTHIGH, 0, false);
 		m.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				lspanel.setAction(io.github.tanguygab.logicsim3.Pin.HIGH);
-				setStatusText(io.github.tanguygab.logicsim3.I18N.tr(io.github.tanguygab.logicsim3.Lang.INPUTHIGH_HELP));
+				lspanel.setAction(Pin.HIGH);
+				setStatusText(I18N.tr(Lang.INPUTHIGH_HELP));
 			}
 		});
 		mnu.add(m);
 
-		m = createMenuItem(io.github.tanguygab.logicsim3.Lang.INPUTLOW, 0, false);
+		m = createMenuItem(Lang.INPUTLOW, 0, false);
 		m.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				lspanel.setAction(io.github.tanguygab.logicsim3.Pin.LOW);
-				setStatusText(io.github.tanguygab.logicsim3.I18N.tr(io.github.tanguygab.logicsim3.Lang.INPUTLOW_HELP));
+				lspanel.setAction(Pin.LOW);
+				setStatusText(I18N.tr(Lang.INPUTLOW_HELP));
 			}
 		});
 		mnu.add(m);
 
-		m = createMenuItem(io.github.tanguygab.logicsim3.Lang.INPUTINV, 0, false);
+		m = createMenuItem(Lang.INPUTINV, 0, false);
 		m.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				lspanel.setAction(io.github.tanguygab.logicsim3.Pin.INVERTED);
-				setStatusText(io.github.tanguygab.logicsim3.I18N.tr(io.github.tanguygab.logicsim3.Lang.INPUTINV_HELP));
+				lspanel.setAction(Pin.INVERTED);
+				setStatusText(I18N.tr(Lang.INPUTINV_HELP));
 			}
 		});
 		mnu.add(m);
 
-		m = createMenuItem(io.github.tanguygab.logicsim3.Lang.INPUTNORM, 0, false);
+		m = createMenuItem(Lang.INPUTNORM, 0, false);
 		m.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				lspanel.setAction(io.github.tanguygab.logicsim3.Pin.NORMAL);
-				setStatusText(io.github.tanguygab.logicsim3.I18N.tr(io.github.tanguygab.logicsim3.Lang.INPUTNORM_HELP));
+				lspanel.setAction(Pin.NORMAL);
+				setStatusText(I18N.tr(Lang.INPUTNORM_HELP));
 			}
 		});
 		mnu.add(m);
 
 		mnu.addSeparator();
 
-		m = createMenuItem(io.github.tanguygab.logicsim3.Lang.ROTATE, 0, false);
+		m = createMenuItem(Lang.ROTATE, 0, false);
 		m.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, InputEvent.CTRL_DOWN_MASK, false));
 		m.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -297,7 +297,7 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 		});
 		mnu.add(m);
 
-		m = createMenuItem(io.github.tanguygab.logicsim3.Lang.MIRROR, KeyEvent.VK_M, false);
+		m = createMenuItem(Lang.MIRROR, KeyEvent.VK_M, false);
 		m.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				lspanel.mirrorSelected();
@@ -308,55 +308,55 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 		mnuBar.add(mnu);
 		// ------------------------------------------------------------------
 		// SETTINGS
-		mnu = new JMenu(io.github.tanguygab.logicsim3.I18N.tr(io.github.tanguygab.logicsim3.Lang.SETTINGS));
+		mnu = new JMenu(I18N.tr(Lang.SETTINGS));
 
-		boolean sel = io.github.tanguygab.logicsim3.LSProperties.getInstance().getPropertyBoolean(io.github.tanguygab.logicsim3.LSProperties.PAINTGRID, true);
-		final JCheckBoxMenuItem mSettingsPaintGrid = new JCheckBoxMenuItem(io.github.tanguygab.logicsim3.I18N.tr(io.github.tanguygab.logicsim3.Lang.PAINTGRID));
+		boolean sel = LSProperties.getInstance().getPropertyBoolean(LSProperties.PAINTGRID, true);
+		final JCheckBoxMenuItem mSettingsPaintGrid = new JCheckBoxMenuItem(I18N.tr(Lang.PAINTGRID));
 		mSettingsPaintGrid.setSelected(sel);
 		mSettingsPaintGrid.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				io.github.tanguygab.logicsim3.LSProperties.getInstance().setPropertyBoolean(io.github.tanguygab.logicsim3.LSProperties.PAINTGRID, mSettingsPaintGrid.isSelected());
+				LSProperties.getInstance().setPropertyBoolean(LSProperties.PAINTGRID, mSettingsPaintGrid.isSelected());
 				lspanel.repaint();
 			}
 		});
 		mnu.add(mSettingsPaintGrid);
 
-		boolean autowire = io.github.tanguygab.logicsim3.LSProperties.getInstance().getPropertyBoolean(io.github.tanguygab.logicsim3.LSProperties.AUTOWIRE, true);
-		final JCheckBoxMenuItem cbMenuItem = new JCheckBoxMenuItem(io.github.tanguygab.logicsim3.I18N.tr(io.github.tanguygab.logicsim3.Lang.AUTOWIRE));
+		boolean autowire = LSProperties.getInstance().getPropertyBoolean(LSProperties.AUTOWIRE, true);
+		final JCheckBoxMenuItem cbMenuItem = new JCheckBoxMenuItem(I18N.tr(Lang.AUTOWIRE));
 		cbMenuItem.setSelected(autowire);
 		cbMenuItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				JCheckBoxMenuItem bmi = (JCheckBoxMenuItem) e.getSource();
-				io.github.tanguygab.logicsim3.LSProperties.getInstance().setPropertyBoolean(io.github.tanguygab.logicsim3.LSProperties.AUTOWIRE, bmi.isSelected());
+				LSProperties.getInstance().setPropertyBoolean(LSProperties.AUTOWIRE, bmi.isSelected());
 				lspanel.repaint();
 			}
 		});
 		mnu.add(cbMenuItem);
 
-		m = new JMenu(io.github.tanguygab.logicsim3.I18N.tr(io.github.tanguygab.logicsim3.Lang.GATEDESIGN));
-		String gatedesign = io.github.tanguygab.logicsim3.LSProperties.getInstance().getProperty(io.github.tanguygab.logicsim3.LSProperties.GATEDESIGN,
-				io.github.tanguygab.logicsim3.LSProperties.GATEDESIGN_IEC);
+		m = new JMenu(I18N.tr(Lang.GATEDESIGN));
+		String gatedesign = LSProperties.getInstance().getProperty(LSProperties.GATEDESIGN,
+				LSProperties.GATEDESIGN_IEC);
 
 		JRadioButtonMenuItem mGatedesignIEC = new JRadioButtonMenuItem();
-		mGatedesignIEC.setText(io.github.tanguygab.logicsim3.I18N.tr(io.github.tanguygab.logicsim3.Lang.GATEDESIGN_IEC));
+		mGatedesignIEC.setText(I18N.tr(Lang.GATEDESIGN_IEC));
 		mGatedesignIEC.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				actionGateDesign(e);
 			}
 		});
-		mGatedesignIEC.setSelected(io.github.tanguygab.logicsim3.LSProperties.GATEDESIGN_IEC.equals(gatedesign));
+		mGatedesignIEC.setSelected(LSProperties.GATEDESIGN_IEC.equals(gatedesign));
 		m.add(mGatedesignIEC);
 
 		JRadioButtonMenuItem mGatedesignANSI = new JRadioButtonMenuItem();
-		mGatedesignANSI.setText(io.github.tanguygab.logicsim3.I18N.tr(io.github.tanguygab.logicsim3.Lang.GATEDESIGN_ANSI));
+		mGatedesignANSI.setText(I18N.tr(Lang.GATEDESIGN_ANSI));
 		mGatedesignANSI.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				actionGateDesign(e);
 			}
 		});
-		mGatedesignANSI.setSelected(io.github.tanguygab.logicsim3.LSProperties.GATEDESIGN_ANSI.equals(gatedesign));
+		mGatedesignANSI.setSelected(LSProperties.GATEDESIGN_ANSI.equals(gatedesign));
 		m.add(mGatedesignANSI);
 
 		ButtonGroup btnGroup = new ButtonGroup();
@@ -365,26 +365,26 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 
 		mnu.add(m);
 
-		JMenu mnuMode = new JMenu(io.github.tanguygab.logicsim3.I18N.tr(io.github.tanguygab.logicsim3.Lang.MODE));
+		JMenu mnuMode = new JMenu(I18N.tr(Lang.MODE));
 		btnGroup = new ButtonGroup();
 
-		JRadioButtonMenuItem mnuItem = new JRadioButtonMenuItem(io.github.tanguygab.logicsim3.I18N.tr(io.github.tanguygab.logicsim3.Lang.NORMAL));
+		JRadioButtonMenuItem mnuItem = new JRadioButtonMenuItem(I18N.tr(Lang.NORMAL));
 		mnuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				actionMode(e);
 			}
 		});
-		mnuItem.setSelected(io.github.tanguygab.logicsim3.LSProperties.MODE_NORMAL.equals(mode));
+		mnuItem.setSelected(LSProperties.MODE_NORMAL.equals(mode));
 		btnGroup.add(mnuItem);
 		mnuMode.add(mnuItem);
 
-		mnuItem = new JRadioButtonMenuItem(io.github.tanguygab.logicsim3.I18N.tr(io.github.tanguygab.logicsim3.Lang.EXPERT));
+		mnuItem = new JRadioButtonMenuItem(I18N.tr(Lang.EXPERT));
 		mnuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				actionMode(e);
 			}
 		});
-		mnuItem.setSelected(io.github.tanguygab.logicsim3.LSProperties.MODE_EXPERT.equals(mode));
+		mnuItem.setSelected(LSProperties.MODE_EXPERT.equals(mode));
 		btnGroup.add(mnuItem);
 		mnuMode.add(mnuItem);
 
@@ -392,28 +392,28 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 
 		// ---------------------------------------------------------------
 
-		m = new JMenu(io.github.tanguygab.logicsim3.I18N.tr(io.github.tanguygab.logicsim3.Lang.COLORMODE));
+		m = new JMenu(I18N.tr(Lang.COLORMODE));
 		btnGroup = new ButtonGroup();
-		String cMode = io.github.tanguygab.logicsim3.LSProperties.getInstance().getProperty(io.github.tanguygab.logicsim3.LSProperties.COLORMODE, io.github.tanguygab.logicsim3.LSProperties.COLORMODE_ON);
+		String cMode = LSProperties.getInstance().getProperty(LSProperties.COLORMODE, LSProperties.COLORMODE_ON);
 
 		JRadioButtonMenuItem mCmOn = new JRadioButtonMenuItem();
-		mCmOn.setText(io.github.tanguygab.logicsim3.I18N.tr(io.github.tanguygab.logicsim3.Lang.COLORMODE_ON));
+		mCmOn.setText(I18N.tr(Lang.COLORMODE_ON));
 		mCmOn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				actionColorMode(e);
 			}
 		});
-		mCmOn.setSelected(io.github.tanguygab.logicsim3.LSProperties.COLORMODE_ON.equals(cMode));
+		mCmOn.setSelected(LSProperties.COLORMODE_ON.equals(cMode));
 		m.add(mCmOn);
 
 		JRadioButtonMenuItem mCmOff = new JRadioButtonMenuItem();
-		mCmOff.setText(io.github.tanguygab.logicsim3.I18N.tr(io.github.tanguygab.logicsim3.Lang.COLORMODE_OFF));
+		mCmOff.setText(I18N.tr(Lang.COLORMODE_OFF));
 		mCmOff.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				actionColorMode(e);
 			}
 		});
-		mCmOff.setSelected(io.github.tanguygab.logicsim3.LSProperties.COLORMODE_OFF.equals(cMode));
+		mCmOff.setSelected(LSProperties.COLORMODE_OFF.equals(cMode));
 		m.add(mCmOff);
 
 		btnGroup.add(mCmOn);
@@ -421,14 +421,14 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 
 		mnu.add(m);
 
-		JMenu mnuLang = new JMenu(io.github.tanguygab.logicsim3.I18N.tr(io.github.tanguygab.logicsim3.Lang.LANGUAGE));
-		String currentLanguage = io.github.tanguygab.logicsim3.LSProperties.getInstance().getProperty(io.github.tanguygab.logicsim3.LSProperties.LANGUAGE, "de");
+		JMenu mnuLang = new JMenu(I18N.tr(Lang.LANGUAGE));
+		String currentLanguage = LSProperties.getInstance().getProperty(LSProperties.LANGUAGE, "de");
 		createLanguageMenu(mnuLang, currentLanguage);
 		mnu.add(mnuLang);
 
 		mnu.addSeparator();
 
-		m = createMenuItem(io.github.tanguygab.logicsim3.Lang.GATESETTINGS, 0, true);
+		m = createMenuItem(Lang.GATESETTINGS, 0, true);
 		m.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				lspanel.gateSettings();
@@ -440,9 +440,9 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 
 		// ------------------------------------------------------------------
 		// HELP
-		mnu = new JMenu(io.github.tanguygab.logicsim3.I18N.tr(io.github.tanguygab.logicsim3.Lang.HELP));
+		mnu = new JMenu(I18N.tr(Lang.HELP));
 
-		m = createMenuItem(io.github.tanguygab.logicsim3.Lang.HELP, 0, true);
+		m = createMenuItem(Lang.HELP, 0, true);
 		m.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				new HTMLHelp();
@@ -450,10 +450,10 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 		});
 		mnu.add(m);
 
-		m = createMenuItem(io.github.tanguygab.logicsim3.Lang.ABOUT, 0, true);
+		m = createMenuItem(Lang.ABOUT, 0, true);
 		m.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				new LSFrame_AboutBox(io.github.tanguygab.logicsim3.LSFrame.this);
+				new LSFrame_AboutBox(LSFrame.this);
 			}
 		});
 		mnu.add(m);
@@ -491,7 +491,7 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 
 		String[] gateInputNums = new String[4];
 		for (int i = 0; i < 4; i++) {
-			gateInputNums[i] = (i + 2) + " " + io.github.tanguygab.logicsim3.I18N.tr(io.github.tanguygab.logicsim3.Lang.INPUTS);
+			gateInputNums[i] = (i + 2) + " " + I18N.tr(Lang.INPUTS);
 		}
 		cbNumInputs = new JComboBox<String>(gateInputNums);
 
@@ -512,7 +512,7 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 
 		btnBar = new JToolBar();
 
-		io.github.tanguygab.logicsim3.LSButton btnLS = new io.github.tanguygab.logicsim3.LSButton("new", io.github.tanguygab.logicsim3.Lang.NEW);
+		LSButton btnLS = new LSButton("new", Lang.NEW);
 		btnLS.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				actionNew(e);
@@ -520,7 +520,7 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 		});
 		btnBar.add(btnLS, null);
 
-		btnLS = new io.github.tanguygab.logicsim3.LSButton("open", io.github.tanguygab.logicsim3.Lang.OPEN);
+		btnLS = new LSButton("open", Lang.OPEN);
 		btnLS.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				actionOpen(e);
@@ -528,7 +528,7 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 		});
 		btnBar.add(btnLS);
 
-		btnLS = new io.github.tanguygab.logicsim3.LSButton("save", io.github.tanguygab.logicsim3.Lang.SAVE);
+		btnLS = new LSButton("save", Lang.SAVE);
 		btnLS.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				actionSave(e, false);
@@ -538,7 +538,7 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 
 		btnBar.add(getMenuGap());
 
-		io.github.tanguygab.logicsim3.LSToggleButton btnToggle = new io.github.tanguygab.logicsim3.LSToggleButton("play", io.github.tanguygab.logicsim3.Lang.SIMULATE);
+		LSToggleButton btnToggle = new LSToggleButton("play", Lang.SIMULATE);
 		btnToggle.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				actionSimulate(e);
@@ -546,7 +546,7 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 		});
 		btnBar.add(btnToggle, null);
 
-		btnLS = new io.github.tanguygab.logicsim3.LSButton("reset", io.github.tanguygab.logicsim3.Lang.RESET);
+		btnLS = new LSButton("reset", Lang.RESET);
 		btnLS.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				lspanel.circuit.reset();
@@ -557,7 +557,7 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 
 		btnBar.add(getMenuGap());
 
-		btnLS = new io.github.tanguygab.logicsim3.LSButton("zoomout", io.github.tanguygab.logicsim3.Lang.ZOOMOUT);
+		btnLS = new LSButton("zoomout", Lang.ZOOMOUT);
 		btnLS.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				lspanel.zoomOut();
@@ -566,7 +566,7 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 		});
 		btnBar.add(btnLS, null);
 
-		btnLS = new io.github.tanguygab.logicsim3.LSButton("zoomall", io.github.tanguygab.logicsim3.Lang.ZOOMALL);
+		btnLS = new LSButton("zoomall", Lang.ZOOMALL);
 		btnLS.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				lspanel.zoomAll();
@@ -575,7 +575,7 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 		});
 		btnBar.add(btnLS, null);
 
-		btnLS = new io.github.tanguygab.logicsim3.LSButton("zoomin", io.github.tanguygab.logicsim3.Lang.ZOOMIN);
+		btnLS = new LSButton("zoomin", Lang.ZOOMIN);
 		btnLS.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				lspanel.zoomIn();
@@ -584,10 +584,10 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 		});
 		btnBar.add(btnLS, null);
 
-		btnToggle = new io.github.tanguygab.logicsim3.LSToggleButton("select", io.github.tanguygab.logicsim3.Lang.SELECT);
+		btnToggle = new LSToggleButton("select", Lang.SELECT);
 		btnToggle.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				lspanel.setAction(io.github.tanguygab.logicsim3.LSPanel.ACTION_SELECT);
+				lspanel.setAction(LSPanel.ACTION_SELECT);
 				lspanel.requestFocusInWindow();
 			}
 		});
@@ -604,7 +604,7 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 
 		btnBar.add(getMenuGap());
 
-		btnLS = new io.github.tanguygab.logicsim3.LSButton("rotate", io.github.tanguygab.logicsim3.Lang.ROTATE);
+		btnLS = new LSButton("rotate", Lang.ROTATE);
 		btnLS.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				lspanel.rotateSelected();
@@ -613,7 +613,7 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 		});
 		btnBar.add(btnLS, null);
 
-		btnLS = new io.github.tanguygab.logicsim3.LSButton("mirror", io.github.tanguygab.logicsim3.Lang.MIRROR);
+		btnLS = new LSButton("mirror", Lang.MIRROR);
 		btnLS.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				lspanel.mirrorSelected();
@@ -624,40 +624,40 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 
 		btnBar.add(getMenuGap());
 
-		btnLS = new io.github.tanguygab.logicsim3.LSButton("inputnorm", io.github.tanguygab.logicsim3.Lang.INPUTNORM);
+		btnLS = new LSButton("inputnorm", Lang.INPUTNORM);
 		btnLS.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				lspanel.setAction(io.github.tanguygab.logicsim3.Pin.NORMAL);
-				setStatusText(io.github.tanguygab.logicsim3.I18N.tr(io.github.tanguygab.logicsim3.Lang.INPUTNORM_HELP));
+				lspanel.setAction(Pin.NORMAL);
+				setStatusText(I18N.tr(Lang.INPUTNORM_HELP));
 				lspanel.requestFocusInWindow();
 			}
 		});
 		btnBar.add(btnLS, null);
 
-		btnLS = new io.github.tanguygab.logicsim3.LSButton("inputinv", io.github.tanguygab.logicsim3.Lang.INPUTINV);
+		btnLS = new LSButton("inputinv", Lang.INPUTINV);
 		btnLS.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				lspanel.setAction(io.github.tanguygab.logicsim3.Pin.INVERTED);
-				setStatusText(io.github.tanguygab.logicsim3.I18N.tr(io.github.tanguygab.logicsim3.Lang.INPUTINV_HELP));
+				lspanel.setAction(Pin.INVERTED);
+				setStatusText(I18N.tr(Lang.INPUTINV_HELP));
 				lspanel.requestFocusInWindow();
 			}
 		});
 		btnBar.add(btnLS, null);
 
-		btnLS = new io.github.tanguygab.logicsim3.LSButton("inputhigh", io.github.tanguygab.logicsim3.Lang.INPUTHIGH);
+		btnLS = new LSButton("inputhigh", Lang.INPUTHIGH);
 		btnLS.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				lspanel.setAction(io.github.tanguygab.logicsim3.Pin.HIGH);
-				setStatusText(io.github.tanguygab.logicsim3.I18N.tr(io.github.tanguygab.logicsim3.Lang.INPUTHIGH_HELP));
+				lspanel.setAction(Pin.HIGH);
+				setStatusText(I18N.tr(Lang.INPUTHIGH_HELP));
 			}
 		});
 		btnBar.add(btnLS, null);
 
-		btnLS = new io.github.tanguygab.logicsim3.LSButton("inputlow", io.github.tanguygab.logicsim3.Lang.INPUTLOW);
+		btnLS = new LSButton("inputlow", Lang.INPUTLOW);
 		btnLS.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				lspanel.setAction(Pin.LOW);
-				setStatusText(io.github.tanguygab.logicsim3.I18N.tr(io.github.tanguygab.logicsim3.Lang.INPUTLOW_HELP));
+				setStatusText(I18N.tr(Lang.INPUTLOW_HELP));
 				lspanel.requestFocusInWindow();
 			}
 		});
@@ -665,32 +665,32 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 
 		btnBar.add(getMenuGap());
 
-		btnLS = new io.github.tanguygab.logicsim3.LSButton("newwire", io.github.tanguygab.logicsim3.Lang.WIRENEW);
-		btnLS.setEnabled(getMenuWidget(io.github.tanguygab.logicsim3.Lang.WIRENEW).isEnabled());
+		btnLS = new LSButton("newwire", Lang.WIRENEW);
+		btnLS.setEnabled(getMenuWidget(Lang.WIRENEW).isEnabled());
 		btnLS.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				lspanel.setAction(io.github.tanguygab.logicsim3.LSPanel.ACTION_ADDWIRE);
-				setStatusText(io.github.tanguygab.logicsim3.I18N.tr(io.github.tanguygab.logicsim3.Lang.WIRENEW_HELP));
+				lspanel.setAction(LSPanel.ACTION_ADDWIRE);
+				setStatusText(I18N.tr(Lang.WIRENEW_HELP));
 				lspanel.requestFocusInWindow();
 			}
 		});
 		btnBar.add(btnLS, null);
 
-		btnLS = new io.github.tanguygab.logicsim3.LSButton("addpoint", io.github.tanguygab.logicsim3.Lang.ADDPOINT);
+		btnLS = new LSButton("addpoint", Lang.ADDPOINT);
 		btnLS.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				lspanel.setAction(io.github.tanguygab.logicsim3.LSPanel.ACTION_ADDPOINT);
-				setStatusText(io.github.tanguygab.logicsim3.I18N.tr(io.github.tanguygab.logicsim3.Lang.ADDPOINT_HELP));
+				lspanel.setAction(LSPanel.ACTION_ADDPOINT);
+				setStatusText(I18N.tr(Lang.ADDPOINT_HELP));
 				lspanel.requestFocusInWindow();
 			}
 		});
 		btnBar.add(btnLS, null);
 
-		btnLS = new LSButton("delpoint", io.github.tanguygab.logicsim3.Lang.REMOVEPOINT);
+		btnLS = new LSButton("delpoint", Lang.REMOVEPOINT);
 		btnLS.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				lspanel.setAction(io.github.tanguygab.logicsim3.LSPanel.ACTION_DELPOINT);
-				setStatusText(io.github.tanguygab.logicsim3.I18N.tr(io.github.tanguygab.logicsim3.Lang.REMOVEPOINT_HELP));
+				lspanel.setAction(LSPanel.ACTION_DELPOINT);
+				setStatusText(I18N.tr(Lang.REMOVEPOINT_HELP));
 				lspanel.requestFocusInWindow();
 			}
 		});
@@ -701,10 +701,10 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 		// ------------------------------------------------------------------
 		// Create the popup menu.
 		popup = new JPopupMenu();
-		menuItem_remove = new JMenuItem(io.github.tanguygab.logicsim3.I18N.tr(io.github.tanguygab.logicsim3.Lang.REMOVEGATE));
+		menuItem_remove = new JMenuItem(I18N.tr(Lang.REMOVEGATE));
 		menuItem_remove.addActionListener(this);
 		popup.add(menuItem_remove);
-		menuItem_properties = new JMenuItem(io.github.tanguygab.logicsim3.I18N.tr(io.github.tanguygab.logicsim3.Lang.PROPERTIES));
+		menuItem_properties = new JMenuItem(I18N.tr(Lang.PROPERTIES));
 		menuItem_properties.addActionListener(this);
 		popup.add(menuItem_properties);
 		// Add listener to components that can bring up popup menus.
@@ -716,8 +716,8 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 		lspanel.requestFocusInWindow();
 	}
 
-	private JMenuItem createMenuItem(io.github.tanguygab.logicsim3.Lang lang, int key, boolean isDialog) {
-		JMenuItem m = new JMenuItem(io.github.tanguygab.logicsim3.I18N.tr(lang) + (isDialog ? "..." : ""));
+	private JMenuItem createMenuItem(Lang lang, int key, boolean isDialog) {
+		JMenuItem m = new JMenuItem(I18N.tr(lang) + (isDialog ? "..." : ""));
 		if (key != 0)
 			m.setAccelerator(KeyStroke.getKeyStroke(key, InputEvent.CTRL_DOWN_MASK, false));
 		m.setName(lang.toString());
@@ -729,7 +729,7 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 	}
 
 	private Component getMenuGap() {
-		int is = io.github.tanguygab.logicsim3.LSProperties.getInstance().getPropertyInteger("iconsize", 48);
+		int is = LSProperties.getInstance().getPropertyInteger("iconsize", 48);
 		return Box.createHorizontalStrut(is / 2);
 	}
 
@@ -743,7 +743,7 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 			lspanel.repaint();
 		} else if (source == menuItem_properties) {
 			if (popupGateIdx >= 0) {
-				io.github.tanguygab.logicsim3.Gate g = (io.github.tanguygab.logicsim3.Gate) lspanel.circuit.parts.get(popupGateIdx);
+				Gate g = (Gate) lspanel.circuit.getParts().get(popupGateIdx);
 				g.showPropertiesUI(this);
 				lspanel.repaint();
 			}
@@ -762,10 +762,10 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 		private void maybeShowPopup(MouseEvent e) {
 			if (e.isPopupTrigger()) {
 				if (e.getSource() == lspanel) {
-					for (int i = 0; i < lspanel.circuit.parts.size(); i++) {
-						io.github.tanguygab.logicsim3.CircuitPart part = lspanel.circuit.parts.get(i);
-						if (part instanceof io.github.tanguygab.logicsim3.Gate) {
-							io.github.tanguygab.logicsim3.Gate g = (io.github.tanguygab.logicsim3.Gate) part;
+					for (int i = 0; i < lspanel.circuit.getParts().size(); i++) {
+						CircuitPart part = lspanel.circuit.getParts().get(i);
+						if (part instanceof Gate) {
+							Gate g = (Gate) part;
 							if (g.insideFrame(e.getX(), e.getY())) {
 								popupGateIdx = i;
 								menuItem_properties.setEnabled(g.hasPropertiesUI());
@@ -780,26 +780,26 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 	}
 
 	void actionSimulate(ActionEvent e) {
-		io.github.tanguygab.logicsim3.LSToggleButton btn = (io.github.tanguygab.logicsim3.LSToggleButton) e.getSource();
+		LSToggleButton btn = (LSToggleButton) e.getSource();
 
 		if (btn.isSelected()) {
-			if (!io.github.tanguygab.logicsim3.Simulation.getInstance().isRunning()) {
+			if (!Simulation.getInstance().isRunning()) {
 				lspanel.circuit.deselectAll();
 				repaint();
-				io.github.tanguygab.logicsim3.Simulation.getInstance().start();
-				changedStatusText(io.github.tanguygab.logicsim3.I18N.tr(io.github.tanguygab.logicsim3.Lang.SIMULATION_STARTED));
+				Simulation.getInstance().start();
+				changedStatusText(I18N.tr(Lang.SIMULATION_STARTED));
 			}
 		} else {
-			if (io.github.tanguygab.logicsim3.Simulation.getInstance().isRunning()) {
-				io.github.tanguygab.logicsim3.Simulation.getInstance().stop();
-				changedStatusText(io.github.tanguygab.logicsim3.I18N.tr(io.github.tanguygab.logicsim3.Lang.SIMULATION_STOPPED));
+			if (Simulation.getInstance().isRunning()) {
+				Simulation.getInstance().stop();
+				changedStatusText(I18N.tr(Lang.SIMULATION_STOPPED));
 			}
 		}
 	}
 
 	boolean showDiscardDialog(String title) {
 		if (lsFile.changed) {
-			int result = io.github.tanguygab.logicsim3.Dialogs.confirmDiscardDialog(this);
+			int result = Dialogs.confirmDiscardDialog(this);
 			return (result == JOptionPane.YES_OPTION);
 		}
 		return true;
@@ -811,9 +811,9 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 	 * @param e
 	 */
 	void actionNew(ActionEvent e) {
-		if (showDiscardDialog(io.github.tanguygab.logicsim3.I18N.tr(io.github.tanguygab.logicsim3.Lang.NEW)) == false)
+		if (showDiscardDialog(I18N.tr(Lang.NEW)) == false)
 			return;
-		lsFile = new io.github.tanguygab.logicsim3.LogicSimFile(defaultCircuitFileName());
+		lsFile = new LogicSimFile(defaultCircuitFileName());
 		lsFile.circuit.setRepaintListener(lspanel);
 		setAppTitle();
 		lspanel.clear();
@@ -825,10 +825,10 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 	 * @param e
 	 */
 	void actionOpen(ActionEvent e) {
-		if (io.github.tanguygab.logicsim3.Simulation.getInstance().isRunning())
-			io.github.tanguygab.logicsim3.Simulation.getInstance().stop();
+		if (Simulation.getInstance().isRunning())
+			Simulation.getInstance().stop();
 
-		if (showDiscardDialog(io.github.tanguygab.logicsim3.I18N.tr(io.github.tanguygab.logicsim3.Lang.OPEN)) == false)
+		if (showDiscardDialog(I18N.tr(Lang.OPEN)) == false)
 			return;
 
 		File file = new File(lsFile.fileName);
@@ -844,10 +844,10 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 		} catch (RuntimeException x) {
 			System.err.println(x);
 			x.printStackTrace(System.err);
-			io.github.tanguygab.logicsim3.Dialogs.messageDialog(this, io.github.tanguygab.logicsim3.I18N.tr(io.github.tanguygab.logicsim3.Lang.READERROR) + " " + x.getMessage());
+			Dialogs.messageDialog(this, I18N.tr(Lang.READERROR) + " " + x.getMessage());
 		}
 		if (lsFile.getErrorString() != null) {
-			io.github.tanguygab.logicsim3.Dialogs.messageDialog(this, lsFile.getErrorString());
+			Dialogs.messageDialog(this, lsFile.getErrorString());
 		}
 		setAppTitle();
 		lspanel.clear();
@@ -862,11 +862,11 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 	 * @return
 	 */
 	private FileFilter setupFilter() {
-		io.github.tanguygab.logicsim3.LogicSimFileFilter filter = new io.github.tanguygab.logicsim3.LogicSimFileFilter();
-		filter.addExtension(io.github.tanguygab.logicsim3.App.CIRCUIT_FILE_SUFFIX);
-		filter.addExtension(io.github.tanguygab.logicsim3.App.MODULE_FILE_SUFFIX);
+		LogicSimFileFilter filter = new LogicSimFileFilter();
+		filter.addExtension(App.CIRCUIT_FILE_SUFFIX);
+		filter.addExtension(App.MODULE_FILE_SUFFIX);
 		filter.setDescription(
-				"LogicSim Files (" + "." + io.github.tanguygab.logicsim3.App.CIRCUIT_FILE_SUFFIX + ", " + "." + io.github.tanguygab.logicsim3.App.MODULE_FILE_SUFFIX + ")");
+				"LogicSim Files (" + "." + App.CIRCUIT_FILE_SUFFIX + ", " + "." + App.MODULE_FILE_SUFFIX + ")");
 		return filter;
 	}
 
@@ -889,7 +889,7 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 	void actionSave(ActionEvent e, boolean saveAs) {
 		String fileName = lsFile.fileName;
 		boolean unnamed = false;
-		if (lsFile.extractFileName().equals(io.github.tanguygab.logicsim3.I18N.tr(io.github.tanguygab.logicsim3.Lang.UNNAMED))) {
+		if (lsFile.extractFileName().equals(I18N.tr(Lang.UNNAMED))) {
 			unnamed = true;
 		}
 		boolean showDialog = fileName == null || fileName.length() == 0;
@@ -905,11 +905,11 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 		} catch (RuntimeException err) {
 			System.err.println(err);
 			err.printStackTrace(System.err);
-			io.github.tanguygab.logicsim3.Dialogs.messageDialog(this, io.github.tanguygab.logicsim3.I18N.tr(io.github.tanguygab.logicsim3.Lang.SAVEERROR) + " " + err.getMessage());
+			Dialogs.messageDialog(this, I18N.tr(Lang.SAVEERROR) + " " + err.getMessage());
 		}
 
 		setAppTitle();
-		setStatusText(String.format(io.github.tanguygab.logicsim3.I18N.tr(io.github.tanguygab.logicsim3.Lang.SAVED), lsFile.fileName));
+		setStatusText(String.format(I18N.tr(Lang.SAVED), lsFile.fileName));
 		lsFile.changed = false;
 		fillGateList();
 	}
@@ -924,11 +924,11 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 		String parentDirName = file.getParent();
 
 		JFileChooser chooser = new JFileChooser(parentDirName);
-		chooser.setDialogTitle(io.github.tanguygab.logicsim3.I18N.tr(io.github.tanguygab.logicsim3.Lang.SAVECIRCUIT));
+		chooser.setDialogTitle(I18N.tr(Lang.SAVECIRCUIT));
 
-		String s = "LogicSim Files (" + "." + io.github.tanguygab.logicsim3.App.CIRCUIT_FILE_SUFFIX + ", " + "." + io.github.tanguygab.logicsim3.App.MODULE_FILE_SUFFIX + ")";
-		FileNameExtensionFilter filter = new FileNameExtensionFilter(s, io.github.tanguygab.logicsim3.App.CIRCUIT_FILE_SUFFIX,
-				io.github.tanguygab.logicsim3.App.MODULE_FILE_SUFFIX);
+		String s = "LogicSim Files (" + "." + App.CIRCUIT_FILE_SUFFIX + ", " + "." + App.MODULE_FILE_SUFFIX + ")";
+		FileNameExtensionFilter filter = new FileNameExtensionFilter(s, App.CIRCUIT_FILE_SUFFIX,
+				App.MODULE_FILE_SUFFIX);
 		chooser.setFileFilter(filter);
 
 		if (chooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
@@ -939,9 +939,9 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 			if (lastDot < lastSeparator) {
 				// ending is missing
 				if (lsFile.circuit.isModule())
-					lsFile.fileName += "." + io.github.tanguygab.logicsim3.App.MODULE_FILE_SUFFIX;
+					lsFile.fileName += "." + App.MODULE_FILE_SUFFIX;
 				else
-					lsFile.fileName += "." + io.github.tanguygab.logicsim3.App.CIRCUIT_FILE_SUFFIX;
+					lsFile.fileName += "." + App.CIRCUIT_FILE_SUFFIX;
 			}
 			return true;
 		} else
@@ -955,15 +955,15 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 	 */
 	void actionCreateModule(ActionEvent e) {
 		if (lsFile.circuit.isModule()) {
-			io.github.tanguygab.logicsim3.Dialogs.messageDialog(this, io.github.tanguygab.logicsim3.I18N.tr(io.github.tanguygab.logicsim3.Lang.ALREADYMODULE));
+			Dialogs.messageDialog(this, I18N.tr(Lang.ALREADYMODULE));
 			return;
 		}
 
 		if (!lsFile.circuit.isEmpty()) {
 			String filename = lsFile.extractFileName();
-			String fn = io.github.tanguygab.logicsim3.App.getModulePath();
+			String fn = App.getModulePath();
 			fn += filename;
-			fn += "." + io.github.tanguygab.logicsim3.App.MODULE_FILE_SUFFIX;
+			fn += "." + App.MODULE_FILE_SUFFIX;
 			lsFile.fileName = fn;
 			lsFile.changed = true;
 		} else {
@@ -976,7 +976,7 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 
 		setAppTitle();
 
-		io.github.tanguygab.logicsim3.Gate g = new MODIN();
+		Gate g = new MODIN();
 		g.moveTo(150, 100);
 		g.loadProperties();
 		lsFile.circuit.addGate(g);
@@ -995,12 +995,12 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 	void exportImage() {
 		String filename = "logicsim.png";
 		JFileChooser chooser = new JFileChooser();
-		io.github.tanguygab.logicsim3.LogicSimFileFilter filter = new LogicSimFileFilter();
+		LogicSimFileFilter filter = new LogicSimFileFilter();
 		filter.addExtension(".png");
 		filter.setDescription("Portable Network Graphics");
 		chooser.setFileFilter(filter);
 
-		chooser.setDialogTitle(io.github.tanguygab.logicsim3.I18N.tr(io.github.tanguygab.logicsim3.Lang.SAVECIRCUIT));
+		chooser.setDialogTitle(I18N.tr(Lang.SAVECIRCUIT));
 		if (chooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
 			filename = chooser.getSelectedFile().getAbsolutePath();
 			if (!filename.endsWith(".png")) {
@@ -1027,14 +1027,11 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 	void fillGateList() {
 		partListModel.clear();
 		for (Category cat : App.cats) {
-			if ("hidden".equals(cat.title))
-				continue;
-			if (cat.getGates().size() == 0)
-				continue;
-			partListModel.addElement(cat.title);
-			for (io.github.tanguygab.logicsim3.Gate g : cat.getGates()) {
-				partListModel.addElement(g);
-			}
+			if ("hidden".equals(cat.getTitle())) continue;
+			if (cat.getGates().isEmpty()) continue;
+			partListModel.addElement(cat.getTitle());
+
+			for (Gate g : cat.getGates()) partListModel.addElement(g);
 		}
 	}
 
@@ -1053,14 +1050,14 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 		int numInputs = Integer.parseInt(cbNumInputs.getSelectedItem().toString().substring(0, 1));
 
 		Object o = lstParts.getSelectedValue();
-		if (!(o instanceof io.github.tanguygab.logicsim3.Gate))
+		if (!(o instanceof Gate))
 			return;
 
-		io.github.tanguygab.logicsim3.Gate gate = (io.github.tanguygab.logicsim3.Gate) o;
+		Gate gate = (Gate) o;
 		// gate is normal gate or module
 		gate = GateLoaderHelper.create((Gate) o);
-		if (gate instanceof io.github.tanguygab.logicsim3.Module) {
-			io.github.tanguygab.logicsim3.Module m = (Module) gate;
+		if (gate instanceof Module) {
+			Module m = (Module) gate;
 			lspanel.setAction(m);
 			if (m.lsFile.getDescription() != null)
 				setStatusText(m.lsFile.getDescription());
@@ -1075,10 +1072,10 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 
 			if (gate.type.contains("test"))
 				setStatusText(gate.type);
-			else if (io.github.tanguygab.logicsim3.I18N.hasString(gate.type, "description")) {
-				setStatusText(io.github.tanguygab.logicsim3.I18N.getString(gate.type, "description"));
+			else if (I18N.hasString(gate.type, "description")) {
+				setStatusText(I18N.getString(gate.type, "description"));
 			} else {
-				setStatusText(io.github.tanguygab.logicsim3.I18N.getString(gate.type, "title"));
+				setStatusText(I18N.getString(gate.type, "title"));
 			}
 			lspanel.requestFocusInWindow();
 		}
@@ -1093,18 +1090,18 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 	void actionGateDesign(ActionEvent e) {
 		String gatedesign = null;
 		JRadioButtonMenuItem src = (JRadioButtonMenuItem) e.getSource();
-		if (src.getText().equals(io.github.tanguygab.logicsim3.I18N.tr(io.github.tanguygab.logicsim3.Lang.GATEDESIGN_IEC))) {
+		if (src.getText().equals(I18N.tr(Lang.GATEDESIGN_IEC))) {
 			if (src.isSelected())
-				gatedesign = io.github.tanguygab.logicsim3.LSProperties.GATEDESIGN_IEC;
+				gatedesign = LSProperties.GATEDESIGN_IEC;
 			else
-				gatedesign = io.github.tanguygab.logicsim3.LSProperties.GATEDESIGN_ANSI;
+				gatedesign = LSProperties.GATEDESIGN_ANSI;
 		} else {
 			if (src.isSelected())
-				gatedesign = io.github.tanguygab.logicsim3.LSProperties.GATEDESIGN_ANSI;
+				gatedesign = LSProperties.GATEDESIGN_ANSI;
 			else
-				gatedesign = io.github.tanguygab.logicsim3.LSProperties.GATEDESIGN_IEC;
+				gatedesign = LSProperties.GATEDESIGN_IEC;
 		}
-		io.github.tanguygab.logicsim3.LSProperties.getInstance().setProperty(io.github.tanguygab.logicsim3.LSProperties.GATEDESIGN, gatedesign);
+		LSProperties.getInstance().setProperty(LSProperties.GATEDESIGN, gatedesign);
 		this.lspanel.repaint();
 	}
 
@@ -1116,20 +1113,20 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 	private void actionColorMode(ActionEvent e) {
 		String mode = null;
 		JRadioButtonMenuItem src = (JRadioButtonMenuItem) e.getSource();
-		if (src.getText().equals(io.github.tanguygab.logicsim3.I18N.tr(io.github.tanguygab.logicsim3.Lang.COLORMODE_ON))) {
+		if (src.getText().equals(I18N.tr(Lang.COLORMODE_ON))) {
 			if (src.isSelected())
-				mode = io.github.tanguygab.logicsim3.LSProperties.COLORMODE_ON;
+				mode = LSProperties.COLORMODE_ON;
 			else
-				mode = io.github.tanguygab.logicsim3.LSProperties.COLORMODE_OFF;
+				mode = LSProperties.COLORMODE_OFF;
 		} else {
 			// the expert item is clicked
 			if (src.isSelected()) {
-				mode = io.github.tanguygab.logicsim3.LSProperties.COLORMODE_OFF;
+				mode = LSProperties.COLORMODE_OFF;
 			} else {
-				mode = io.github.tanguygab.logicsim3.LSProperties.COLORMODE_ON;
+				mode = LSProperties.COLORMODE_ON;
 			}
 		}
-		io.github.tanguygab.logicsim3.LSProperties.getInstance().setProperty(io.github.tanguygab.logicsim3.LSProperties.COLORMODE, mode);
+		LSProperties.getInstance().setProperty(LSProperties.COLORMODE, mode);
 
 		Wire.setColorMode();
 
@@ -1144,24 +1141,24 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 	void actionMode(ActionEvent e) {
 		String mode = null;
 		JRadioButtonMenuItem src = (JRadioButtonMenuItem) e.getSource();
-		if (src.getText().equals(io.github.tanguygab.logicsim3.I18N.tr(io.github.tanguygab.logicsim3.Lang.NORMAL))) {
+		if (src.getText().equals(I18N.tr(Lang.NORMAL))) {
 			if (src.isSelected())
-				mode = io.github.tanguygab.logicsim3.LSProperties.MODE_NORMAL;
+				mode = LSProperties.MODE_NORMAL;
 			else
-				mode = io.github.tanguygab.logicsim3.LSProperties.MODE_EXPERT;
+				mode = LSProperties.MODE_EXPERT;
 		} else {
 			// the expert item is clicked
 			if (src.isSelected()) {
-				mode = io.github.tanguygab.logicsim3.LSProperties.MODE_EXPERT;
+				mode = LSProperties.MODE_EXPERT;
 			} else {
-				mode = io.github.tanguygab.logicsim3.LSProperties.MODE_NORMAL;
+				mode = LSProperties.MODE_NORMAL;
 			}
 		}
-		io.github.tanguygab.logicsim3.LSProperties.getInstance().setProperty(io.github.tanguygab.logicsim3.LSProperties.MODE, mode);
+		LSProperties.getInstance().setProperty(LSProperties.MODE, mode);
 
 		// activate widgets
-		getMenuWidget(io.github.tanguygab.logicsim3.Lang.WIRENEW).setEnabled(io.github.tanguygab.logicsim3.LSProperties.MODE_EXPERT.equals(mode));
-		getButtonWidget(io.github.tanguygab.logicsim3.Lang.WIRENEW).setEnabled(io.github.tanguygab.logicsim3.LSProperties.MODE_EXPERT.equals(mode));
+		getMenuWidget(Lang.WIRENEW).setEnabled(LSProperties.MODE_EXPERT.equals(mode));
+		getButtonWidget(Lang.WIRENEW).setEnabled(LSProperties.MODE_EXPERT.equals(mode));
 
 		this.lspanel.repaint();
 	}
@@ -1174,7 +1171,7 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 	 * @param lang
 	 * @return
 	 */
-	private AbstractButton getMenuWidget(io.github.tanguygab.logicsim3.Lang lang) {
+	private AbstractButton getMenuWidget(Lang lang) {
 		for (int i = 0; i < mnuBar.getMenuCount(); i++) {
 			JMenu mnu = mnuBar.getMenu(i);
 			for (Component c : mnu.getMenuComponents()) {
@@ -1193,7 +1190,7 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 	 * @param lang
 	 * @return
 	 */
-	private AbstractButton getButtonWidget(io.github.tanguygab.logicsim3.Lang lang) {
+	private AbstractButton getButtonWidget(Lang lang) {
 		for (Component c : btnBar.getComponents()) {
 			if (lang.toString().equals(c.getName()))
 				return (AbstractButton) c;
@@ -1208,7 +1205,7 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 	 * @param currentLanguage
 	 */
 	void createLanguageMenu(JMenu menu, String currentLanguage) {
-		List<String> langs = io.github.tanguygab.logicsim3.I18N.getLanguages();
+		List<String> langs = I18N.getLanguages();
 		ButtonGroup btnGroup = new ButtonGroup();
 		for (String lang : langs) {
 			JMenuItem item = new JRadioButtonMenuItem(lang);
@@ -1216,9 +1213,9 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 				item.setSelected(true);
 			item.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					io.github.tanguygab.logicsim3.LSProperties.getInstance().setProperty(LSProperties.LANGUAGE,
+					LSProperties.getInstance().setProperty(LSProperties.LANGUAGE,
 							((JMenuItem) e.getSource()).getText());
-					Dialogs.messageDialog(io.github.tanguygab.logicsim3.LSFrame.this, io.github.tanguygab.logicsim3.I18N.tr(io.github.tanguygab.logicsim3.Lang.LSRESTART));
+					Dialogs.messageDialog(LSFrame.this, I18N.tr(Lang.LSRESTART));
 				}
 			});
 			btnGroup.add(item);
@@ -1237,11 +1234,11 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 	@Override
 	public void changedStatusText(String text) {
 		// this is a hack - maybe it is ok...
-		if (io.github.tanguygab.logicsim3.LSPanel.NOTHING.equals(text)) {
+		if (LSPanel.NOTHING.equals(text)) {
 			for (Component c : btnBar.getComponents()) {
-				if (c instanceof io.github.tanguygab.logicsim3.LSToggleButton) {
-					io.github.tanguygab.logicsim3.LSToggleButton b = (io.github.tanguygab.logicsim3.LSToggleButton) c;
-					if (!b.id.equals(io.github.tanguygab.logicsim3.I18N.langToStr(io.github.tanguygab.logicsim3.Lang.SIMULATE)))
+				if (c instanceof LSToggleButton) {
+					LSToggleButton b = (LSToggleButton) c;
+					if (!b.id.equals(I18N.langToStr(Lang.SIMULATE)))
 						b.setSelected(false);
 				}
 			}
@@ -1249,8 +1246,8 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 		}
 		if (LSPanel.MSG_ABORTED.equals(text)) {
 			for (Component c : btnBar.getComponents()) {
-				if (c instanceof io.github.tanguygab.logicsim3.LSToggleButton) {
-					io.github.tanguygab.logicsim3.LSToggleButton b = (LSToggleButton) c;
+				if (c instanceof LSToggleButton) {
+					LSToggleButton b = (LSToggleButton) c;
 					b.setSelected(false);
 				}
 			}

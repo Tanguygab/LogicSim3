@@ -28,7 +28,7 @@ import java.awt.print.PrinterJob;
 
 import javax.swing.event.MouseInputAdapter;
 
-public class LSPanel extends Viewer implements Printable, io.github.tanguygab.logicsim3.CircuitChangedListener, LSRepaintListener {
+public class LSPanel extends Viewer implements Printable, CircuitChangedListener, LSRepaintListener {
 	public class LogicSimPainterGraphics implements Painter {
 		@Override
 		public void paint(Graphics2D g2, AffineTransform at, int w, int h) {
@@ -37,9 +37,9 @@ public class LSPanel extends Viewer implements Printable, io.github.tanguygab.lo
 			g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
 			g2.transform(at);
-			if (io.github.tanguygab.logicsim3.LSProperties.getInstance().getPropertyBoolean(io.github.tanguygab.logicsim3.LSProperties.PAINTGRID, true) && scaleX > 0.7f) {
-				int startX = io.github.tanguygab.logicsim3.CircuitPart.round((int) Math.round(getTransformer().screenToWorldX(0)));
-				int startY = io.github.tanguygab.logicsim3.CircuitPart.round((int) Math.round(getTransformer().screenToWorldY(0)));
+			if (LSProperties.getInstance().getPropertyBoolean(LSProperties.PAINTGRID, true) && scaleX > 0.7f) {
+				int startX = CircuitPart.round((int) Math.round(getTransformer().screenToWorldX(0)));
+				int startY = CircuitPart.round((int) Math.round(getTransformer().screenToWorldY(0)));
 				int endX = (int) getTransformer().screenToWorldX(w + 9);
 				int endY = (int) getTransformer().screenToWorldY(h + 9);
 				g2.setColor(gridColor);
@@ -57,7 +57,7 @@ public class LSPanel extends Viewer implements Printable, io.github.tanguygab.lo
 			draw(g2);
 
 			// redraw selected parts so that there are in the foreground
-			for (io.github.tanguygab.logicsim3.CircuitPart part : circuit.getSelected()) {
+			for (CircuitPart part : circuit.getSelected()) {
 				part.draw(g2);
 			}
 
@@ -91,7 +91,7 @@ public class LSPanel extends Viewer implements Printable, io.github.tanguygab.lo
 				return;
 			}
 
-			io.github.tanguygab.logicsim3.CircuitPart[] parts = circuit.getSelected();
+			CircuitPart[] parts = circuit.getSelected();
 			if (parts.length == 0) {
 				// drag world
 				int dx = e.getX() - previousPoint.x;
@@ -100,35 +100,35 @@ public class LSPanel extends Viewer implements Printable, io.github.tanguygab.lo
 				return;
 			} else {
 				// don't drag in simulation mode
-				if (io.github.tanguygab.logicsim3.Simulation.getInstance().isRunning())
+				if (Simulation.getInstance().isRunning())
 					return;
 
 				// drag parts
 				notifyZoomPos(scaleX, new Point(e.getX(), e.getY()));
-				for (io.github.tanguygab.logicsim3.CircuitPart part : parts) {
+				for (CircuitPart part : parts) {
 					part.mouseDragged(e);
 
-					if (io.github.tanguygab.logicsim3.LSProperties.getInstance().getPropertyBoolean(io.github.tanguygab.logicsim3.LSProperties.AUTOWIRE, true)) {
+					if (LSProperties.getInstance().getPropertyBoolean(LSProperties.AUTOWIRE, true)) {
 						// check if currentpart is a gate and if any output touches another part's input
 						// pin
-						if (part instanceof io.github.tanguygab.logicsim3.Gate) {
-							io.github.tanguygab.logicsim3.Gate gate = (io.github.tanguygab.logicsim3.Gate) part;
-							for (io.github.tanguygab.logicsim3.Pin pin : gate.pins) {
+						if (part instanceof Gate) {
+							Gate gate = (Gate) part;
+							for (Pin pin : gate.pins) {
 								// autowire unconnected pins only
 								if (!pin.isConnected()) {
 									int x = pin.getX();
 									int y = pin.getY();
-									for (io.github.tanguygab.logicsim3.Gate g : circuit.getGates()) {
-										io.github.tanguygab.logicsim3.CircuitPart cp = g.findPartAt(x, y);
-										if (cp instanceof io.github.tanguygab.logicsim3.Pin) {
-											io.github.tanguygab.logicsim3.Pin p = (io.github.tanguygab.logicsim3.Pin) cp;
+									for (Gate g : circuit.getGates()) {
+										CircuitPart cp = g.findPartAt(x, y);
+										if (cp instanceof Pin) {
+											Pin p = (Pin) cp;
 											if (pin.isInput() == p.isOutput()) {
 												// put new wire between pin and p
-												io.github.tanguygab.logicsim3.Wire w = null;
+												Wire w = null;
 												if (pin.isOutput())
-													w = new io.github.tanguygab.logicsim3.Wire(pin, p);
+													w = new Wire(pin, p);
 												else
-													w = new io.github.tanguygab.logicsim3.Wire(p, pin);
+													w = new Wire(p, pin);
 												w.deselect();
 												if (circuit.addWire(w)) {
 													p.connect(w);
@@ -154,18 +154,18 @@ public class LSPanel extends Viewer implements Printable, io.github.tanguygab.lo
 		public void mouseMoved(MouseEvent e) {
 			e = convertToWorld(e);
 
-			int rx = io.github.tanguygab.logicsim3.CircuitPart.round(e.getX());
-			int ry = io.github.tanguygab.logicsim3.CircuitPart.round(e.getY());
+			int rx = CircuitPart.round(e.getX());
+			int ry = CircuitPart.round(e.getY());
 			setPoint(rx, ry);
 			notifyZoomPos(scaleX, new Point(rx, ry));
 
-			io.github.tanguygab.logicsim3.CircuitPart[] parts = circuit.getSelected();
-			if (parts.length == 1 && parts[0] instanceof io.github.tanguygab.logicsim3.Wire) {
-				io.github.tanguygab.logicsim3.Wire wire = (io.github.tanguygab.logicsim3.Wire) parts[0];
+			CircuitPart[] parts = circuit.getSelected();
+			if (parts.length == 1 && parts[0] instanceof Wire) {
+				Wire wire = (Wire) parts[0];
 				if (wire.isNotFinished()) {
 					if (e.isShiftDown()) {
 						// pressed SHIFT while moving and drawing wire
-						io.github.tanguygab.logicsim3.WirePoint wp = wire.getLastPoint();
+						WirePoint wp = wire.getLastPoint();
 						int lastx = wp.getX();
 						int lasty = wp.getY();
 						if (Math.abs(rx - lastx) < Math.abs(ry - lasty))
@@ -184,12 +184,12 @@ public class LSPanel extends Viewer implements Printable, io.github.tanguygab.lo
 		public void mousePressed(MouseEvent e) {
 			e = convertToWorld(e);
 			setPoint(e.getX(), e.getY());
-			int rx = io.github.tanguygab.logicsim3.CircuitPart.round(e.getX());
-			int ry = io.github.tanguygab.logicsim3.CircuitPart.round(e.getY());
+			int rx = CircuitPart.round(e.getX());
+			int ry = CircuitPart.round(e.getY());
 
 			boolean simRunning = Simulation.getInstance().isRunning();
-			boolean expertMode = io.github.tanguygab.logicsim3.LSProperties.MODE_EXPERT
-					.equals(io.github.tanguygab.logicsim3.LSProperties.getInstance().getProperty(io.github.tanguygab.logicsim3.LSProperties.MODE, LSProperties.MODE_NORMAL));
+			boolean expertMode = LSProperties.MODE_EXPERT
+					.equals(LSProperties.getInstance().getProperty(LSProperties.MODE, LSProperties.MODE_NORMAL));
 
 			if (simRunning) {
 				currentAction = ACTION_NONE;
@@ -200,50 +200,50 @@ public class LSPanel extends Viewer implements Printable, io.github.tanguygab.lo
 				selectRect = new Rectangle2D.Double(e.getX(), e.getY(), 0, 0);
 			}
 
-			io.github.tanguygab.logicsim3.CircuitPart[] parts = circuit.getSelected();
-			io.github.tanguygab.logicsim3.CircuitPart cp = circuit.findPartAt(e.getX(), e.getY());
+			CircuitPart[] parts = circuit.getSelected();
+			CircuitPart cp = circuit.findPartAt(e.getX(), e.getY());
 
-			if (currentAction == ACTION_DELPOINT && cp instanceof io.github.tanguygab.logicsim3.WirePoint && cp.parent instanceof io.github.tanguygab.logicsim3.Wire) {
-				cp.parent.mousePressed(new io.github.tanguygab.logicsim3.LSMouseEvent(e, ACTION_DELPOINT, null));
+			if (currentAction == ACTION_DELPOINT && cp instanceof WirePoint && cp.parent instanceof Wire) {
+				cp.parent.mousePressed(new LSMouseEvent(e, ACTION_DELPOINT, null));
 			}
 			// if (cp != null)
 			// System.out.println(cp.toStringAll());
-			if (!simRunning && cp instanceof io.github.tanguygab.logicsim3.Pin && !e.isAltDown() && currentAction == ACTION_NONE) {
+			if (!simRunning && cp instanceof Pin && !e.isAltDown() && currentAction == ACTION_NONE) {
 				// we start a new wire if the pin we clicked is an output OR
 				// if we are in expert mode
-				if (((io.github.tanguygab.logicsim3.Pin) cp).isOutput() || expertMode)
+				if (((Pin) cp).isOutput() || expertMode)
 					currentAction = ACTION_ADDWIRE;
 			}
 
 			if (currentAction == ACTION_ADDWIRE) {
-				io.github.tanguygab.logicsim3.WirePoint wp = null;
-				io.github.tanguygab.logicsim3.Wire newWire = null;
+				WirePoint wp = null;
+				Wire newWire = null;
 				if (cp == null) {
 					// empty space
-					wp = new io.github.tanguygab.logicsim3.WirePoint(rx, ry);
-				} else if (cp instanceof io.github.tanguygab.logicsim3.Wire) {
+					wp = new WirePoint(rx, ry);
+				} else if (cp instanceof Wire) {
 					// put a wirepoint at this position
-					io.github.tanguygab.logicsim3.Wire clickedWire = (io.github.tanguygab.logicsim3.Wire) cp;
+					Wire clickedWire = (Wire) cp;
 					int pt = clickedWire.isAt(e.getX(), e.getY());
 					clickedWire.insertPointAfter(pt, rx, ry);
 					cp = clickedWire.findPartAt(rx, ry);
-					wp = (io.github.tanguygab.logicsim3.WirePoint) cp;
-				} else if (cp instanceof io.github.tanguygab.logicsim3.WirePoint) {
-					wp = (io.github.tanguygab.logicsim3.WirePoint) cp;
-				} else if (cp instanceof io.github.tanguygab.logicsim3.Pin) {
-					io.github.tanguygab.logicsim3.Pin p = (io.github.tanguygab.logicsim3.Pin) cp;
-					newWire = new io.github.tanguygab.logicsim3.Wire(p, null);
+					wp = (WirePoint) cp;
+				} else if (cp instanceof WirePoint) {
+					wp = (WirePoint) cp;
+				} else if (cp instanceof Pin) {
+					Pin p = (Pin) cp;
+					newWire = new Wire(p, null);
 					if (circuit.addWire(newWire)) {
 						p.connect(newWire);
 					}
 				}
 				if (newWire == null) {
-					newWire = new io.github.tanguygab.logicsim3.Wire(wp, null);
+					newWire = new Wire(wp, null);
 					if (circuit.addWire(newWire)) {
 						wp.connect(newWire);
 					}
 				}
-				fireStatusText(io.github.tanguygab.logicsim3.I18N.tr(io.github.tanguygab.logicsim3.Lang.WIREEDIT));
+				fireStatusText(I18N.tr(Lang.WIREEDIT));
 				circuit.deselectAll();
 				newWire.select();
 				fireCircuitChanged();
@@ -252,12 +252,12 @@ public class LSPanel extends Viewer implements Printable, io.github.tanguygab.lo
 			}
 
 			if (currentAction == ACTION_EDITWIRE) {
-				io.github.tanguygab.logicsim3.Wire wire = circuit.getUnfinishedWire();
+				Wire wire = circuit.getUnfinishedWire();
 				if (cp == null) {
 					// empty space clicked
 					wire.addPoint(rx, ry);
-				} else if (cp instanceof io.github.tanguygab.logicsim3.Pin) {
-					io.github.tanguygab.logicsim3.Pin pin = ((io.github.tanguygab.logicsim3.Pin) cp);
+				} else if (cp instanceof Pin) {
+					Pin pin = ((Pin) cp);
 					if (!expertMode && pin.isOutput())
 						return;
 					wire.setTo(pin);
@@ -266,8 +266,8 @@ public class LSPanel extends Viewer implements Printable, io.github.tanguygab.lo
 					currentAction = ACTION_NONE;
 					fireStatusText(NOTHING);
 					fireCircuitChanged();
-				} else if (cp instanceof io.github.tanguygab.logicsim3.Wire) {
-					io.github.tanguygab.logicsim3.Wire clickedWire = (io.github.tanguygab.logicsim3.Wire) cp;
+				} else if (cp instanceof Wire) {
+					Wire clickedWire = (Wire) cp;
 					if (clickedWire.equals(wire))
 						return;
 					if (!expertMode)
@@ -281,17 +281,17 @@ public class LSPanel extends Viewer implements Printable, io.github.tanguygab.lo
 					currentAction = ACTION_NONE;
 					fireStatusText(NOTHING);
 					fireCircuitChanged();
-				} else if (cp instanceof io.github.tanguygab.logicsim3.WirePoint) {
-					io.github.tanguygab.logicsim3.WirePoint clickedWP = (io.github.tanguygab.logicsim3.WirePoint) cp;
+				} else if (cp instanceof WirePoint) {
+					WirePoint clickedWP = (WirePoint) cp;
 					// check if the clicked point belongs to another wire
 					if (clickedWP.parent.equals(wire)) {
 						// the clicked wirepoint belongs to the editing wire...
 						// so check if we clicked the last point of the wire to finish it
-						io.github.tanguygab.logicsim3.WirePoint lp = wire.getLastPoint();
+						WirePoint lp = wire.getLastPoint();
 						if (lp.getX() == rx && lp.getY() == ry) {
 							// it is the same point as the last one
 							wire.removeLastPoint();
-							wire.setTo(new io.github.tanguygab.logicsim3.WirePoint(rx, ry));
+							wire.setTo(new WirePoint(rx, ry));
 							wire.getTo().connect(wire);
 							wire.finish();
 							currentAction = ACTION_NONE;
@@ -325,16 +325,16 @@ public class LSPanel extends Viewer implements Printable, io.github.tanguygab.lo
 				return;
 			}
 			// check if the part is a connector
-			if (cp instanceof io.github.tanguygab.logicsim3.Pin && !e.isAltDown() && !simRunning) {
-				io.github.tanguygab.logicsim3.Pin pin = ((io.github.tanguygab.logicsim3.Pin) cp);
-				fireStatusText(io.github.tanguygab.logicsim3.I18N.tr(io.github.tanguygab.logicsim3.Lang.PIN) + " (" + cp.getId() + ")");
+			if (cp instanceof Pin && !e.isAltDown() && !simRunning) {
+				Pin pin = ((Pin) cp);
+				fireStatusText(I18N.tr(Lang.PIN) + " (" + cp.getId() + ")");
 				// modify input (inverted or high or low or revert to normal type)
 				if (pin.isInput()) {
-					if (currentAction == io.github.tanguygab.logicsim3.Pin.HIGH || currentAction == io.github.tanguygab.logicsim3.Pin.LOW || currentAction == io.github.tanguygab.logicsim3.Pin.INVERTED
-							|| currentAction == io.github.tanguygab.logicsim3.Pin.NORMAL) {
+					if (currentAction == Pin.HIGH || currentAction == Pin.LOW || currentAction == Pin.INVERTED
+							|| currentAction == Pin.NORMAL) {
 						// 1. if we clicked on an input modificator
 						pin.setLevelType(currentAction);
-						pin.changedLevel(new LSLevelEvent(new io.github.tanguygab.logicsim3.Wire(null, null), pin.level, true));
+						pin.changedLevel(new LSLevelEvent(new Wire(null, null), pin.level, true));
 						currentAction = ACTION_NONE;
 						fireStatusText(NOTHING);
 						fireCircuitChanged();
@@ -342,12 +342,12 @@ public class LSPanel extends Viewer implements Printable, io.github.tanguygab.lo
 					}
 				}
 			}
-			if (cp instanceof io.github.tanguygab.logicsim3.Gate) {
-				String type = ((io.github.tanguygab.logicsim3.Gate) cp).type;
+			if (cp instanceof Gate) {
+				String type = ((Gate) cp).type;
 				if (cp instanceof Module)
-					fireStatusText(io.github.tanguygab.logicsim3.I18N.tr(io.github.tanguygab.logicsim3.Lang.MODULE) + " (" + cp.getId() + ")");
+					fireStatusText(I18N.tr(Lang.MODULE) + " (" + cp.getId() + ")");
 				else
-					fireStatusText(io.github.tanguygab.logicsim3.I18N.getString(type, io.github.tanguygab.logicsim3.I18N.DESCRIPTION) + " (" + cp.getId() + ")");
+					fireStatusText(I18N.getString(type, I18N.DESCRIPTION) + " (" + cp.getId() + ")");
 
 				if (parts.length > 0 && !simRunning) {
 					// check if we clicked a new gate
@@ -359,17 +359,17 @@ public class LSPanel extends Viewer implements Printable, io.github.tanguygab.lo
 						parts = circuit.getSelected();
 					}
 				}
-			} else if (cp instanceof io.github.tanguygab.logicsim3.Wire && !simRunning) {
-				String s = cp.getProperty(io.github.tanguygab.logicsim3.CircuitPart.TEXT);
-				String desc = io.github.tanguygab.logicsim3.I18N.tr(io.github.tanguygab.logicsim3.Lang.WIRE);
+			} else if (cp instanceof Wire && !simRunning) {
+				String s = cp.getProperty(CircuitPart.TEXT);
+				String desc = I18N.tr(Lang.WIRE);
 				if (s != null)
 					desc += ": " + s;
 				desc += " (" + cp.getId() + ")";
 				fireStatusText(desc);
 				circuit.deselectAll();
 				cp.select();
-			} else if (cp instanceof io.github.tanguygab.logicsim3.WirePoint) {
-				fireStatusText(io.github.tanguygab.logicsim3.I18N.tr(io.github.tanguygab.logicsim3.Lang.WIREPOINT) + " (" + cp.getId() + ")");
+			} else if (cp instanceof WirePoint) {
+				fireStatusText(I18N.tr(Lang.WIREPOINT) + " (" + cp.getId() + ")");
 				circuit.deselectAll();
 				cp.select();
 			}
@@ -385,35 +385,35 @@ public class LSPanel extends Viewer implements Printable, io.github.tanguygab.lo
 			e = convertToWorld(e);
 			int x = e.getPoint().x;
 			int y = e.getPoint().y;
-			io.github.tanguygab.logicsim3.LSPanel.this.requestFocusInWindow();
+			LSPanel.this.requestFocusInWindow();
 
 			if (currentAction == ACTION_SELECT) {
-				io.github.tanguygab.logicsim3.CircuitPart[] parts = circuit.findParts(selectRect);
-				for (io.github.tanguygab.logicsim3.CircuitPart part : parts) {
-					if (part instanceof io.github.tanguygab.logicsim3.Wire) {
-						io.github.tanguygab.logicsim3.Wire w = (io.github.tanguygab.logicsim3.Wire) part;
-						if (w.getTo() instanceof io.github.tanguygab.logicsim3.WirePoint)
+				CircuitPart[] parts = circuit.findParts(selectRect);
+				for (CircuitPart part : parts) {
+					if (part instanceof Wire) {
+						Wire w = (Wire) part;
+						if (w.getTo() instanceof WirePoint)
 							w.getTo().select();
-						if (w.getFrom() instanceof io.github.tanguygab.logicsim3.WirePoint)
+						if (w.getFrom() instanceof WirePoint)
 							w.getFrom().select();
 					}
 				}
-				fireStatusText(String.format(io.github.tanguygab.logicsim3.I18N.tr(io.github.tanguygab.logicsim3.Lang.PARTSSELECTED), String.valueOf(parts.length)));
+				fireStatusText(String.format(I18N.tr(Lang.PARTSSELECTED), String.valueOf(parts.length)));
 				currentAction = ACTION_NONE;
 				fireStatusText(NOTHING);
 				selectRect = null;
 				repaint();
 				return;
 			}
-			io.github.tanguygab.logicsim3.CircuitPart[] parts = circuit.getSelected();
-			for (io.github.tanguygab.logicsim3.CircuitPart part : parts) {
+			CircuitPart[] parts = circuit.getSelected();
+			for (CircuitPart part : parts) {
 				part.mouseReleased(x, y);
-				if (part instanceof io.github.tanguygab.logicsim3.WirePoint && part.parent == null) {
-					io.github.tanguygab.logicsim3.WirePoint wp = (WirePoint) part;
+				if (part instanceof WirePoint && part.parent == null) {
+					WirePoint wp = (WirePoint) part;
 					circuit.checkWirePoint(wp);
 				}
 			}
-			io.github.tanguygab.logicsim3.CircuitPart cp = circuit.findPartAt(e.getX(), e.getY());
+			CircuitPart cp = circuit.findPartAt(e.getX(), e.getY());
 			if (cp != null)
 				cp.mouseReleased(x, y);
 		}
@@ -443,8 +443,8 @@ public class LSPanel extends Viewer implements Printable, io.github.tanguygab.lo
 
 	public static final String NOTHING = "NOTHING";
 
-	io.github.tanguygab.logicsim3.CircuitChangedListener changeListener;
-	public io.github.tanguygab.logicsim3.Circuit circuit = new Circuit();
+	CircuitChangedListener changeListener;
+	public Circuit circuit = new Circuit();
 
 	// current mode
 	private int currentAction;
@@ -527,11 +527,11 @@ public class LSPanel extends Viewer implements Printable, io.github.tanguygab.lo
 
 	public void draw(Graphics2D g2) {
 		// draw panels first
-		for (io.github.tanguygab.logicsim3.CircuitPart gate : circuit.getGates()) {
+		for (CircuitPart gate : circuit.getGates()) {
 			gate.draw(g2);
 		}
 		// then wires
-		for (io.github.tanguygab.logicsim3.CircuitPart wire : circuit.getWires()) {
+		for (CircuitPart wire : circuit.getWires()) {
 			wire.draw(g2);
 		}
 	}
@@ -540,10 +540,10 @@ public class LSPanel extends Viewer implements Printable, io.github.tanguygab.lo
 	 * mirror a part if selected
 	 */
 	public void mirrorSelected() {
-		io.github.tanguygab.logicsim3.CircuitPart[] parts = circuit.getSelected();
-		for (io.github.tanguygab.logicsim3.CircuitPart part : parts) {
-			if (part instanceof io.github.tanguygab.logicsim3.Gate) {
-				((io.github.tanguygab.logicsim3.Gate) part).mirror();
+		CircuitPart[] parts = circuit.getSelected();
+		for (CircuitPart part : parts) {
+			if (part instanceof Gate) {
+				((Gate) part).mirror();
 			}
 		}
 		repaint();
@@ -557,13 +557,13 @@ public class LSPanel extends Viewer implements Printable, io.github.tanguygab.lo
 	protected void myKeyPressed(KeyEvent e) {
 		int keyCode = e.getKeyCode();
 
-		io.github.tanguygab.logicsim3.CircuitPart[] parts = circuit.getSelected();
+		CircuitPart[] parts = circuit.getSelected();
 		if (parts.length == 0)
 			return;
 
 		if (keyCode == KeyEvent.VK_ESCAPE) {
 			if (currentAction == ACTION_EDITWIRE) {
-				io.github.tanguygab.logicsim3.Wire w = (Wire) parts[0];
+				Wire w = (Wire) parts[0];
 				int pointsOfWire = w.removeLastPoint();
 				if (pointsOfWire == 0) {
 					currentAction = ACTION_NONE;
@@ -597,7 +597,7 @@ public class LSPanel extends Viewer implements Printable, io.github.tanguygab.lo
 				dx -= 10;
 			else
 				dx += 10;
-			for (io.github.tanguygab.logicsim3.CircuitPart part : parts)
+			for (CircuitPart part : parts)
 				part.moveBy(dx, dy);
 			fireCircuitChanged();
 			return;
@@ -607,7 +607,7 @@ public class LSPanel extends Viewer implements Printable, io.github.tanguygab.lo
 			if (circuit.remove(parts)) {
 				currentAction = ACTION_NONE;
 				fireStatusText(NOTHING);
-				fireStatusText(io.github.tanguygab.logicsim3.I18N.tr(io.github.tanguygab.logicsim3.Lang.PARTSDELETED, String.valueOf(parts.length)));
+				fireStatusText(I18N.tr(Lang.PARTSDELETED, String.valueOf(parts.length)));
 				fireCircuitChanged();
 				repaint();
 				return;
@@ -616,11 +616,11 @@ public class LSPanel extends Viewer implements Printable, io.github.tanguygab.lo
 		}
 
 		if (keyCode == KeyEvent.VK_SPACE) {
-			io.github.tanguygab.logicsim3.CircuitPart[] selected = circuit.getSelected();
+			CircuitPart[] selected = circuit.getSelected();
 			if (selected.length != 1)
 				return;
-			if (selected[0] instanceof io.github.tanguygab.logicsim3.Gate) {
-				io.github.tanguygab.logicsim3.Gate g = (io.github.tanguygab.logicsim3.Gate) selected[0];
+			if (selected[0] instanceof Gate) {
+				Gate g = (Gate) selected[0];
 				g.interact();
 			}
 			repaint();
@@ -629,7 +629,7 @@ public class LSPanel extends Viewer implements Printable, io.github.tanguygab.lo
 	}
 
 	@Override
-	public void needsRepaint(io.github.tanguygab.logicsim3.CircuitPart circuitPart) {
+	public void needsRepaint(CircuitPart circuitPart) {
 		repaint();
 	}
 
@@ -664,16 +664,16 @@ public class LSPanel extends Viewer implements Printable, io.github.tanguygab.lo
 	 * rotate a gate if selected
 	 */
 	public void rotateSelected() {
-		io.github.tanguygab.logicsim3.CircuitPart[] parts = circuit.getSelected();
-		for (io.github.tanguygab.logicsim3.CircuitPart part : parts) {
-			if (part instanceof io.github.tanguygab.logicsim3.Gate) {
-				((io.github.tanguygab.logicsim3.Gate) part).rotate();
+		CircuitPart[] parts = circuit.getSelected();
+		for (CircuitPart part : parts) {
+			if (part instanceof Gate) {
+				((Gate) part).rotate();
 			}
 		}
 		fireCircuitChanged();
 	}
 
-	public void setAction(io.github.tanguygab.logicsim3.CircuitPart g) {
+	public void setAction(CircuitPart g) {
 		if (g != null) {
 			circuit.deselectAll();
 			// place new gate
@@ -684,7 +684,7 @@ public class LSPanel extends Viewer implements Printable, io.github.tanguygab.lo
 				posY += 40;
 			}
 			g.moveTo(posX, posY);
-			circuit.addGate((io.github.tanguygab.logicsim3.Gate) g);
+			circuit.addGate((Gate) g);
 			g.select();
 
 			fireStatusText("MSG_ADD_NEW_GATE");
@@ -696,19 +696,19 @@ public class LSPanel extends Viewer implements Printable, io.github.tanguygab.lo
 	public void setAction(int actionNumber) {
 		switch (actionNumber) {
 		case ACTION_ADDPOINT:
-			fireStatusText(io.github.tanguygab.logicsim3.I18N.tr(io.github.tanguygab.logicsim3.Lang.ADDPOINT));
+			fireStatusText(I18N.tr(Lang.ADDPOINT));
 			break;
 		case ACTION_DELPOINT:
-			fireStatusText(io.github.tanguygab.logicsim3.I18N.tr(io.github.tanguygab.logicsim3.Lang.REMOVEPOINT));
+			fireStatusText(I18N.tr(Lang.REMOVEPOINT));
 			break;
-		case io.github.tanguygab.logicsim3.Pin.HIGH:
-			fireStatusText(io.github.tanguygab.logicsim3.I18N.tr(io.github.tanguygab.logicsim3.Lang.INPUTHIGH));
+		case Pin.HIGH:
+			fireStatusText(I18N.tr(Lang.INPUTHIGH));
 			break;
-		case io.github.tanguygab.logicsim3.Pin.LOW:
-			fireStatusText(io.github.tanguygab.logicsim3.I18N.tr(io.github.tanguygab.logicsim3.Lang.INPUTLOW));
+		case Pin.LOW:
+			fireStatusText(I18N.tr(Lang.INPUTLOW));
 			break;
-		case io.github.tanguygab.logicsim3.Pin.NORMAL:
-			fireStatusText(io.github.tanguygab.logicsim3.I18N.tr(io.github.tanguygab.logicsim3.Lang.INPUTNORM));
+		case Pin.NORMAL:
+			fireStatusText(I18N.tr(Lang.INPUTNORM));
 			break;
 		case Pin.INVERTED:
 			fireStatusText(I18N.tr(Lang.INPUTINV));
@@ -769,8 +769,8 @@ public class LSPanel extends Viewer implements Printable, io.github.tanguygab.lo
 
 	public void gateSettings() {
 		CircuitPart[] parts = circuit.getSelected();
-		if (parts.length == 1 && parts[0] instanceof io.github.tanguygab.logicsim3.Gate) {
-			io.github.tanguygab.logicsim3.Gate g = (Gate) parts[0];
+		if (parts.length == 1 && parts[0] instanceof Gate) {
+			Gate g = (Gate) parts[0];
 			g.showPropertiesUI(this);
 			fireCircuitChanged();
 		}

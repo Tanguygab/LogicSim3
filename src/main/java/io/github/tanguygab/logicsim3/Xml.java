@@ -31,7 +31,7 @@ public class Xml {
 	private String name;
 	private String content;
 	private Map<String, String> nameAttributes = new HashMap<String, String>();
-	private Map<String, ArrayList<io.github.tanguygab.logicsim3.Xml>> nameChildren = new HashMap<String, ArrayList<io.github.tanguygab.logicsim3.Xml>>();
+	private Map<String, ArrayList<Xml>> nameChildren = new HashMap<String, ArrayList<Xml>>();
 
 	public Xml(InputStream inputStream, String rootName) {
 		this(rootElement(inputStream, rootName));
@@ -61,7 +61,7 @@ public class Xml {
 			Node node = nodes.item(i);
 			int type = node.getNodeType();
 			if (type == Node.ELEMENT_NODE) {
-				io.github.tanguygab.logicsim3.Xml child = new io.github.tanguygab.logicsim3.Xml((Element) node);
+				Xml child = new Xml((Element) node);
 				addChild(node.getNodeName(), child);
 			}
 		}
@@ -80,10 +80,10 @@ public class Xml {
 		nameAttributes.put(name, value);
 	}
 
-	private void addChild(String name, io.github.tanguygab.logicsim3.Xml child) {
-		ArrayList<io.github.tanguygab.logicsim3.Xml> children = nameChildren.get(name);
+	private void addChild(String name, Xml child) {
+		ArrayList<Xml> children = nameChildren.get(name);
 		if (children == null) {
-			children = new ArrayList<io.github.tanguygab.logicsim3.Xml>();
+			children = new ArrayList<Xml>();
 			nameChildren.put(name, children);
 		}
 		children.add(child);
@@ -101,24 +101,24 @@ public class Xml {
 		return content;
 	}
 
-	public void addChild(io.github.tanguygab.logicsim3.Xml XML) {
+	public void addChild(Xml XML) {
 		addChild(XML.name(), XML);
 	}
 
-	public void addChildren(io.github.tanguygab.logicsim3.Xml... XMLs) {
-		for (io.github.tanguygab.logicsim3.Xml XML : XMLs)
+	public void addChildren(Xml... XMLs) {
+		for (Xml XML : XMLs)
 			addChild(XML.name(), XML);
 	}
 
-	public io.github.tanguygab.logicsim3.Xml child(String name) {
-		io.github.tanguygab.logicsim3.Xml child = optChild(name);
+	public Xml child(String name) {
+		Xml child = optChild(name);
 		if (child == null)
 			throw new RuntimeException("Could not find child node: " + name);
 		return child;
 	}
 
-	public io.github.tanguygab.logicsim3.Xml optChild(String name) {
-		ArrayList<io.github.tanguygab.logicsim3.Xml> children = children(name);
+	public Xml optChild(String name) {
+		ArrayList<Xml> children = children(name);
 		int n = children.size();
 		if (n > 1)
 			throw new RuntimeException("Could not find individual child node: " + name);
@@ -129,17 +129,17 @@ public class Xml {
 		return optChild(name) != null;
 	}
 
-	public ArrayList<io.github.tanguygab.logicsim3.Xml> children(String name) {
+	public ArrayList<Xml> children(String name) {
 		if (name == null) {
-			ArrayList<io.github.tanguygab.logicsim3.Xml> all = new ArrayList<io.github.tanguygab.logicsim3.Xml>();
+			ArrayList<Xml> all = new ArrayList<Xml>();
 			// get all children
-			for (ArrayList<io.github.tanguygab.logicsim3.Xml> children : nameChildren.values()) {
+			for (ArrayList<Xml> children : nameChildren.values()) {
 				all.addAll(children);
 			}
 			return all;
 		}
-		ArrayList<io.github.tanguygab.logicsim3.Xml> children = nameChildren.get(name);
-		return children == null ? new ArrayList<io.github.tanguygab.logicsim3.Xml>() : children;
+		ArrayList<Xml> children = nameChildren.get(name);
+		return children == null ? new ArrayList<Xml>() : children;
 	}
 
 	public String string(String name) {

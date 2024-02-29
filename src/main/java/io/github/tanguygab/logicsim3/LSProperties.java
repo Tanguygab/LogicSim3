@@ -25,7 +25,7 @@ public class LSProperties {
 	public static final String COLORMODE_ON = "colormodeon";
 	public static final String COLORMODE_OFF = "colormodeoff";
 
-	private static io.github.tanguygab.logicsim3.LSProperties instance = null;
+	private static LSProperties instance = null;
 
 	private Properties properties = new Properties();
 
@@ -82,9 +82,9 @@ public class LSProperties {
 		setProperty(key, String.valueOf(value));
 	}
 
-	public static io.github.tanguygab.logicsim3.LSProperties getInstance() {
+	public static LSProperties getInstance() {
 		if (instance == null)
-			instance = new io.github.tanguygab.logicsim3.LSProperties("logicsim.cfg");
+			instance = new LSProperties("logicsim.cfg");
 		return instance;
 	}
 }

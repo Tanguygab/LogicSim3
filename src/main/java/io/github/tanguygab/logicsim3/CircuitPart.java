@@ -14,7 +14,7 @@ import java.util.Properties;
 
 import javax.swing.JOptionPane;
 
-public abstract class CircuitPart implements io.github.tanguygab.logicsim3.LSLevelListener {
+public abstract class CircuitPart implements LSLevelListener {
 	public static final int BOUNDING_SPACE = 6;
 	public static final boolean HIGH = true;
 	public static final boolean LOW = false;
@@ -24,13 +24,12 @@ public abstract class CircuitPart implements io.github.tanguygab.logicsim3.LSLev
 	public static Font smallFont = new Font(Font.SANS_SERIF, Font.PLAIN, 7);
 	public static Font mediumFont = new Font(Font.SANS_SERIF, Font.PLAIN, 10);
 
-	private Collection<io.github.tanguygab.logicsim3.LSLevelListener> listeners;
-	private io.github.tanguygab.logicsim3.LSRepaintListener repListener;
+	private final Collection<LSLevelListener> listeners;
+	private LSRepaintListener repListener;
 
 	protected static String indent(String string, int indentation) {
-		String s = "";
-		for (int i = 0; i < indentation; i++)
-			s += " ";
+		StringBuilder s = new StringBuilder();
+		for (int i = 0; i < indentation; i++) s.append(" ");
 		return s + string.replaceAll("\n", "\n" + s);
 	}
 
@@ -49,7 +48,7 @@ public abstract class CircuitPart implements io.github.tanguygab.logicsim3.LSLev
 	private CircuitChangedListener changeListener = null;
 
 	protected Point mousePos;
-	public io.github.tanguygab.logicsim3.CircuitPart parent;
+	public CircuitPart parent;
 	/**
 	 * if part is currently being edited
 	 */
@@ -68,7 +67,7 @@ public abstract class CircuitPart implements io.github.tanguygab.logicsim3.LSLev
 	public CircuitPart(int x, int y) {
 		this.x = x;
 		this.y = y;
-		this.listeners = new ArrayList<io.github.tanguygab.logicsim3.LSLevelListener>();
+		this.listeners = new ArrayList<>();
 	}
 
 	protected Properties properties = new Properties();
@@ -85,18 +84,18 @@ public abstract class CircuitPart implements io.github.tanguygab.logicsim3.LSLev
 		return Integer.parseInt(getProperty(string));
 	}
 
-	protected int getPropertyIntWithDefault(String string, int idefault) {
+	protected int getPropertyIntWithDefault(String string, int iDefault) {
 		String value = getProperty(string);
 		if (value == null)
-			return idefault;
+			return iDefault;
 		else
 			return Integer.parseInt(value);
 	}
 
-	protected String getPropertyWithDefault(String key, String sdefault) {
+	protected String getPropertyWithDefault(String key, String sDefault) {
 		String s = getProperty(key);
 		if (s == null)
-			return sdefault;
+			return sDefault;
 		return s;
 	}
 
@@ -109,7 +108,7 @@ public abstract class CircuitPart implements io.github.tanguygab.logicsim3.LSLev
 	}
 
 	public boolean showPropertiesUI(Component frame) {
-		String h = (String) JOptionPane.showInputDialog(frame, io.github.tanguygab.logicsim3.I18N.tr(io.github.tanguygab.logicsim3.Lang.TEXT), I18N.tr(Lang.PROPERTIES),
+		String h = (String) JOptionPane.showInputDialog(frame, I18N.tr(Lang.TEXT), I18N.tr(Lang.PROPERTIES),
 				JOptionPane.QUESTION_MESSAGE, null, null, text);
 		if (h != null) {
 			text = h;
@@ -140,21 +139,17 @@ public abstract class CircuitPart implements io.github.tanguygab.logicsim3.LSLev
 			throw new RuntimeException("only move by 10s! tried y=" + y2 + " in part " + this.getId());
 	}
 
-	public void addLevelListener(io.github.tanguygab.logicsim3.LSLevelListener l) {
-		if (getListeners() == null)
-			return;
-		if (getListeners().contains(l))
-			return;
-		getListeners().add(l);
+	public void addLevelListener(LSLevelListener l) {
+		if (getListeners() != null && !getListeners().contains(l))
+			getListeners().add(l);
 	}
 
 	public void setRepaintListener(LSRepaintListener l) {
 		repListener = l;
 	}
 
-	public void removeLevelListener(io.github.tanguygab.logicsim3.LSLevelListener l) {
-		if (getListeners() != null)
-			getListeners().remove(l);
+	public void removeLevelListener(LSLevelListener l) {
+		if (getListeners() != null) getListeners().remove(l);
 	}
 
 	public void clear() {
@@ -170,27 +165,26 @@ public abstract class CircuitPart implements io.github.tanguygab.logicsim3.LSLev
 	}
 
 	protected void drawActiveFrame(Graphics2D g2) {
-		if (selected) {
-			Rectangle rect = getBoundingBox();
+		if (!selected) return;
+		Rectangle rect = getBoundingBox();
 
-			int r = rect.x + rect.width;
-			int b = rect.y + rect.height;
-			g2.setStroke(new BasicStroke(2));
-			g2.setColor(Color.blue);
+		int r = rect.x + rect.width;
+		int b = rect.y + rect.height;
+		g2.setStroke(new BasicStroke(2));
+		g2.setColor(Color.blue);
 
-			// oben links
-			g2.drawLine(rect.x - BOUNDING_SPACE, rect.y - BOUNDING_SPACE, rect.x - BOUNDING_SPACE, rect.y);
-			g2.drawLine(rect.x - BOUNDING_SPACE, rect.y - BOUNDING_SPACE, rect.x, rect.y - BOUNDING_SPACE);
-			// unten links
-			g2.drawLine(rect.x - BOUNDING_SPACE, b + BOUNDING_SPACE, rect.x - BOUNDING_SPACE, b);
-			g2.drawLine(rect.x - BOUNDING_SPACE, b + BOUNDING_SPACE, rect.x, b + BOUNDING_SPACE);
-			// oben rechts
-			g2.drawLine(r + BOUNDING_SPACE, rect.y - BOUNDING_SPACE, r + BOUNDING_SPACE, rect.y);
-			g2.drawLine(r + BOUNDING_SPACE, rect.y - BOUNDING_SPACE, r, rect.y - BOUNDING_SPACE);
-			// unten rechts
-			g2.drawLine(r + BOUNDING_SPACE, b + BOUNDING_SPACE, r + BOUNDING_SPACE, b);
-			g2.drawLine(r + BOUNDING_SPACE, b + BOUNDING_SPACE, r, b + BOUNDING_SPACE);
-		}
+		// oben links
+		g2.drawLine(rect.x - BOUNDING_SPACE, rect.y - BOUNDING_SPACE, rect.x - BOUNDING_SPACE, rect.y);
+		g2.drawLine(rect.x - BOUNDING_SPACE, rect.y - BOUNDING_SPACE, rect.x, rect.y - BOUNDING_SPACE);
+		// unten links
+		g2.drawLine(rect.x - BOUNDING_SPACE, b + BOUNDING_SPACE, rect.x - BOUNDING_SPACE, b);
+		g2.drawLine(rect.x - BOUNDING_SPACE, b + BOUNDING_SPACE, rect.x, b + BOUNDING_SPACE);
+		// oben rechts
+		g2.drawLine(r + BOUNDING_SPACE, rect.y - BOUNDING_SPACE, r + BOUNDING_SPACE, rect.y);
+		g2.drawLine(r + BOUNDING_SPACE, rect.y - BOUNDING_SPACE, r, rect.y - BOUNDING_SPACE);
+		// unten rechts
+		g2.drawLine(r + BOUNDING_SPACE, b + BOUNDING_SPACE, r + BOUNDING_SPACE, b);
+		g2.drawLine(r + BOUNDING_SPACE, b + BOUNDING_SPACE, r, b + BOUNDING_SPACE);
 	}
 
 	protected void drawBounds(Graphics2D g2) {
@@ -241,8 +235,8 @@ public abstract class CircuitPart implements io.github.tanguygab.logicsim3.LSLev
 		}
 	}
 
-	public void mousePressed(io.github.tanguygab.logicsim3.LSMouseEvent e) {
-		if (io.github.tanguygab.logicsim3.Simulation.getInstance().isRunning())
+	public void mousePressed(LSMouseEvent e) {
+		if (Simulation.getInstance().isRunning())
 			mousePressedSim(e);
 		else {
 			select();
@@ -265,8 +259,7 @@ public abstract class CircuitPart implements io.github.tanguygab.logicsim3.LSLev
 	}
 
 	public void moveBy(int dx, int dy) {
-		if (dx == 0 && dy == 0)
-			return;
+		if (dx == 0 && dy == 0) return;
 		x = x + dx;
 		y = y + dy;
 		checkXY(x, y);
@@ -322,26 +315,26 @@ public abstract class CircuitPart implements io.github.tanguygab.logicsim3.LSLev
 	public void changedLevel(io.github.tanguygab.logicsim3.LSLevelEvent e) {
 	}
 
-	public void connect(io.github.tanguygab.logicsim3.CircuitPart part) {
+	public void connect(CircuitPart part) {
 		this.addLevelListener(part);
 		part.addLevelListener(this);
 	}
 
-	protected void fireChangedLevel(io.github.tanguygab.logicsim3.LSLevelEvent e) {
+	protected void fireChangedLevel(LSLevelEvent e) {
 		// Log.getInstance().print("fireChangedLevel " + e);
 		// the event can have a different source (not itself)
 		// if so, just forward the event to the others except to the origin
 		if (!this.equals(e.source)) {
-			for (io.github.tanguygab.logicsim3.LSLevelListener l : getListeners()) {
+			for (LSLevelListener l : getListeners()) {
 				if (e.source != l) {
-					io.github.tanguygab.logicsim3.LSLevelEvent evtL = new io.github.tanguygab.logicsim3.LSLevelEvent(this, e.level, e.force, l);
-					io.github.tanguygab.logicsim3.Simulation.getInstance().putEvent(evtL);
+					LSLevelEvent evtL = new LSLevelEvent(this, e.level, e.force, l);
+					Simulation.getInstance().putEvent(evtL);
 					// l.changedLevel(evt);
 				}
 			}
 		} else {
-			for (io.github.tanguygab.logicsim3.LSLevelListener l : getListeners()) {
-				io.github.tanguygab.logicsim3.LSLevelEvent evtL = new LSLevelEvent(this, e.level, e.force, l);
+			for (LSLevelListener l : getListeners()) {
+				LSLevelEvent evtL = new LSLevelEvent(this, e.level, e.force, l);
 				Simulation.getInstance().putEvent(evtL);
 				// l.changedLevel(e);
 			}
@@ -354,24 +347,24 @@ public abstract class CircuitPart implements io.github.tanguygab.logicsim3.LSLev
 	}
 
 	public boolean isConnected() {
-		return getListeners().size() > 0;
+		return !getListeners().isEmpty();
 	}
 
-	public Collection<io.github.tanguygab.logicsim3.LSLevelListener> getListeners() {
+	public Collection<LSLevelListener> getListeners() {
 		return listeners;
 	}
 
 	public String toStringAll() {
-		String s = "-----------------------------\n";
-		s += toString();
-		s += "PARENT : " + parent + "\n";
-		s += "\n-- LISTENERS: \n";
+		StringBuilder s = new StringBuilder("-----------------------------\n");
+		s.append(this);
+		s.append("PARENT : ").append(parent).append("\n");
+		s.append("\n-- LISTENERS: \n");
 		for (LSLevelListener l : getListeners()) {
-			s += l.toString();
-			s += " with parent " + ((io.github.tanguygab.logicsim3.CircuitPart) l).parent;
+			s.append(l);
+			s.append(" with parent ").append(((CircuitPart) l).parent);
 		}
-		s += "-----------------------------\n";
-		return s;
+		s.append("-----------------------------\n");
+		return s.toString();
 	}
 
 	protected void clearListeners() {

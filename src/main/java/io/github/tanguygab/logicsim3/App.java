@@ -3,40 +3,34 @@ package io.github.tanguygab.logicsim3;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 public class App {
 
 	public static final String APP_TITLE = "LogicSim";
 	public static final String CIRCUIT_FILE_SUFFIX = "lsc";
 	public static final String MODULE_FILE_SUFFIX = "lsm";
-	public static final String GRAPHICS_FORMAT = "png";
+	//public static final String GRAPHICS_FORMAT = "png";
+
 	public static boolean Running_From_Jar = false;
+	public static List<Category> cats = new ArrayList<>();
 
-	LSFrame lsframe;
-
-	static long timer = 0;
-	
-	public static void time() {
-		long newtime = System.nanoTime();
-		if (timer != 0) {
-			System.out.println("measure " + (newtime - timer) + " ns");
-		}
-		timer = newtime;
+	/**
+	 * Main method
+	 */
+	public static void main(String[] args) {
+		new App();
 	}
-	static ArrayList<io.github.tanguygab.logicsim3.Category> cats = new ArrayList<io.github.tanguygab.logicsim3.Category>();
+
 
 	public App() {
-		String protocol = this.getClass().getResource("").getProtocol();
-		if (Objects.equals(protocol, "jar"))
+		URL url = getClass().getResource("");
+		if (url != null && "jar".equals(url.getProtocol()))
 			Running_From_Jar = true;
 		new I18N();
 		initializeGateCategories();
@@ -44,42 +38,39 @@ public class App {
 		// center the window and adjust dimensions
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		Dimension frameSize = new Dimension(1024, 768);
-		if (frameSize.height > screenSize.height) {
-			frameSize.height = screenSize.height;
-		}
-		if (frameSize.width > screenSize.width) {
-			frameSize.width = screenSize.width;
-		}
-		lsframe = new LSFrame(APP_TITLE);
+		if (frameSize.height > screenSize.height) frameSize.height = screenSize.height;
+		if (frameSize.width > screenSize.width) frameSize.width = screenSize.width;
+
+        LSFrame lsframe = new LSFrame(APP_TITLE);
 		lsframe.setSize(frameSize);
-		lsframe.setLocation((screenSize.width - frameSize.width) / 2, (screenSize.height - frameSize.height) / 2);
+		lsframe.setLocation((screenSize.width - frameSize.width) / 2,
+							(screenSize.height - frameSize.height) / 2);
 		lsframe.setVisible(true);
 		
 		Wire.setColorMode();
 	}
 
-	private static void addToCategory(io.github.tanguygab.logicsim3.Gate g) {
+	private static void addToCategory(Gate g) {
 		String cattitle = g.category;
-		if (g.category == null)
-			cattitle = "hidden";
+		if (g.category == null) cattitle = "hidden";
 
-		io.github.tanguygab.logicsim3.Category cat = null;
-		for (io.github.tanguygab.logicsim3.Category c : cats) {
+		Category cat = null;
+		for (Category c : cats) {
 			if (c.getTitle().equals(cattitle)) {
 				cat = c;
 				break;
 			}
 		}
 		if (cat == null) {
-			cat = new io.github.tanguygab.logicsim3.Category(cattitle);
+			cat = new Category(cattitle);
 			cats.add(cat);
 		}
 		cat.addGate(g);
 	}
 
 	private static void initializeGateCategories() {
-		io.github.tanguygab.logicsim3.Category cat = new io.github.tanguygab.logicsim3.Category("hidden");
-		io.github.tanguygab.logicsim3.Gate g = new MODIN();
+		Category cat = new Category("hidden");
+		Gate g = new MODIN();
 		g.loadLanguage();
 		cat.addGate(g);
 		g = new MODOUT();
@@ -87,36 +78,18 @@ public class App {
 		cat.addGate(g);
 		cats.add(cat);
 
-		cats.add(new io.github.tanguygab.logicsim3.Category("basic"));
-		cats.add(new io.github.tanguygab.logicsim3.Category("input"));
-		cats.add(new io.github.tanguygab.logicsim3.Category("output"));
-		cats.add(new io.github.tanguygab.logicsim3.Category("flipflops"));
+		cats.add(new Category("basic"));
+		cats.add(new Category("input"));
+		cats.add(new Category("output"));
+		cats.add(new Category("flipflops"));
 
-		List<Class<?>> classes;
 		try {
-			classes = GateLoaderHelper.getClasses();
-			for (Class<?> c : classes) {
-				io.github.tanguygab.logicsim3.Gate gate = (io.github.tanguygab.logicsim3.Gate) c.getDeclaredConstructor().newInstance();
+			for (Class<?> c : GateLoaderHelper.getClasses()) {
+				Gate gate = (Gate) c.getDeclaredConstructor().newInstance();
 				gate.loadLanguage();
 				addToCategory(gate);
 			}
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
-			e.printStackTrace();
-		} catch (NoSuchMethodException e) {
-			e.printStackTrace();
-		} catch (SecurityException e) {
-			e.printStackTrace();
-		} catch (URISyntaxException e) {
+		} catch (Exception e) {
             throw new RuntimeException(e);
         }
 
@@ -130,87 +103,74 @@ public class App {
 		File mods = new File(getModulePath());
 		// list of filenames in modules dir
 		String[] list = mods.list();
-		Arrays.sort(list, String.CASE_INSENSITIVE_ORDER);
+        assert list != null;
+        Arrays.sort(list, String.CASE_INSENSITIVE_ORDER);
 		// prepare list for all loaded modules
-		ArrayList<String> loadedModules = new ArrayList<String>();
+		List<String> loadedModules = new ArrayList<>();
 		// prepare list of modules with sublist of needed modules
-		Map<String, ArrayList<String>> modules = new HashMap<String, ArrayList<String>>();
+		Map<String, List<String>> modules = new HashMap<>();
 
 		// now collect all modules with their needed modules
-		for (int i = 0; i < list.length; i++) {
-			if (list[i].endsWith(MODULE_FILE_SUFFIX)) {
-				String filename = list[i];
-				String type = new File(filename).getName();
-				type = type.substring(0, type.lastIndexOf("."));
-				//type = type.toLowerCase();
-				modules.put(type, XMLLoader.getModuleListFromFile(getModulePath() + "/" + filename));
-			}
-		}
-		int maxtries = modules.keySet().size();
+        for (String filename : list) {
+            if (filename.endsWith(MODULE_FILE_SUFFIX)) {
+                String type = new File(filename).getName();
+                type = type.substring(0, type.lastIndexOf("."));
+                //type = type.toLowerCase();
+                modules.put(type, XMLLoader.getModuleListFromFile(getModulePath() + "/" + filename));
+            }
+        }
+		int maxTries = modules.keySet().size();
 		int tries = 0;
-		while (tries < maxtries && maxtries != loadedModules.size()) {
-			for (String modname : modules.keySet()) {
+		while (tries < maxTries && maxTries != loadedModules.size()) {
+			for (String modName : modules.keySet()) {
 				boolean load = true;
-				for (String neededModuleName : modules.get(modname)) {
+				for (String neededModuleName : modules.get(modName)) {
 					if (!loadedModules.contains(neededModuleName.toLowerCase())) {
 						load = false;
 						break;
 					}
 				}
-				if (load && !loadedModules.contains(modname.toLowerCase())) {
-					io.github.tanguygab.logicsim3.Module mod = new Module(modname);
+				if (load && !loadedModules.contains(modName.toLowerCase())) {
+					Module mod = new Module(modName);
 					mod.category = "module";
 					addToCategory(mod);
-					loadedModules.add(modname.toLowerCase());
+					loadedModules.add(modName.toLowerCase());
 				}
 			}
 			tries++;
 		}
 	}
 
-	public static String getModulePath() {
-		File f = new File("");
-		String fname = f.getAbsolutePath() + "/modules/";
-		f = new File(fname);
-		if (f != null && f.exists() && f.isDirectory()) {
-			return new String(f.getAbsolutePath() + "/");
-		} else {
-			io.github.tanguygab.logicsim3.Dialogs.messageDialog(null, "Directory 'modules' not found.\nPlease run the program from its directory");
-			System.exit(0);
-		}
+	private static String getPath(String path) {
+		File file = new File("");
+		String fileName = file.getAbsolutePath() + "/" + path;
+		file = new File(fileName);
+		if (file.exists() && file.isDirectory())
+			return file.getAbsolutePath() + "/";
+
+		Dialogs.messageDialog(null, "Directory '"+path+"' not found.\nPlease run the program from its directory");
+		System.exit(0);
 
 		return "";
+	}
+
+	public static String getModulePath() {
+		return getPath("modules");
 	}
 
 	public static String getCircuitPath() {
-		File f = new File("");
-		String fname = f.getAbsolutePath() + "/circuits/";
-		f = new File(fname);
-		if (f != null && f.exists() && f.isDirectory()) {
-			return new String(f.getAbsolutePath() + "/");
-		} else {
-			Dialogs.messageDialog(null, "Directory 'circuits' not found.\nPlease run the program from its directory");
-			System.exit(0);
-		}
-		return "";
+		return getPath("circuits");
 	}
 
-	public static io.github.tanguygab.logicsim3.Gate getGate(String type) {
+	public static Gate getGate(String type) {
 		for (Category cat : cats) {
 			for (Gate g : cat.getGates()) {
-				if (g.type.toLowerCase().equals(type)) {
+				if (g.type.toLowerCase().equals(type))
 					return g;
-				}
 			}
 		}
 		return null;
 	}
 
-	/**
-	 * Main method
-	 */
-	public static void main(String[] args) {
-		new io.github.tanguygab.logicsim3.App();
-	}
 
 }

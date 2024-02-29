@@ -19,7 +19,7 @@ import java.util.Vector;
  * @author Matthew Lister
  * @version 2.0
  */
-public class Gate extends io.github.tanguygab.logicsim3.CircuitPart {
+public class Gate extends CircuitPart {
 
 	public static final int BOTH_AXES = 3;
 
@@ -57,7 +57,7 @@ public class Gate extends io.github.tanguygab.logicsim3.CircuitPart {
 	 * mirroring in both axes
 	 */
 	public int mirror = 0;
-	protected Vector<io.github.tanguygab.logicsim3.Pin> pins = new Vector<io.github.tanguygab.logicsim3.Pin>();
+	protected Vector<Pin> pins = new Vector<Pin>();
 
 	/**
 	 * rotate in 90 degree steps clockwise (0-3).
@@ -85,7 +85,7 @@ public class Gate extends io.github.tanguygab.logicsim3.CircuitPart {
 	@Override
 	public void deselect() {
 		super.deselect();
-		for (io.github.tanguygab.logicsim3.Pin p : pins)
+		for (Pin p : pins)
 			p.deselect();
 	}
 
@@ -104,8 +104,8 @@ public class Gate extends io.github.tanguygab.logicsim3.CircuitPart {
 		this.actionid = actionid;
 	}
 
-	public void addConnector(io.github.tanguygab.logicsim3.Pin conn) {
-		for (io.github.tanguygab.logicsim3.Pin c : pins)
+	public void addConnector(Pin conn) {
+		for (Pin c : pins)
 			if (c.number == conn.number)
 				throw new RuntimeException("Connector number " + c.number + " is already there in gate " + type);
 		// check if number is present
@@ -116,7 +116,7 @@ public class Gate extends io.github.tanguygab.logicsim3.CircuitPart {
 		int numinputs = getInputs().size();
 		// get max number
 		int num = -1;
-		for (io.github.tanguygab.logicsim3.Pin c : pins)
+		for (Pin c : pins)
 			if (c.number > num)
 				num = c.number;
 
@@ -124,16 +124,16 @@ public class Gate extends io.github.tanguygab.logicsim3.CircuitPart {
 		for (int i = numinputs; i < total; i++) {
 			num++;
 			int pos = getX();
-			int ioType = io.github.tanguygab.logicsim3.Pin.INPUT;
-			io.github.tanguygab.logicsim3.Pin c = new io.github.tanguygab.logicsim3.Pin(pos, 0, this, num);
-			c.paintDirection = ioType == io.github.tanguygab.logicsim3.Pin.INPUT ? io.github.tanguygab.logicsim3.Pin.RIGHT : io.github.tanguygab.logicsim3.Pin.LEFT;
+			int ioType = Pin.INPUT;
+			Pin c = new Pin(pos, 0, this, num);
+			c.paintDirection = ioType == Pin.INPUT ? Pin.RIGHT : Pin.LEFT;
 			c.setIoType(ioType);
 			pins.add(c);
 		}
 
 		// reposition all inputs
 		num = 0;
-		for (io.github.tanguygab.logicsim3.Pin p : getInputs()) {
+		for (Pin p : getInputs()) {
 			p.setY(getY() + getConnectorPosition(num, total, VERTICAL));
 			num++;
 		}
@@ -141,27 +141,27 @@ public class Gate extends io.github.tanguygab.logicsim3.CircuitPart {
 	}
 
 	public void createInputs(int n) {
-		createPins(io.github.tanguygab.logicsim3.Pin.INPUT, n);
+		createPins(Pin.INPUT, n);
 	}
 
 	public void createOutputs(int n) {
-		createPins(io.github.tanguygab.logicsim3.Pin.OUTPUT, n);
+		createPins(Pin.OUTPUT, n);
 	}
 
 	public void createPins(int ioType, int total) {
 		// get max number
 		int num = -1;
-		for (io.github.tanguygab.logicsim3.Pin c : pins)
+		for (Pin c : pins)
 			if (c.number > num)
 				num = c.number;
 		// add new connectors - total times
 		for (int i = 0; i < total; i++) {
 			num++;
 			int pos = getX();
-			if (ioType == io.github.tanguygab.logicsim3.Pin.OUTPUT)
+			if (ioType == Pin.OUTPUT)
 				pos += width;
-			io.github.tanguygab.logicsim3.Pin c = new io.github.tanguygab.logicsim3.Pin(pos, getY() + getConnectorPosition(i, total, VERTICAL), this, num);
-			c.paintDirection = ioType == io.github.tanguygab.logicsim3.Pin.INPUT ? io.github.tanguygab.logicsim3.Pin.RIGHT : io.github.tanguygab.logicsim3.Pin.LEFT;
+			Pin c = new Pin(pos, getY() + getConnectorPosition(i, total, VERTICAL), this, num);
+			c.paintDirection = ioType == Pin.INPUT ? Pin.RIGHT : Pin.LEFT;
 			c.setIoType(ioType);
 			pins.add(c);
 		}
@@ -200,7 +200,7 @@ public class Gate extends io.github.tanguygab.logicsim3.CircuitPart {
 	}
 
 	protected void drawIO(Graphics2D g2) {
-		for (io.github.tanguygab.logicsim3.Pin c : pins)
+		for (Pin c : pins)
 			c.draw(g2);
 	}
 
@@ -222,8 +222,8 @@ public class Gate extends io.github.tanguygab.logicsim3.CircuitPart {
 		}
 	}
 
-	public io.github.tanguygab.logicsim3.Pin findPin(int atX, int atY) {
-		for (io.github.tanguygab.logicsim3.Pin p : pins) {
+	public Pin findPin(int atX, int atY) {
+		for (Pin p : pins) {
 			if (p.isAt(atX, atY)) {
 				return p;
 			}
@@ -236,7 +236,7 @@ public class Gate extends io.github.tanguygab.logicsim3.CircuitPart {
 		int ry = round(y);
 
 		// check connectors
-		io.github.tanguygab.logicsim3.Pin pin = findPin(rx, ry);
+		Pin pin = findPin(rx, ry);
 		if (pin != null)
 			return pin;
 
@@ -323,9 +323,9 @@ public class Gate extends io.github.tanguygab.logicsim3.CircuitPart {
 		return type + "@" + super.getId();
 	}
 
-	public Vector<io.github.tanguygab.logicsim3.Pin> getInputs() {
-		Vector<io.github.tanguygab.logicsim3.Pin> cs = new Vector<io.github.tanguygab.logicsim3.Pin>();
-		for (io.github.tanguygab.logicsim3.Pin c : pins) {
+	public Vector<Pin> getInputs() {
+		Vector<Pin> cs = new Vector<Pin>();
+		for (Pin c : pins) {
 			if (c.isInput())
 				cs.add(c);
 		}
@@ -340,17 +340,17 @@ public class Gate extends io.github.tanguygab.logicsim3.CircuitPart {
 		return getOutputs().size();
 	}
 
-	public Vector<io.github.tanguygab.logicsim3.Pin> getOutputs() {
-		Vector<io.github.tanguygab.logicsim3.Pin> cs = new Vector<io.github.tanguygab.logicsim3.Pin>();
-		for (io.github.tanguygab.logicsim3.Pin c : pins) {
+	public Vector<Pin> getOutputs() {
+		Vector<Pin> cs = new Vector<Pin>();
+		for (Pin c : pins) {
 			if (c.isOutput())
 				cs.add(c);
 		}
 		return cs;
 	}
 
-	public io.github.tanguygab.logicsim3.Pin getPin(int number) {
-		for (io.github.tanguygab.logicsim3.Pin c : pins)
+	public Pin getPin(int number) {
+		for (Pin c : pins)
 			if (c.number == number)
 				return c;
 		return null;
@@ -361,11 +361,11 @@ public class Gate extends io.github.tanguygab.logicsim3.CircuitPart {
 	 */
 	@Deprecated
 	public Point getPinPosition(int n) {
-		io.github.tanguygab.logicsim3.Pin conn = getPin(n);
+		Pin conn = getPin(n);
 		return new Point(conn.getX(), conn.getY());
 	}
 
-	public Vector<io.github.tanguygab.logicsim3.Pin> getPins() {
+	public Vector<Pin> getPins() {
 		return pins;
 	}
 
@@ -440,23 +440,23 @@ public class Gate extends io.github.tanguygab.logicsim3.CircuitPart {
 	 */
 	public void mirror() {
 		mirror = (mirror + 1) % 4;
-		for (io.github.tanguygab.logicsim3.Pin p : pins) {
+		for (Pin p : pins) {
 			// now check the coordinates and if the current mirror-state is normal, x, y, or
 			// both
 			if (p.getX() == this.getX()) {
 				p.setX(p.getX() + width);
-				p.setDirection(io.github.tanguygab.logicsim3.Pin.LEFT);
+				p.setDirection(Pin.LEFT);
 			} else if (p.getX() == this.getX() + width) {
 				p.setX(p.getX() - width);
-				p.setDirection(io.github.tanguygab.logicsim3.Pin.RIGHT);
+				p.setDirection(Pin.RIGHT);
 			}
 			if (mirror == NORMAL || mirror == YAXIS) {
 				if (p.getY() == this.getY()) {
 					p.setY(p.getY() + height);
-					p.setDirection(io.github.tanguygab.logicsim3.Pin.UP);
+					p.setDirection(Pin.UP);
 				} else if (p.getY() == this.getY() + height) {
 					p.setY(p.getY() - height);
-					p.setDirection(io.github.tanguygab.logicsim3.Pin.DOWN);
+					p.setDirection(Pin.DOWN);
 				}
 			}
 		}
@@ -492,7 +492,7 @@ public class Gate extends io.github.tanguygab.logicsim3.CircuitPart {
 	 * wird aufgerufen, wenn auf das Gatter geklickt wird
 	 */
 	@Override
-	public void mousePressed(io.github.tanguygab.logicsim3.LSMouseEvent e) {
+	public void mousePressed(LSMouseEvent e) {
 		super.mousePressed(e);
 		/*
 		 * notifyMessage(I18N.getString(type, I18N.TITLE));
@@ -515,7 +515,7 @@ public class Gate extends io.github.tanguygab.logicsim3.CircuitPart {
 		if (dx == 0 && dy == 0)
 			return;
 		super.moveBy(dx, dy);
-		for (io.github.tanguygab.logicsim3.Pin conn : pins) {
+		for (Pin conn : pins) {
 			conn.moveBy(dx, dy);
 		}
 		xc += dx;
@@ -558,7 +558,7 @@ public class Gate extends io.github.tanguygab.logicsim3.CircuitPart {
 		// set rotation center
 		Point center = new Point((int) xc, (int) yc);
 		// compute new position and width, height
-		Point newPos = io.github.tanguygab.logicsim3.WidgetHelper.rotatePoint90(getX(), getY() + height, center);
+		Point newPos = WidgetHelper.rotatePoint90(getX(), getY() + height, center);
 		this.setX(newPos.x);
 		this.setY(newPos.y);
 		// switch width and height
@@ -580,10 +580,10 @@ public class Gate extends io.github.tanguygab.logicsim3.CircuitPart {
 		// set rotation center
 		Point center = new Point((int) xc, (int) yc);
 		// rotate everything around the center
-		for (io.github.tanguygab.logicsim3.Pin c : pins) {
+		for (Pin c : pins) {
 			c.paintDirection++;
-			if (c.paintDirection > io.github.tanguygab.logicsim3.Pin.UP)
-				c.paintDirection = io.github.tanguygab.logicsim3.Pin.RIGHT;
+			if (c.paintDirection > Pin.UP)
+				c.paintDirection = Pin.RIGHT;
 			Point newPinPos = WidgetHelper.rotatePoint90(c.getX(), c.getY(), center);
 			c.setX(newPinPos.x);
 			c.setY(newPinPos.y);
@@ -600,7 +600,7 @@ public class Gate extends io.github.tanguygab.logicsim3.CircuitPart {
 	@Override
 	public String toString() {
 		String s = getId();
-		for (io.github.tanguygab.logicsim3.Pin c : pins) {
+		for (Pin c : pins) {
 			s += "\n" + indent(c.toString(), 3);
 		}
 		return s;

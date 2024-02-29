@@ -1,10 +1,12 @@
 package io.github.tanguygab.logicsim3;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Category {
-	String title;
-	ArrayList<io.github.tanguygab.logicsim3.Gate> gates = new ArrayList<io.github.tanguygab.logicsim3.Gate>();
+
+	private final String title;
+	private final List<Gate> gates = new ArrayList<>();
 
 	public Category(String title) {
 		this.title = title;
@@ -14,7 +16,7 @@ public class Category {
 		return title;
 	}
 
-	public ArrayList<io.github.tanguygab.logicsim3.Gate> getGates() {
+	public List<Gate> getGates() {
 		return gates;
 	}
 
@@ -24,8 +26,6 @@ public class Category {
 
 	@Override
 	public String toString() {
-		String s = "[Category: " + title + "/#gates: " + gates.size();
-		s += "]";
-		return s;
+        return "[Category: " + title + "/#gates: " + gates.size() + "]";
 	}
 }

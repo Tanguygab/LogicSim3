@@ -64,7 +64,7 @@ public class XMLCreator {
 
 			if (f.getGates() != null) {
 				Element node = doc.createElement("gates");
-				for (io.github.tanguygab.logicsim3.Gate g : f.getGates()) {
+				for (Gate g : f.getGates()) {
 					Node gnode = createGateNode(doc, g);
 					node.appendChild(gnode);
 				}
@@ -73,7 +73,7 @@ public class XMLCreator {
 
 			if (f.getWires() != null) {
 				Element node = doc.createElement("wires");
-				for (io.github.tanguygab.logicsim3.Wire w : f.getWires()) {
+				for (Wire w : f.getWires()) {
 					Node wnode = createWireNode(doc, w);
 					node.appendChild(wnode);
 				}
@@ -101,9 +101,9 @@ public class XMLCreator {
 		return null;
 	}
 
-	public static Node createGateNode(Document doc, io.github.tanguygab.logicsim3.Gate g) {
+	public static Node createGateNode(Document doc, Gate g) {
 		Element node = doc.createElement("gate");
-		if (g instanceof io.github.tanguygab.logicsim3.Module) {
+		if (g instanceof Module) {
 			node.setAttribute("type", ((Module) g).type);
 			node.setAttribute("module", "true");
 		} else {
@@ -117,9 +117,9 @@ public class XMLCreator {
 		}
 		if (g.mirror != 0) {
 			String val = null;
-			if (g.mirror == io.github.tanguygab.logicsim3.Gate.XAXIS)
+			if (g.mirror == Gate.XAXIS)
 				val = "x";
-			else if (g.mirror == io.github.tanguygab.logicsim3.Gate.YAXIS)
+			else if (g.mirror == Gate.YAXIS)
 				val = "y";
 			else if (g.mirror == Gate.BOTH_AXES)
 				val = "xy";
@@ -136,15 +136,15 @@ public class XMLCreator {
 		if (snode != null)
 			node.appendChild(snode);
 
-		for (io.github.tanguygab.logicsim3.Pin c : g.getInputs()) {
-			if ((g instanceof MODIN && c.getProperty(io.github.tanguygab.logicsim3.CircuitPart.TEXT) != null)
-					|| (c.getIoType() == io.github.tanguygab.logicsim3.Pin.INPUT && c.levelType != io.github.tanguygab.logicsim3.Pin.NORMAL)) {
+		for (Pin c : g.getInputs()) {
+			if ((g instanceof MODIN && c.getProperty(CircuitPart.TEXT) != null)
+					|| (c.getIoType() == Pin.INPUT && c.levelType != Pin.NORMAL)) {
 				node.appendChild(createPinNode(doc, c));
 			}
 		}
-		for (io.github.tanguygab.logicsim3.Pin c : g.getOutputs()) {
+		for (Pin c : g.getOutputs()) {
 			if ((g instanceof MODOUT && c.getProperty(CircuitPart.TEXT) != null)
-					|| (c.getIoType() == io.github.tanguygab.logicsim3.Pin.INPUT && c.levelType != io.github.tanguygab.logicsim3.Pin.NORMAL)) {
+					|| (c.getIoType() == Pin.INPUT && c.levelType != Pin.NORMAL)) {
 				node.appendChild(createPinNode(doc, c));
 			}
 		}
@@ -171,7 +171,7 @@ public class XMLCreator {
 		return null;
 	}
 
-	private static Node createPinNode(Document doc, io.github.tanguygab.logicsim3.Pin pin) {
+	private static Node createPinNode(Document doc, Pin pin) {
 		Element node = doc.createElement("pin");
 		String ioType = INPUT;
 		if (pin.isOutput())
@@ -180,13 +180,13 @@ public class XMLCreator {
 		node.setAttribute("number", String.valueOf(pin.number));
 		if (pin.isInput()) {
 			int inputType = pin.levelType;
-			if (inputType != io.github.tanguygab.logicsim3.Pin.NORMAL) {
+			if (inputType != Pin.NORMAL) {
 				String inpType = "";
-				if (inputType == io.github.tanguygab.logicsim3.Pin.HIGH)
+				if (inputType == Pin.HIGH)
 					inpType = "high";
-				else if (inputType == io.github.tanguygab.logicsim3.Pin.LOW)
+				else if (inputType == Pin.LOW)
 					inpType = "low";
-				else if (inputType == io.github.tanguygab.logicsim3.Pin.INVERTED)
+				else if (inputType == Pin.INVERTED)
 					inpType = "inv";
 				node.setAttribute("type", inpType);
 			}
@@ -202,13 +202,13 @@ public class XMLCreator {
 			Element n = doc.createElement("wire");
 			if (w.getFrom() != null) {
 				Element g = doc.createElement("from");
-				if (w.getFrom() instanceof io.github.tanguygab.logicsim3.Pin) {
-					io.github.tanguygab.logicsim3.Pin p = (io.github.tanguygab.logicsim3.Pin) w.getFrom();
+				if (w.getFrom() instanceof Pin) {
+					Pin p = (Pin) w.getFrom();
 					g.setAttribute("type", "gate");
 					g.setAttribute("id", p.parent.getId());
 					g.setAttribute("number", String.valueOf(p.number));
-				} else if (w.getFrom() instanceof io.github.tanguygab.logicsim3.WirePoint) {
-					io.github.tanguygab.logicsim3.WirePoint wp = (io.github.tanguygab.logicsim3.WirePoint) w.getFrom();
+				} else if (w.getFrom() instanceof WirePoint) {
+					WirePoint wp = (WirePoint) w.getFrom();
 					String type = TYPE_WIRE;
 					if (wp.parent == null || w.equals(wp.parent))
 						type = TYPE_WIREPOINT;
@@ -225,14 +225,14 @@ public class XMLCreator {
 
 			if (w.getTo() != null) {
 				Element g = doc.createElement("to");
-				if (w.getTo() instanceof io.github.tanguygab.logicsim3.Pin) {
-					io.github.tanguygab.logicsim3.Pin p = (Pin) w.getTo();
+				if (w.getTo() instanceof Pin) {
+					Pin p = (Pin) w.getTo();
 					g.setAttribute("type", TYPE_GATE);
 					g.setAttribute("id", p.parent.getId());
 					g.setAttribute("number", String.valueOf(p.number));
-				} else if (w.getTo() instanceof io.github.tanguygab.logicsim3.WirePoint) {
+				} else if (w.getTo() instanceof WirePoint) {
 					// distinguish between own wirepoint and foreign wirepoint
-					io.github.tanguygab.logicsim3.WirePoint wp = (io.github.tanguygab.logicsim3.WirePoint) w.getTo();
+					WirePoint wp = (WirePoint) w.getTo();
 					String type = TYPE_WIRE;
 					if (wp.parent == null || w.equals(wp.parent))
 						type = TYPE_WIREPOINT;
@@ -246,7 +246,7 @@ public class XMLCreator {
 				}
 				n.appendChild(g);
 			}
-			Vector<io.github.tanguygab.logicsim3.WirePoint> pts = w.getPoints();
+			Vector<WirePoint> pts = w.getPoints();
 			for (int i = 0; i < pts.size(); i++) {
 				WirePoint wp = pts.get(i);
 				Element point = doc.createElement("point");

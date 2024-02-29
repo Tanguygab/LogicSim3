@@ -2,43 +2,39 @@ package io.github.tanguygab.logicsim3;
 
 import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
-import java.util.Iterator;
+import java.io.Serializable;
 import java.util.Vector;
 
 /**
  * all parts that belong to the circuit
- * 
+ *
  * @author Andreas Tetzl
  * @author Peter Gabriel
  * @version 2.0
  */
 
-public class Circuit implements io.github.tanguygab.logicsim3.LSRepaintListener {
-	static final long serialVersionUID = 3458986578856078326L;
+public class Circuit implements LSRepaintListener, Serializable {
 
-	Vector<io.github.tanguygab.logicsim3.CircuitPart> parts;
+	private static final long serialVersionUID = 3458986578856078326L;
+	private final Vector<CircuitPart> parts = new Vector<>();
+	private LSRepaintListener repaintListener;
 
-	private io.github.tanguygab.logicsim3.LSRepaintListener repaintListener;
-
-	public Circuit() {
-		parts = new Vector<io.github.tanguygab.logicsim3.CircuitPart>();
-	}
 
 	public void clear() {
 		parts.clear();
 	}
 
-	public void addGate(io.github.tanguygab.logicsim3.Gate gate) {
+	public void addGate(Gate gate) {
 		parts.add(gate);
 		gate.setRepaintListener(this);
 	}
 
-	public boolean addWire(io.github.tanguygab.logicsim3.Wire newWire) {
+	public boolean addWire(Wire newWire) {
 		// only add a wire if there is not a wire from<->to
-		for (io.github.tanguygab.logicsim3.CircuitPart part : parts) {
-			if (part instanceof io.github.tanguygab.logicsim3.Wire) {
-				io.github.tanguygab.logicsim3.Wire w = (io.github.tanguygab.logicsim3.Wire) part;
-				if (w.getTo().equals(newWire.getTo()) && w.getFrom().equals(newWire.getFrom())) {
+		for (CircuitPart part : parts) {
+			if (part instanceof Wire) {
+				Wire w = (Wire) part;
+				if (w.getTo() == newWire.getTo() && w.getFrom() == newWire.getFrom()) {
 					// don't add
 					return false;
 				}
@@ -68,30 +64,27 @@ public class Circuit implements io.github.tanguygab.logicsim3.LSRepaintListener 
 //		return findParts.toArray(new CircuitPart[findParts.size()]);
 //	}
 
-	public Vector<io.github.tanguygab.logicsim3.CircuitPart> getParts() {
+	public Vector<CircuitPart> getParts() {
 		return parts;
 	}
 
-	public Vector<io.github.tanguygab.logicsim3.Gate> getGates() {
-		Vector<io.github.tanguygab.logicsim3.Gate> gates = new Vector<io.github.tanguygab.logicsim3.Gate>();
-		for (io.github.tanguygab.logicsim3.CircuitPart part : parts) {
-			if (part instanceof io.github.tanguygab.logicsim3.Gate) {
-				gates.add((io.github.tanguygab.logicsim3.Gate) part);
-			}
-		}
+	public Vector<Gate> getGates() {
+		Vector<Gate> gates = new Vector<>();
+		for (CircuitPart part : parts)
+			if (part instanceof Gate)
+				gates.add((Gate) part);
 		return gates;
 	}
 
-	public Vector<io.github.tanguygab.logicsim3.Wire> getWires() {
-		Vector<io.github.tanguygab.logicsim3.Wire> wires = new Vector<io.github.tanguygab.logicsim3.Wire>();
-		for (io.github.tanguygab.logicsim3.CircuitPart part : parts) {
-			if (part instanceof io.github.tanguygab.logicsim3.Wire) {
-				wires.add((io.github.tanguygab.logicsim3.Wire) part);
-			}
-		}
+	public Vector<Wire> getWires() {
+		Vector<Wire> wires = new Vector<>();
+		for (CircuitPart part : parts)
+			if (part instanceof Wire)
+				wires.add((Wire) part);
 		return wires;
 	}
 
+	// what is this even used for?
 	public void simulate() {
 	}
 
@@ -101,81 +94,64 @@ public class Circuit implements io.github.tanguygab.logicsim3.LSRepaintListener 
 
 	public void selectAll() {
 		deselectAll();
-		for (io.github.tanguygab.logicsim3.CircuitPart p : parts) {
-			p.select();
-		}
+		parts.forEach(CircuitPart::select);
 	}
 
-	// Alle Gatter und zugehörige Wires deaktivieren
 	public void deselectAll() {
-		for (io.github.tanguygab.logicsim3.CircuitPart p : parts) {
-			p.deselect();
-		}
+		parts.forEach(CircuitPart::deselect);
 	}
 
 	public boolean isModule() {
-		for (io.github.tanguygab.logicsim3.CircuitPart g : parts) {
-			if (g instanceof MODIN) {
-				return true;
-			}
-		}
-		return false;
+		return parts.stream().anyMatch(part->part instanceof MODIN);
 	}
 
 	public boolean isPartAtCoordinates(int x, int y) {
-		for (io.github.tanguygab.logicsim3.CircuitPart p : parts) {
-			if (p.getX() == x && p.getY() == y)
-				return true;
-		}
-		return false;
+		return parts.stream().anyMatch(part->part.getX() == x && part.getY() == y);
 	}
 
-	public io.github.tanguygab.logicsim3.CircuitPart findPartAt(int x, int y) {
-		for (io.github.tanguygab.logicsim3.Gate g : getGates()) {
-			io.github.tanguygab.logicsim3.CircuitPart cp = g.findPartAt(x, y);
-			if (cp != null)
-				return cp;
+	public CircuitPart findPartAt(int x, int y) {
+		for (Gate g : getGates()) {
+			CircuitPart cp = g.findPartAt(x, y);
+			if (cp != null) return cp;
 		}
-		for (io.github.tanguygab.logicsim3.Wire w : getWires()) {
-			io.github.tanguygab.logicsim3.CircuitPart cp = w.findPartAt(x, y);
-			if (cp != null)
-				return cp;
+		for (Wire w : getWires()) {
+			CircuitPart cp = w.findPartAt(x, y);
+			if (cp != null) return cp;
 		}
 		return null;
 	}
 
-	public io.github.tanguygab.logicsim3.CircuitPart[] getSelected() {
-		Vector<io.github.tanguygab.logicsim3.CircuitPart> selParts = new Vector<io.github.tanguygab.logicsim3.CircuitPart>();
-		for (io.github.tanguygab.logicsim3.Gate g : getGates()) {
+	public CircuitPart[] getSelected() {
+		Vector<CircuitPart> selParts = new Vector<>();
+		for (Gate g : getGates()) {
 			if (g.selected && !selParts.contains(g))
 				selParts.add(g);
 		}
-		for (io.github.tanguygab.logicsim3.Wire w : getWires()) {
+		for (Wire w : getWires()) {
 			if (w.selected && !selParts.contains(w))
 				selParts.add(w);
-			if (w.getFrom() instanceof io.github.tanguygab.logicsim3.WirePoint)
+			if (w.getFrom() instanceof WirePoint)
 				if (w.getFrom().isSelected() && !selParts.contains(w.getFrom()))
 					selParts.add(w.getFrom());
-			if (w.getTo() instanceof io.github.tanguygab.logicsim3.WirePoint)
+			if (w.getTo() instanceof WirePoint)
 				if (w.getTo().isSelected() && !selParts.contains(w.getTo()))
 					selParts.add(w.getTo());
-			for (io.github.tanguygab.logicsim3.WirePoint wp : w.getPoints())
+			for (WirePoint wp : w.getPoints())
 				if (wp.isSelected() && !selParts.contains(wp))
 					selParts.add(wp);
 		}
-		return selParts.toArray(new io.github.tanguygab.logicsim3.CircuitPart[selParts.size()]);
+		return selParts.toArray(new CircuitPart[0]);
 	}
 
-	public boolean remove(io.github.tanguygab.logicsim3.CircuitPart[] parts) {
-		if (parts.length == 0)
-			return false;
+	public boolean remove(CircuitPart[] parts) {
+		if (parts.length == 0) return false;
 
-		for (io.github.tanguygab.logicsim3.CircuitPart part : parts) {
-			if (part instanceof io.github.tanguygab.logicsim3.Gate) {
-				io.github.tanguygab.logicsim3.Gate g = (io.github.tanguygab.logicsim3.Gate) part;
+		for (CircuitPart part : parts) {
+			if (part instanceof Gate) {
+				Gate g = (Gate) part;
 				removeGate(g);
-			} else if (part instanceof io.github.tanguygab.logicsim3.Wire) {
-				io.github.tanguygab.logicsim3.Wire w = (io.github.tanguygab.logicsim3.Wire) part;
+			} else if (part instanceof Wire) {
+				Wire w = (Wire) part;
 				w.disconnect(null);
 				this.parts.remove(part);
 			}
@@ -183,11 +159,9 @@ public class Circuit implements io.github.tanguygab.logicsim3.LSRepaintListener 
 		return true;
 	}
 
-	public boolean removeGate(io.github.tanguygab.logicsim3.Gate g) {
-		if (g == null)
-			throw new RuntimeException("cannot remove a non-gate gate is null");
-		if (g.type.equals("modin") || g.type.equals("modout"))
-			return false;
+	public void removeGate(Gate g) {
+		if (g == null) throw new RuntimeException("cannot remove a non-gate gate is null");
+		if (g.type.equals("modin") || g.type.equals("modout")) return;
 		// 1. check all wires if they are connected to that gate
 //		for (Pin p : g.pins) {
 //			if (p.isConnected()) {
@@ -211,31 +185,29 @@ public class Circuit implements io.github.tanguygab.logicsim3.LSRepaintListener 
 //				}
 //			}
 //		}
-		for (Iterator<io.github.tanguygab.logicsim3.CircuitPart> iter = parts.iterator(); iter.hasNext();) {
-			io.github.tanguygab.logicsim3.CircuitPart part = iter.next();
-			if (!(part instanceof io.github.tanguygab.logicsim3.Wire))
-				continue;
-			io.github.tanguygab.logicsim3.Wire w = (io.github.tanguygab.logicsim3.Wire) part;
-			if (w.getTo() != null && w.getTo() instanceof io.github.tanguygab.logicsim3.Pin) {
-				io.github.tanguygab.logicsim3.Pin p = (io.github.tanguygab.logicsim3.Pin) w.getTo();
+		for (CircuitPart part : parts) {
+			if (!(part instanceof Wire)) continue;
+			Wire w = (Wire) part;
+			if (w.getTo() != null && w.getTo() instanceof Pin) {
+				Pin p = (Pin) w.getTo();
 				if (p.parent == g) {
 					w.removeLevelListener(p);
 					p.removeLevelListener(w);
 					// w.disconnect(null);
 					// iter.remove();
-					io.github.tanguygab.logicsim3.WirePoint wp = new io.github.tanguygab.logicsim3.WirePoint(p.getX(), p.getY());
+					WirePoint wp = new WirePoint(p.getX(), p.getY());
 					w.setTo(wp);
 					w.connect(wp);
 				}
 			}
-			if (w.getFrom() != null && w.getFrom() instanceof io.github.tanguygab.logicsim3.Pin) {
-				io.github.tanguygab.logicsim3.Pin p = (io.github.tanguygab.logicsim3.Pin) w.getFrom();
+			if (w.getFrom() != null && w.getFrom() instanceof Pin) {
+				Pin p = (Pin) w.getFrom();
 				if (p.parent == g) {
 					w.removeLevelListener(p);
 					p.removeLevelListener(w);
 					// w.disconnect(null);
 					// iter.remove();
-					io.github.tanguygab.logicsim3.WirePoint wp = new io.github.tanguygab.logicsim3.WirePoint(p.getX(), p.getY());
+					WirePoint wp = new WirePoint(p.getX(), p.getY());
 					w.setFrom(wp);
 					w.connect(wp);
 				}
@@ -243,41 +215,38 @@ public class Circuit implements io.github.tanguygab.logicsim3.LSRepaintListener 
 		}
 		// checkWires();
 		parts.remove(g);
-		return true;
-	}
+    }
 
-	public boolean removeGateIdx(int idx) {
-		io.github.tanguygab.logicsim3.Gate g = (io.github.tanguygab.logicsim3.Gate) parts.get(idx);
-		return removeGate(g);
-	}
+	public void removeGateIdx(int idx) {
+		Gate g = (Gate) parts.get(idx);
+        removeGate(g);
+    }
 
-	public io.github.tanguygab.logicsim3.Gate findGateById(String fromGateId) {
-		for (io.github.tanguygab.logicsim3.CircuitPart p : parts) {
+	public Gate findGateById(String fromGateId) {
+		for (CircuitPart p : parts)
 			if (p.getId().equals(fromGateId))
-				return (io.github.tanguygab.logicsim3.Gate) p;
-		}
+				return (Gate) p;
 		return null;
 	}
 
 	@Override
-	public void needsRepaint(io.github.tanguygab.logicsim3.CircuitPart circuitPart) {
+	public void needsRepaint(CircuitPart circuitPart) {
 		// forward
 		if (repaintListener != null)
 			repaintListener.needsRepaint(circuitPart);
 	}
 
-	public void setGates(Vector<io.github.tanguygab.logicsim3.Gate> gates) {
-		for (io.github.tanguygab.logicsim3.Gate gate : gates) {
+	public void setGates(Vector<Gate> gates) {
+		for (Gate gate : gates) {
 			addGate(gate);
 			gate.setRepaintListener(this);
 		}
 		fireRepaint(null);
 	}
 
-	public void setWires(Vector<io.github.tanguygab.logicsim3.Wire> wires) {
-		for (io.github.tanguygab.logicsim3.Wire wire : wires) {
-			addWire(wire);
-		}
+	public void setWires(Vector<Wire> wires) {
+		for (Wire wire : wires) addWire(wire);
+
 		// checkWires();
 
 		fireRepaint(null);
@@ -318,88 +287,85 @@ public class Circuit implements io.github.tanguygab.logicsim3.LSRepaintListener 
 //		this.needsRepaint(null);
 //	}
 
-	private void fireRepaint(io.github.tanguygab.logicsim3.CircuitPart source) {
+	private void fireRepaint(CircuitPart source) {
 		if (repaintListener != null)
 			repaintListener.needsRepaint(source);
 	}
 
 	@Override
 	public String toString() {
-		String s = "";
-		for (Gate g : getGates()) {
-			s += "\n" + g;
-		}
-		for (io.github.tanguygab.logicsim3.Wire w : getWires()) {
-			s += "\n" + w;
-		}
-		return s = "Circuit:" + io.github.tanguygab.logicsim3.CircuitPart.indent(s, 3);
+		StringBuilder s = new StringBuilder();
+		for (Gate g : getGates()) s.append("\n").append(g);
+		for (Wire w : getWires()) s.append("\n").append(w);
+
+		return "Circuit:" + CircuitPart.indent(s.toString(), 3);
 	}
 
-	public io.github.tanguygab.logicsim3.CircuitPart[] findParts(Rectangle2D selectRect) {
-		Vector<io.github.tanguygab.logicsim3.CircuitPart> findParts = new Vector<io.github.tanguygab.logicsim3.CircuitPart>();
-		for (io.github.tanguygab.logicsim3.CircuitPart p : parts) {
+	public CircuitPart[] findParts(Rectangle2D selectRect) {
+		Vector<CircuitPart> findParts = new Vector<>();
+		for (CircuitPart p : parts) {
 			if (selectRect.contains(p.getBoundingBox())) {
 				p.select();
 				findParts.add(p);
 			}
 		}
-		return findParts.toArray(new io.github.tanguygab.logicsim3.CircuitPart[findParts.size()]);
+		return findParts.toArray(new CircuitPart[0]);
 	}
 
 	public void reset() {
-		for (io.github.tanguygab.logicsim3.CircuitPart p : getGates())
+		for (CircuitPart p : getGates())
 			p.reset();
 	}
 
-	public void remove(io.github.tanguygab.logicsim3.CircuitPart part) {
+	public void remove(CircuitPart part) {
 		parts.remove(part);
 	}
 
-	public io.github.tanguygab.logicsim3.Wire getUnfinishedWire() {
-		for (io.github.tanguygab.logicsim3.CircuitPart part : parts) {
-			if (part instanceof io.github.tanguygab.logicsim3.Wire && ((io.github.tanguygab.logicsim3.Wire) part).isNotFinished())
-				return (io.github.tanguygab.logicsim3.Wire) part;
+	public Wire getUnfinishedWire() {
+		for (CircuitPart part : parts) {
+			if (part instanceof Wire && ((Wire) part).isNotFinished())
+				return (Wire) part;
 		}
 		return null;
 	}
 
 	/**
 	 * replace a wirepoint by a pin
-	 * 
-	 * @param wp
-	 */
+	 *
+     */
 	public void checkWirePoint(WirePoint wp) {
 		// check for Pin
 		int px = wp.getX();
 		int py = wp.getY();
-		io.github.tanguygab.logicsim3.CircuitPart cp = findPartAt(px, py);
-		if (cp instanceof io.github.tanguygab.logicsim3.Pin) {
-			io.github.tanguygab.logicsim3.Pin p = (Pin) cp;
-			// wirepoint will be replaced by pin
-			// get corresponding wire
-			for (Wire w : getWires()) {
-				if (wp.equals(w.getFrom())) {
-					// found wire
-					wp.removeLevelListener(w);
-					w.removeLevelListener(wp);
-					w.setFrom(p);
-					w.connect(p);
-					return;
-				}
-				if (wp.equals(w.getTo())) {
-					// found wire
-					wp.removeLevelListener(w);
-					w.removeLevelListener(wp);
-					w.setTo(p);
-					w.connect(p);
-					return;
-				}
+		CircuitPart cp = findPartAt(px, py);
+        if (!(cp instanceof Pin)) return;
+
+		Pin p = (Pin) cp;
+		// wirepoint will be replaced by pin
+		// get corresponding wire
+		for (Wire w : getWires()) {
+			if (wp == w.getFrom()) {
+				// found wire
+				wp.removeLevelListener(w);
+				w.removeLevelListener(wp);
+				w.setFrom(p);
+				w.connect(p);
+				return;
+			}
+			if (wp == w.getTo()) {
+				// found wire
+				wp.removeLevelListener(w);
+				w.removeLevelListener(wp);
+				w.setTo(p);
+				w.connect(p);
+				return;
 			}
 		}
+
 	}
 
 	public boolean isEmpty() {
-		return parts.size() == 0;
+		return parts.isEmpty();
 	}
 
 	public Rectangle getBoundingBox() {
@@ -407,11 +373,11 @@ public class Circuit implements io.github.tanguygab.logicsim3.LSRepaintListener 
 		for (CircuitPart part : parts) {
 			Rectangle r2 = part.getBoundingBox();
 			Rectangle2D r22d = new Rectangle2D.Double(r2.x, r2.y, r2.width, r2.height);
-			if (r2d == null)
-				r2d = (Rectangle2D) r22d.clone();
+			if (r2d == null) r2d = (Rectangle2D) r22d.clone();
 			r2d.add(r22d);
 		}
-		return new Rectangle((int) r2d.getX(), (int) r2d.getY(), (int) r2d.getWidth(), (int) r2d.getHeight());
+        assert r2d != null;
+        return new Rectangle((int) r2d.getX(), (int) r2d.getY(), (int) r2d.getWidth(), (int) r2d.getHeight());
 	}
 
 }

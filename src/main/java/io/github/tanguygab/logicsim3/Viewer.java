@@ -25,7 +25,7 @@ public class Viewer extends JPanel {
 	/**
 	 * Interface for all classes that may perform painting operations. Instances of
 	 * classes implementing this interface may be passed to the
-	 * {@link io.github.tanguygab.logicsim3.Viewer#addPainter(Painter)} method.
+	 * {@link Viewer#addPainter(Painter)} method.
 	 */
 	public interface Painter {
 		/**
@@ -45,7 +45,7 @@ public class Viewer extends JPanel {
 	/**
 	 * Interface for transforming between the screen- and world coordinate system of
 	 * this Viewer, depending on its current zooming and translation. An instance of
-	 * this class may be obtained from {@link io.github.tanguygab.logicsim3.Viewer#getTransformer()}.
+	 * this class may be obtained from {@link Viewer#getTransformer()}.
 	 */
 	public interface Transformer {
 		/**

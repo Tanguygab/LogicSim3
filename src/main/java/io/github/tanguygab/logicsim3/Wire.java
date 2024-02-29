@@ -19,7 +19,7 @@ import java.awt.geom.Path2D;
 import java.util.Iterator;
 import java.util.Vector;
 
-public class Wire extends io.github.tanguygab.logicsim3.CircuitPart implements Cloneable {
+public class Wire extends CircuitPart implements Cloneable {
 	static final long serialVersionUID = -7554728800898882892L;
 
 	public static float SEL_WIDTH = 3f;
@@ -36,19 +36,19 @@ public class Wire extends io.github.tanguygab.logicsim3.CircuitPart implements C
 	/**
 	 * Pin/Wire/WirePoint from which this wire is originating
 	 */
-	private io.github.tanguygab.logicsim3.CircuitPart from;
+	private CircuitPart from;
 
 	/**
 	 * data structure to hold the wire points
 	 */
-	private Vector<io.github.tanguygab.logicsim3.WirePoint> points = new Vector<io.github.tanguygab.logicsim3.WirePoint>();
+	private Vector<WirePoint> points = new Vector<WirePoint>();
 
 	private Point tempPoint = null;
 
 	/**
 	 * connector to which this wire is targeting
 	 */
-	private io.github.tanguygab.logicsim3.CircuitPart to;
+	private CircuitPart to;
 
 	private boolean level;
 
@@ -58,7 +58,7 @@ public class Wire extends io.github.tanguygab.logicsim3.CircuitPart implements C
 	 * @param fromPart
 	 * @param toPart
 	 */
-	public Wire(io.github.tanguygab.logicsim3.CircuitPart fromPart, io.github.tanguygab.logicsim3.CircuitPart toPart) {
+	public Wire(CircuitPart fromPart, CircuitPart toPart) {
 		this(0, 0);
 		this.setFrom(fromPart);
 		this.setTo(toPart);
@@ -68,10 +68,10 @@ public class Wire extends io.github.tanguygab.logicsim3.CircuitPart implements C
 	}
 
 	private void checkFromTo() {
-		if (getFrom() instanceof io.github.tanguygab.logicsim3.WirePoint)
-			((io.github.tanguygab.logicsim3.WirePoint) getFrom()).show = true;
-		if (getTo() instanceof io.github.tanguygab.logicsim3.WirePoint)
-			((io.github.tanguygab.logicsim3.WirePoint) getTo()).show = true;
+		if (getFrom() instanceof WirePoint)
+			((WirePoint) getFrom()).show = true;
+		if (getTo() instanceof WirePoint)
+			((WirePoint) getTo()).show = true;
 	}
 
 	public Wire(int x, int y) {
@@ -85,31 +85,31 @@ public class Wire extends io.github.tanguygab.logicsim3.CircuitPart implements C
 	}
 
 	public void addPoint(int x, int y) {
-		io.github.tanguygab.logicsim3.WirePoint wp = new io.github.tanguygab.logicsim3.WirePoint(x, y);
+		WirePoint wp = new WirePoint(x, y);
 		addPoint(wp);
 	}
 
 	@SuppressWarnings("unchecked")
 	public Object clone() {
-		io.github.tanguygab.logicsim3.Wire clone = null;
+		Wire clone = null;
 		try {
-			clone = (io.github.tanguygab.logicsim3.Wire) super.clone();
+			clone = (Wire) super.clone();
 		} catch (CloneNotSupportedException e) {
 			throw new InternalError();
 		}
 		// Kopie von poly & nodes anlegen, Gate bleibt die selbe Referenz wie beim
 		// Original
-		clone.points = (Vector<io.github.tanguygab.logicsim3.WirePoint>) points.clone();
+		clone.points = (Vector<WirePoint>) points.clone();
 		return clone;
 	}
 
 	private Path2D convertPointsToPath() {
 		Path2D path = new Path2D.Float();
-		io.github.tanguygab.logicsim3.WirePoint first = getPointFrom();
+		WirePoint first = getPointFrom();
 		path.moveTo(first.getX(), first.getY());
 
 		for (int i = 0; i < points.size(); i++) {
-			io.github.tanguygab.logicsim3.WirePoint point = points.get(i);
+			WirePoint point = points.get(i);
 			path.lineTo(point.getX(), point.getY());
 		}
 
@@ -151,16 +151,16 @@ public class Wire extends io.github.tanguygab.logicsim3.CircuitPart implements C
 
 		// draw points
 		if (points.size() > 0) {
-			for (io.github.tanguygab.logicsim3.WirePoint point : points) {
+			for (WirePoint point : points) {
 				//point.show || 
 				if (selected || point.isSelected() || point.getListeners().size() > 1) {
 					point.draw(g2);
 				}
 			}
 		}
-		if (getTo() instanceof io.github.tanguygab.logicsim3.WirePoint)
+		if (getTo() instanceof WirePoint)
 			getTo().draw(g2);
-		if (getFrom() instanceof io.github.tanguygab.logicsim3.WirePoint)
+		if (getFrom() instanceof WirePoint)
 			getFrom().draw(g2);
 
 		if (getTo() == null && tempPoint != null) {
@@ -183,23 +183,23 @@ public class Wire extends io.github.tanguygab.logicsim3.CircuitPart implements C
 		}
 	}
 
-	public io.github.tanguygab.logicsim3.CircuitPart findPartAt(int x, int y) {
+	public CircuitPart findPartAt(int x, int y) {
 		int rx = round(x);
 		int ry = round(y);
 
-		if (getFrom() instanceof io.github.tanguygab.logicsim3.WirePoint)
-			if (((io.github.tanguygab.logicsim3.WirePoint) getFrom()).isAt(rx, ry))
+		if (getFrom() instanceof WirePoint)
+			if (((WirePoint) getFrom()).isAt(rx, ry))
 				return getFrom();
 
-		if (getTo() instanceof io.github.tanguygab.logicsim3.WirePoint)
-			if (((io.github.tanguygab.logicsim3.WirePoint) getTo()).isAt(rx, ry))
+		if (getTo() instanceof WirePoint)
+			if (((WirePoint) getTo()).isAt(rx, ry))
 				return getTo();
 
-		Vector<io.github.tanguygab.logicsim3.WirePoint> ps = getAllPoints();
+		Vector<WirePoint> ps = getAllPoints();
 		for (int i = 0; i < ps.size() - 1; i++) {
 			// set current and next wirepoint
-			io.github.tanguygab.logicsim3.WirePoint c = ps.get(i);
-			io.github.tanguygab.logicsim3.WirePoint n = ps.get(i + 1);
+			WirePoint c = ps.get(i);
+			WirePoint n = ps.get(i + 1);
 			if (n.isAt(rx, ry))
 				return n;
 			Line2D l = new Line2D.Float((float) c.getX(), (float) c.getY(), (float) n.getX(), (float) n.getY());
@@ -210,8 +210,8 @@ public class Wire extends io.github.tanguygab.logicsim3.CircuitPart implements C
 		return null;
 	}
 
-	private Vector<io.github.tanguygab.logicsim3.WirePoint> getAllPoints() {
-		Vector<io.github.tanguygab.logicsim3.WirePoint> ps = new Vector<io.github.tanguygab.logicsim3.WirePoint>();
+	private Vector<WirePoint> getAllPoints() {
+		Vector<WirePoint> ps = new Vector<WirePoint>();
 		ps.add(getPointFrom());
 		ps.addAll(points);
 		if (getTo() != null)
@@ -226,7 +226,7 @@ public class Wire extends io.github.tanguygab.logicsim3.CircuitPart implements C
 		return rect;
 	}
 
-	io.github.tanguygab.logicsim3.WirePoint getLastPoint() {
+	WirePoint getLastPoint() {
 		if (getTo() != null) {
 			return getPointTo();
 		} else if (points.size() > 0) {
@@ -253,31 +253,31 @@ public class Wire extends io.github.tanguygab.logicsim3.CircuitPart implements C
 			return -1;
 
 		for (int i = 0; i < points.size(); i++) {
-			io.github.tanguygab.logicsim3.WirePoint p = points.get(i);
+			WirePoint p = points.get(i);
 			if (mx > p.getX() - 3 && mx < p.getX() + 3 && my > p.getY() - 3 && my < p.getY() + 3)
 				return i;
 		}
 		return -1;
 	}
 
-	io.github.tanguygab.logicsim3.WirePoint getPointFrom() {
-		io.github.tanguygab.logicsim3.WirePoint wp = new io.github.tanguygab.logicsim3.WirePoint(getFrom().getX(), getFrom().getY(), false);
+	WirePoint getPointFrom() {
+		WirePoint wp = new WirePoint(getFrom().getX(), getFrom().getY(), false);
 		return wp;
 	}
 
-	private io.github.tanguygab.logicsim3.WirePoint getPointTo() {
-		io.github.tanguygab.logicsim3.WirePoint wp = new io.github.tanguygab.logicsim3.WirePoint(getTo().getX(), getTo().getY(), false);
+	private WirePoint getPointTo() {
+		WirePoint wp = new WirePoint(getTo().getX(), getTo().getY(), false);
 		return wp;
 	}
 
 	public void insertPointAfter(int n, int mx, int my) {
-		io.github.tanguygab.logicsim3.WirePoint wp = new io.github.tanguygab.logicsim3.WirePoint(mx, my, false);
+		WirePoint wp = new WirePoint(mx, my, false);
 		wp.parent = this;
 		points.insertElementAt(wp, n);
 	}
 
 	public void insertPointAfterStart(int x, int y) {
-		io.github.tanguygab.logicsim3.WirePoint wp = new io.github.tanguygab.logicsim3.WirePoint(x, y, false);
+		WirePoint wp = new WirePoint(x, y, false);
 		points.insertElementAt(wp, 0);
 	}
 
@@ -292,11 +292,11 @@ public class Wire extends io.github.tanguygab.logicsim3.CircuitPart implements C
 	 * @return the number of the point from which the line segment is starting
 	 */
 	public int isAt(int x, int y) {
-		Vector<io.github.tanguygab.logicsim3.WirePoint> ps = getAllPoints();
+		Vector<WirePoint> ps = getAllPoints();
 		for (int i = 0; i < ps.size() - 1; i++) {
 			// set current and next wirepoint
-			io.github.tanguygab.logicsim3.WirePoint c = ps.get(i);
-			io.github.tanguygab.logicsim3.WirePoint n = ps.get(i + 1);
+			WirePoint c = ps.get(i);
+			WirePoint n = ps.get(i + 1);
 			Line2D l = new Line2D.Float((float) c.getX(), (float) c.getY(), (float) n.getX(), (float) n.getY());
 			if (l.ptSegDist((double) x, (double) y) < 4.0f)
 				return i;
@@ -339,7 +339,7 @@ public class Wire extends io.github.tanguygab.logicsim3.CircuitPart implements C
 		int mx = e.getX();
 		int my = e.getY();
 
-		if (e.lsAction == io.github.tanguygab.logicsim3.LSPanel.ACTION_ADDPOINT) {
+		if (e.lsAction == LSPanel.ACTION_ADDPOINT) {
 			int p = isAt(mx, my);
 			if (p > -1) {
 				insertPointAfter(p, round(mx), round(my));
@@ -380,7 +380,7 @@ public class Wire extends io.github.tanguygab.logicsim3.CircuitPart implements C
 	@Override
 	public void moveBy(int dx, int dy) {
 		// move wirepoints
-		for (io.github.tanguygab.logicsim3.WirePoint wp : points) {
+		for (WirePoint wp : points) {
 			wp.moveBy(dx, dy);
 		}
 		// if (getFrom() instanceof WirePoint) {
@@ -417,15 +417,15 @@ public class Wire extends io.github.tanguygab.logicsim3.CircuitPart implements C
 		}
 	}
 
-	public io.github.tanguygab.logicsim3.WirePoint removePoint(int n) {
+	public WirePoint removePoint(int n) {
 		if (points.size() == 0)
 			return null;
 		return points.remove(n);
 	}
 
 	public boolean removePointAt(int x, int y) {
-		for (Iterator<io.github.tanguygab.logicsim3.WirePoint> iter = points.iterator(); iter.hasNext();) {
-			io.github.tanguygab.logicsim3.WirePoint wp = iter.next();
+		for (Iterator<WirePoint> iter = points.iterator(); iter.hasNext();) {
+			WirePoint wp = iter.next();
 			if (wp.isAt(x, y)) {
 				iter.remove();
 				return true;
@@ -435,7 +435,7 @@ public class Wire extends io.github.tanguygab.logicsim3.CircuitPart implements C
 	}
 
 	public void setNodeIsDrawn(int i) {
-		io.github.tanguygab.logicsim3.WirePoint p = points.get(i);
+		WirePoint p = points.get(i);
 		p.show = true;
 	}
 
@@ -475,7 +475,7 @@ public class Wire extends io.github.tanguygab.logicsim3.CircuitPart implements C
 	 * 
 	 * @param connector
 	 */
-	public void disconnect(io.github.tanguygab.logicsim3.Pin connector) {
+	public void disconnect(Pin connector) {
 		if (getTo() != null) {
 			getTo().removeLevelListener(this);
 			this.removeLevelListener(getTo());
@@ -489,16 +489,16 @@ public class Wire extends io.github.tanguygab.logicsim3.CircuitPart implements C
 	}
 
 	@Override
-	public void changedLevel(io.github.tanguygab.logicsim3.LSLevelEvent e) {
+	public void changedLevel(LSLevelEvent e) {
 		// System.out.println(getId() + ": got event " + e);
 		// a wire can get a level change from a pin or another wire
 		if (level != e.level || e.force) {
 			level = e.level;
 			// forward to other listeners, event must not get back to the origin
 			fireRepaint();
-			io.github.tanguygab.logicsim3.LSLevelEvent evt = new io.github.tanguygab.logicsim3.LSLevelEvent(this, e.level, e.force);
+			LSLevelEvent evt = new LSLevelEvent(this, e.level, e.force);
 			fireChangedLevel(e);
-			for (io.github.tanguygab.logicsim3.WirePoint wp : points) {
+			for (WirePoint wp : points) {
 				wp.changedLevel(evt);
 			}
 		}
@@ -514,11 +514,11 @@ public class Wire extends io.github.tanguygab.logicsim3.CircuitPart implements C
 	}
 
 	public void addPointFitting(int x, int y) {
-		Vector<io.github.tanguygab.logicsim3.WirePoint> ps = getAllPoints();
+		Vector<WirePoint> ps = getAllPoints();
 		for (int i = 0; i < ps.size() - 1; i++) {
 			// set current and next wirepoint
-			io.github.tanguygab.logicsim3.WirePoint c = ps.get(i);
-			io.github.tanguygab.logicsim3.WirePoint n = ps.get(i + 1);
+			WirePoint c = ps.get(i);
+			WirePoint n = ps.get(i + 1);
 			if (n.isAt(x, y)) {
 				n.show = true;
 				return;
@@ -536,13 +536,13 @@ public class Wire extends io.github.tanguygab.logicsim3.CircuitPart implements C
 	@Override
 	public void deselect() {
 		super.deselect();
-		if (getFrom() instanceof io.github.tanguygab.logicsim3.WirePoint)
+		if (getFrom() instanceof WirePoint)
 			getFrom().deselect();
 
-		if (getTo() instanceof io.github.tanguygab.logicsim3.WirePoint)
+		if (getTo() instanceof WirePoint)
 			getTo().deselect();
 
-		for (io.github.tanguygab.logicsim3.WirePoint wp : points) {
+		for (WirePoint wp : points) {
 			wp.deselect();
 		}
 	}
@@ -551,7 +551,7 @@ public class Wire extends io.github.tanguygab.logicsim3.CircuitPart implements C
 		setTempPoint(null);
 	}
 
-	public void addPoint(io.github.tanguygab.logicsim3.WirePoint wp) {
+	public void addPoint(WirePoint wp) {
 		// check if the point is not present
 		int x = wp.getX();
 		int y = wp.getY();
@@ -571,20 +571,20 @@ public class Wire extends io.github.tanguygab.logicsim3.CircuitPart implements C
 		points.add(wp);
 	}
 
-	public Vector<io.github.tanguygab.logicsim3.WirePoint> getPoints() {
+	public Vector<WirePoint> getPoints() {
 		return points;
 	}
 
-	public io.github.tanguygab.logicsim3.CircuitPart getFrom() {
+	public CircuitPart getFrom() {
 		return from;
 	}
 
-	public void setFrom(io.github.tanguygab.logicsim3.CircuitPart from) {
+	public void setFrom(CircuitPart from) {
 		this.from = from;
 		checkFromTo();
 	}
 
-	public io.github.tanguygab.logicsim3.CircuitPart getTo() {
+	public CircuitPart getTo() {
 		return to;
 	}
 
@@ -597,16 +597,16 @@ public class Wire extends io.github.tanguygab.logicsim3.CircuitPart implements C
 	public void reset() {
 		super.reset();
 		if (from != null) {
-			if (from instanceof io.github.tanguygab.logicsim3.Wire) {
-				io.github.tanguygab.logicsim3.Wire w = (io.github.tanguygab.logicsim3.Wire) from;
-				from.fireChangedLevel(new io.github.tanguygab.logicsim3.LSLevelEvent(from, w.getLevel()));
-			} else if (from instanceof io.github.tanguygab.logicsim3.Pin) {
-				io.github.tanguygab.logicsim3.Pin p = (Pin) from;
-				from.fireChangedLevel(new io.github.tanguygab.logicsim3.LSLevelEvent(from, p.getLevel()));
-			} else if (from instanceof io.github.tanguygab.logicsim3.WirePoint) {
-				io.github.tanguygab.logicsim3.WirePoint wp = (WirePoint) from;
+			if (from instanceof Wire) {
+				Wire w = (Wire) from;
+				from.fireChangedLevel(new LSLevelEvent(from, w.getLevel()));
+			} else if (from instanceof Pin) {
+				Pin p = (Pin) from;
+				from.fireChangedLevel(new LSLevelEvent(from, p.getLevel()));
+			} else if (from instanceof WirePoint) {
+				WirePoint wp = (WirePoint) from;
 				if (wp.parent != null) {
-					io.github.tanguygab.logicsim3.Wire w = (io.github.tanguygab.logicsim3.Wire) wp.parent;
+					Wire w = (Wire) wp.parent;
 					wp.parent.fireChangedLevel(new LSLevelEvent(wp.parent, w.getLevel()));
 				}
 			}
@@ -614,7 +614,7 @@ public class Wire extends io.github.tanguygab.logicsim3.CircuitPart implements C
 	}
 
 	public static void setColorMode() {
-		String colmode = io.github.tanguygab.logicsim3.LSProperties.getInstance().getProperty(io.github.tanguygab.logicsim3.LSProperties.COLORMODE, io.github.tanguygab.logicsim3.LSProperties.COLORMODE_ON);
+		String colmode = LSProperties.getInstance().getProperty(LSProperties.COLORMODE, LSProperties.COLORMODE_ON);
 		if (LSProperties.COLORMODE_OFF.equals(colmode)) {
 			HIGH_COLOR = Color.black;
 			LOW_COLOR = Color.black;

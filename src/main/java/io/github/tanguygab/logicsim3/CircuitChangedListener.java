@@ -3,13 +3,14 @@ package io.github.tanguygab.logicsim3;
 import java.awt.Point;
 
 public interface CircuitChangedListener {
-	public void changedCircuit();
 
-	public void changedStatusText(String text);
+	void changedCircuit();
 
-	public void changedZoomPos(double zoom, Point pos);
+	void changedStatusText(String text);
 
-	public void setAction(int action);
+	void changedZoomPos(double zoom, Point pos);
 
-	public void needsRepaint(CircuitPart circuitPart);
+	void setAction(int action);
+
+	void needsRepaint(CircuitPart circuitPart);
 }

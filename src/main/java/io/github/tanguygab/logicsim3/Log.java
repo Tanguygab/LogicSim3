@@ -7,11 +7,11 @@ public class Log {
 
 	SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss.SSS");
 
-	private static io.github.tanguygab.logicsim3.Log instance;
+	private static Log instance;
 
-	public static io.github.tanguygab.logicsim3.Log getInstance() {
+	public static Log getInstance() {
 		if (instance == null)
-			instance = new io.github.tanguygab.logicsim3.Log();
+			instance = new Log();
 		return instance;
 	}
 

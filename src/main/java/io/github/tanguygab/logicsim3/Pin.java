@@ -8,7 +8,7 @@ import java.awt.Rectangle;
 import java.awt.geom.Path2D;
 import java.util.ArrayList;
 
-public class Pin extends io.github.tanguygab.logicsim3.CircuitPart {
+public class Pin extends CircuitPart {
 
 	public static final int INPUT = 1;
 	public static final int OUTPUT = 2;
@@ -41,7 +41,7 @@ public class Pin extends io.github.tanguygab.logicsim3.CircuitPart {
 
 	public void setIoType(int ioType) {
 		if (ioType == HIGHIMP && this.ioType != HIGHIMP) {
-			parent.changedLevel(new io.github.tanguygab.logicsim3.LSLevelEvent(this, CircuitPart.LOW));
+			parent.changedLevel(new LSLevelEvent(this, CircuitPart.LOW));
 		} else if (ioType != HIGHIMP && this.ioType == HIGHIMP) {
 
 		}
@@ -53,7 +53,7 @@ public class Pin extends io.github.tanguygab.logicsim3.CircuitPart {
 	 */
 	int levelType = NORMAL;
 
-	public Pin(int x, int y, io.github.tanguygab.logicsim3.Gate gate, int number) {
+	public Pin(int x, int y, Gate gate, int number) {
 		super(x, y);
 		this.parent = gate;
 		this.number = number;
@@ -88,7 +88,7 @@ public class Pin extends io.github.tanguygab.logicsim3.CircuitPart {
 					tr.addPoint(x + 1 + CONN_SIZE + 9, y);
 					g2.draw(tr);
 				} else {
-					io.github.tanguygab.logicsim3.WidgetHelper.drawString(g2, text, x + CONN_SIZE + 3, y + 4, io.github.tanguygab.logicsim3.WidgetHelper.ALIGN_LEFT);
+					WidgetHelper.drawString(g2, text, x + CONN_SIZE + 3, y + 4, WidgetHelper.ALIGN_LEFT);
 				}
 			} else if (paintDirection == LEFT) {
 				if (POS_EDGE_TRIG.equals(text)) {
@@ -98,7 +98,7 @@ public class Pin extends io.github.tanguygab.logicsim3.CircuitPart {
 					tr.addPoint(x - 1 - CONN_SIZE - 9, y);
 					g2.draw(tr);
 				} else {
-					io.github.tanguygab.logicsim3.WidgetHelper.drawString(g2, text, x - CONN_SIZE - 2, y + 4, io.github.tanguygab.logicsim3.WidgetHelper.ALIGN_RIGHT);
+					WidgetHelper.drawString(g2, text, x - CONN_SIZE - 2, y + 4, WidgetHelper.ALIGN_RIGHT);
 				}
 			} else if (paintDirection == UP) {
 				if (POS_EDGE_TRIG.equals(text)) {
@@ -110,7 +110,7 @@ public class Pin extends io.github.tanguygab.logicsim3.CircuitPart {
 				} else {
 					// WidgetHelper.drawString(g2, text, x, y - CONN_SIZE - 3,
 					// WidgetHelper.ALIGN_CENTER);
-					io.github.tanguygab.logicsim3.WidgetHelper.drawStringRotated(g2, text, x + 3, y - CONN_SIZE - 3, io.github.tanguygab.logicsim3.WidgetHelper.ALIGN_LEFT, -90);
+					WidgetHelper.drawStringRotated(g2, text, x + 3, y - CONN_SIZE - 3, WidgetHelper.ALIGN_LEFT, -90);
 				}
 			} else if (paintDirection == DOWN) {
 				if (POS_EDGE_TRIG.equals(text)) {
@@ -122,7 +122,7 @@ public class Pin extends io.github.tanguygab.logicsim3.CircuitPart {
 				} else {
 					// WidgetHelper.drawString(g2, text, x, y + CONN_SIZE + 10,
 					// WidgetHelper.ALIGN_CENTER);
-					io.github.tanguygab.logicsim3.WidgetHelper.drawStringRotated(g2, text, x + 3, y + CONN_SIZE + 3, io.github.tanguygab.logicsim3.WidgetHelper.ALIGN_RIGHT, -90);
+					WidgetHelper.drawStringRotated(g2, text, x + 3, y + CONN_SIZE + 3, WidgetHelper.ALIGN_RIGHT, -90);
 				}
 			}
 		}
@@ -173,24 +173,24 @@ public class Pin extends io.github.tanguygab.logicsim3.CircuitPart {
 			int xp = x + 2;
 			int yp = y - 2;
 			if (paintDirection == LEFT)
-				io.github.tanguygab.logicsim3.WidgetHelper.drawStringCentered(g2, "1", xp + 2, yp);
+				WidgetHelper.drawStringCentered(g2, "1", xp + 2, yp);
 			else if (paintDirection == RIGHT)
-				io.github.tanguygab.logicsim3.WidgetHelper.drawStringCentered(g2, "1", xp - 5, yp);
+				WidgetHelper.drawStringCentered(g2, "1", xp - 5, yp);
 			else if (paintDirection == DOWN)
-				io.github.tanguygab.logicsim3.WidgetHelper.drawStringCentered(g2, "1", xp - 2, yp - 6);
+				WidgetHelper.drawStringCentered(g2, "1", xp - 2, yp - 6);
 			else // UP
-				io.github.tanguygab.logicsim3.WidgetHelper.drawStringCentered(g2, "1", xp - 2, yp + 6);
+				WidgetHelper.drawStringCentered(g2, "1", xp - 2, yp + 6);
 		} else if (levelType == LOW) {
 			if (ioType == OUTPUT)
 				throw new RuntimeException("OUTPUT may not be set LOW");
 			int xp = x + 2;
 			int yp = y - 2;
 			if (paintDirection == LEFT)
-				io.github.tanguygab.logicsim3.WidgetHelper.drawStringCentered(g2, "0", xp + 3, yp);
+				WidgetHelper.drawStringCentered(g2, "0", xp + 3, yp);
 			else if (paintDirection == RIGHT)
-				io.github.tanguygab.logicsim3.WidgetHelper.drawStringCentered(g2, "0", xp - 6, yp);
+				WidgetHelper.drawStringCentered(g2, "0", xp - 6, yp);
 			else if (paintDirection == DOWN)
-				io.github.tanguygab.logicsim3.WidgetHelper.drawStringCentered(g2, "0", xp - 2, yp - 6);
+				WidgetHelper.drawStringCentered(g2, "0", xp - 2, yp - 6);
 			else // UP
 				WidgetHelper.drawStringCentered(g2, "0", xp - 2, yp + 6);
 		}
@@ -383,17 +383,17 @@ public class Pin extends io.github.tanguygab.logicsim3.CircuitPart {
 	}
 
 	@Override
-	public void changedLevel(io.github.tanguygab.logicsim3.LSLevelEvent e) {
+	public void changedLevel(LSLevelEvent e) {
 		// source has to be a Gate or a Wire
 		if (e.source instanceof Gate) {
 			if (isOutput()) {
 				if (level != e.level || e.force) {
 					level = e.level;
 					// propagate this to the outside
-					fireChangedLevel(new io.github.tanguygab.logicsim3.LSLevelEvent(this, getLevel(), e.force));
+					fireChangedLevel(new LSLevelEvent(this, getLevel(), e.force));
 				}
 			}
-		} else if (e.source instanceof io.github.tanguygab.logicsim3.Wire) {
+		} else if (e.source instanceof Wire) {
 			// if the pin is in high imp state, update level but don't push it
 			if (this.ioType == HIGHIMP) {
 				level = e.level;
@@ -420,9 +420,9 @@ public class Pin extends io.github.tanguygab.logicsim3.CircuitPart {
 
 	public void disconnect() {
 		for (int i = 0; i < getListeners().size(); i++) {
-			io.github.tanguygab.logicsim3.LSLevelListener l = ((ArrayList<LSLevelListener>) getListeners()).get(i);
-			if (l instanceof io.github.tanguygab.logicsim3.Wire) {
-				io.github.tanguygab.logicsim3.Wire w = (Wire) l;
+			LSLevelListener l = ((ArrayList<LSLevelListener>) getListeners()).get(i);
+			if (l instanceof Wire) {
+				Wire w = (Wire) l;
 				w.disconnect(null);
 				w = null;
 				i--;

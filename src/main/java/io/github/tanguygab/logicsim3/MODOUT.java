@@ -38,8 +38,8 @@ public class MODOUT extends Gate {
 		g2.setColor(Color.GREEN);
 		int numberOfInputs = getInputs().size();
 		// draw click areas if pin is connected
-		for (io.github.tanguygab.logicsim3.Pin p : getOutputs()) {
-			io.github.tanguygab.logicsim3.Pin pin = getPin(p.number - numberOfInputs);
+		for (Pin p : getOutputs()) {
+			Pin pin = getPin(p.number - numberOfInputs);
 			if (pin.isConnected() && p.getProperty(TEXT) == null)
 				g2.fill(new Rectangle(getX() + width - CONN_SIZE - 9, p.getY() - 4, 8, 8));
 		}
@@ -48,14 +48,14 @@ public class MODOUT extends Gate {
 	@Override
 	protected void drawLabel(Graphics2D g2, String lbl, Font font) {
 		g2.setFont(bigFont);
-		io.github.tanguygab.logicsim3.WidgetHelper.drawStringRotated(g2, label, xc, yc, WidgetHelper.ALIGN_CENTER, -90);
+		WidgetHelper.drawStringRotated(g2, label, xc, yc, WidgetHelper.ALIGN_CENTER, -90);
 	}
 
 	@Override
-	public void changedLevel(io.github.tanguygab.logicsim3.LSLevelEvent e) {
-		io.github.tanguygab.logicsim3.Pin p = (Pin) e.source;
+	public void changedLevel(LSLevelEvent e) {
+		Pin p = (Pin) e.source;
 		int target = p.number + getNumInputs();
-		io.github.tanguygab.logicsim3.LSLevelEvent evt = new LSLevelEvent(this, p.getLevel());
+		LSLevelEvent evt = new LSLevelEvent(this, p.getLevel());
 		getPin(target).changedLevel(evt);
 	}
 
@@ -87,11 +87,11 @@ public class MODOUT extends Gate {
 
 	@Override
 	public void loadLanguage() {
-		io.github.tanguygab.logicsim3.I18N.addGate(io.github.tanguygab.logicsim3.I18N.ALL, type, io.github.tanguygab.logicsim3.I18N.TITLE, "Outputs");
-		io.github.tanguygab.logicsim3.I18N.addGate(io.github.tanguygab.logicsim3.I18N.ALL, type, io.github.tanguygab.logicsim3.I18N.DESCRIPTION, "Output Gate for Modules");
-		io.github.tanguygab.logicsim3.I18N.addGate(io.github.tanguygab.logicsim3.I18N.ALL, type, INPUT_LABEL, "Label");
-		io.github.tanguygab.logicsim3.I18N.addGate("de", type, io.github.tanguygab.logicsim3.I18N.TITLE, "Modulausgänge");
-		io.github.tanguygab.logicsim3.I18N.addGate("de", type, I18N.DESCRIPTION, "Ausgangsgatter für Module");
+		I18N.addGate(I18N.ALL, type, I18N.TITLE, "Outputs");
+		I18N.addGate(I18N.ALL, type, I18N.DESCRIPTION, "Output Gate for Modules");
+		I18N.addGate(I18N.ALL, type, INPUT_LABEL, "Label");
+		I18N.addGate("de", type, I18N.TITLE, "Modulausgänge");
+		I18N.addGate("de", type, I18N.DESCRIPTION, "Ausgangsgatter für Module");
 	}
 
 }

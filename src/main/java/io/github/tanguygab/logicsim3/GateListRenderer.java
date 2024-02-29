@@ -17,8 +17,8 @@ public class GateListRenderer extends JLabel implements ListCellRenderer<Object>
 
 		setFont(list.getFont());
 		setOpaque(true);
-		if (value instanceof io.github.tanguygab.logicsim3.Gate) {
-			io.github.tanguygab.logicsim3.Gate gate = (Gate) value;
+		if (value instanceof Gate) {
+			Gate gate = (Gate) value;
 			if (isSelected) {
 				setBackground(new Color(0xaa, 0xaa, 0xFF));
 				setForeground(Color.white);
@@ -30,8 +30,8 @@ public class GateListRenderer extends JLabel implements ListCellRenderer<Object>
 				setText(gate.type);
 			} else {
 				String s = gate.type;
-				if (io.github.tanguygab.logicsim3.I18N.hasString("gate." + s + ".title"))
-					s = io.github.tanguygab.logicsim3.I18N.getString(s, "title");
+				if (I18N.hasString("gate." + s + ".title"))
+					s = I18N.getString(s, "title");
 				setText(s);
 			}
 			setHorizontalAlignment(SwingConstants.LEFT);

@@ -1,31 +1,31 @@
 package io.github.tanguygab.logicsim3;
 
 public class LSLevelEvent {
-	public io.github.tanguygab.logicsim3.CircuitPart source;
-	public io.github.tanguygab.logicsim3.LSLevelListener target;
+	public CircuitPart source;
+	public LSLevelListener target;
 
 	public boolean level;
 
 	public boolean force;
 
-	public LSLevelEvent(io.github.tanguygab.logicsim3.CircuitPart source) {
+	public LSLevelEvent(CircuitPart source) {
 		this.source = source;
 		this.level = false;
 		this.force = false;
 	}
 
-	public LSLevelEvent(io.github.tanguygab.logicsim3.CircuitPart source, boolean level) {
+	public LSLevelEvent(CircuitPart source, boolean level) {
 		this(source);
 		this.level = level;
 		this.force = false;
 	}
 
-	public LSLevelEvent(io.github.tanguygab.logicsim3.CircuitPart source, boolean level, boolean force) {
+	public LSLevelEvent(CircuitPart source, boolean level, boolean force) {
 		this(source, level);
 		this.force = force;
 	}
 
-	public LSLevelEvent(io.github.tanguygab.logicsim3.CircuitPart source, boolean level, boolean force, LSLevelListener target) {
+	public LSLevelEvent(CircuitPart source, boolean level, boolean force, LSLevelListener target) {
 		this(source, level, force);
 		this.target = target;
 	}

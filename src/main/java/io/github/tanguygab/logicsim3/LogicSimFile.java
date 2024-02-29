@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Vector;
 
 public class LogicSimFile {
-	io.github.tanguygab.logicsim3.Circuit circuit = new Circuit();
+	Circuit circuit = new Circuit();
 	Map<String, String> info = new HashMap<String, String>();
 	String fileName;
 	public boolean changed = false;
@@ -30,7 +30,7 @@ public class LogicSimFile {
 		return name;
 	}
 
-	public Vector<io.github.tanguygab.logicsim3.Gate> getGates() {
+	public Vector<Gate> getGates() {
 		return circuit.getGates();
 	}
 
@@ -38,7 +38,7 @@ public class LogicSimFile {
 		circuit.setGates(gates);
 	}
 
-	public void setWires(Vector<io.github.tanguygab.logicsim3.Wire> wires) {
+	public void setWires(Vector<Wire> wires) {
 		circuit.setWires(wires);
 	}
 
@@ -72,7 +72,7 @@ public class LogicSimFile {
 		if (fileName != null)
 			s += fileName;
 		if (circuit != null)
-			s += " circuit: " + circuit.parts.size() + " parts";
+			s += " circuit: " + circuit.getParts().size() + " parts";
 		return s;
 	}
 

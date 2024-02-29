@@ -12,10 +12,9 @@ package io.github.tanguygab.logicsim3;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Properties;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.*;
 
 /**
  *
@@ -32,12 +31,11 @@ public class I18N {
 
 	/** Creates a new instance of I18N */
 	public I18N() {
-		if (prop != null)
-			return;
+		if (prop != null) return;
 
-		lang = io.github.tanguygab.logicsim3.LSProperties.getInstance().getProperty(LSProperties.LANGUAGE, "en");
+		lang = LSProperties.getInstance().getProperty(LSProperties.LANGUAGE, "en");
 		prop = load(lang);
-		if (prop.size() == 0 && !"en".equals(lang)) {
+		if (prop == null && !"en".equals(lang)) {
 			prop = load("en");
 			if (prop == null) {
 				Dialogs.messageDialog(null,
@@ -50,21 +48,18 @@ public class I18N {
 	public static Properties load(String lang) {
 		Properties properties = new Properties();
 		try {
-			properties.load(new FileInputStream("languages/" + lang + ".txt"));
+			properties.load(Files.newInputStream(Paths.get("languages/" + lang + ".txt")));
+			return properties;
 		} catch (Exception e) {
-			e.printStackTrace();
+			return null;
 		}
-		return properties;
 	}
 
-	public static String langToStr(io.github.tanguygab.logicsim3.Lang l) {
-		String key = l.toString();
-		key = key.toLowerCase();
-		key = key.replace("_", ".");
-		return key;
+	public static String langToStr(Lang l) {
+        return l.toString().toLowerCase().replace("_", ".");
 	}
 
-	public static String tr(io.github.tanguygab.logicsim3.Lang langkey) {
+	public static String tr(Lang langkey) {
 		if (prop == null)
 			return "- I18N not initialized -";
 		return tr(langToStr(langkey));
@@ -95,30 +90,28 @@ public class I18N {
 		return hasString("gate." + id + "." + key);
 	}
 
-	public static String tr(io.github.tanguygab.logicsim3.Lang key, String value) {
-		String s = tr(key);
-		return String.format(s, value);
+	public static String tr(Lang key, String value) {
+		return String.format(tr(key), value);
 	}
 
 	public static List<String> getLanguages() {
 		File dir = new File("languages/");
 		String[] files = dir.list();
-		java.util.Arrays.sort(files);
+        assert files != null;
+        Arrays.sort(files);
 		List<String> langs = new ArrayList<String>();
-		for (int i = 0; i < files.length; i++) {
-			if (files[i].endsWith(".txt")) {
-				String name = files[i].substring(0, files[i].length() - 4);
-				langs.add(name);
-			}
-		}
+        for (String file : files) {
+            if (file.endsWith(".txt")) {
+                String name = file.substring(0, file.length() - 4);
+                langs.add(name);
+            }
+        }
 		return langs;
 	}
 
 	public static void main(String[] args) {
-		List<io.github.tanguygab.logicsim3.Lang> langList = new ArrayList<io.github.tanguygab.logicsim3.Lang>(EnumSet.allOf(io.github.tanguygab.logicsim3.Lang.class));
-
-		List<String> list = new ArrayList<String>();
-		for (Lang l : langList) {
+		List<String> list = new ArrayList<>();
+		for (Lang l : Lang.values()) {
 			String key = langToStr(l);
 			list.add(key);
 		}
@@ -137,8 +130,7 @@ public class I18N {
 			}
 			for (Object obj : ps.keySet()) {
 				String key = (String) obj;
-				if (key.startsWith("gate."))
-					continue;
+				if (key.startsWith("gate.")) continue;
 				// check if the langfile key is in the list
 				if (!list.contains(key)) {
 					System.err.println("key '" + key + "' is not specified");
@@ -148,14 +140,12 @@ public class I18N {
 	}
 
 	public static void addGate(String langGate, String type, String key, String value) {
-		if (!langGate.equals(lang) && !langGate.equals(ALL))
-			return;
+		if (!langGate.equals(lang) && !langGate.equals(ALL)) return;
 		prop.setProperty("gate." + type + "." + key, value);
 	}
 
 	public static void add(String slang, String key, String value) {
-		if (!slang.equals(lang) && !slang.equals(ALL))
-			return;
+		if (!slang.equals(lang) && !slang.equals(ALL)) return;
 		prop.setProperty(key, value);
 	}
 

@@ -15,12 +15,12 @@ import javax.swing.JOptionPane;
  * @author Peter Gabriel
  *
  */
-public class Module extends io.github.tanguygab.logicsim3.Gate {
+public class Module extends Gate {
 	static final long serialVersionUID = 3938879095465005332L;
 
-	private io.github.tanguygab.logicsim3.MODIN moduleIn = null;
-	private io.github.tanguygab.logicsim3.MODOUT moduleOut = null;
-	io.github.tanguygab.logicsim3.LogicSimFile lsFile = new LogicSimFile(null);
+	private MODIN moduleIn = null;
+	private MODOUT moduleOut = null;
+	LogicSimFile lsFile = new LogicSimFile(null);
 
 	private boolean embedded = true;
 
@@ -41,17 +41,17 @@ public class Module extends io.github.tanguygab.logicsim3.Gate {
 	 * loads module from file
 	 */
 	public void loadModule() {
-		String filename = io.github.tanguygab.logicsim3.App.getModulePath() + type + "." + App.MODULE_FILE_SUFFIX;
+		String filename = App.getModulePath() + type + "." + App.MODULE_FILE_SUFFIX;
 		File f = new File(filename);
 		if (!f.exists()) {
-			String s = io.github.tanguygab.logicsim3.I18N.tr(io.github.tanguygab.logicsim3.Lang.MODULENOTFOUND).replaceFirst("%s", type);
+			String s = I18N.tr(Lang.MODULENOTFOUND).replaceFirst("%s", type);
 			JOptionPane.showMessageDialog(null, s);
 			return;
 		}
 		try {
 			lsFile = XMLLoader.loadXmlFile(filename);
 		} catch (RuntimeException x) {
-			JOptionPane.showMessageDialog(null, io.github.tanguygab.logicsim3.I18N.tr(io.github.tanguygab.logicsim3.Lang.READERROR) + ": " + x.getMessage());
+			JOptionPane.showMessageDialog(null, I18N.tr(Lang.READERROR) + ": " + x.getMessage());
 			return;
 		}
 
@@ -66,18 +66,18 @@ public class Module extends io.github.tanguygab.logicsim3.Gate {
 		label = lsFile.getLabel();
 
 		// postprocessing: search for MODIN and MODOUT
-		for (io.github.tanguygab.logicsim3.CircuitPart g : lsFile.circuit.parts) {
-			if (g instanceof io.github.tanguygab.logicsim3.MODIN) {
+		for (CircuitPart g : lsFile.circuit.getParts()) {
+			if (g instanceof MODIN) {
 				moduleIn = (MODIN) g;
 				int numberOfInputs = moduleIn.getInputs().size();
-				for (io.github.tanguygab.logicsim3.Pin c : moduleIn.getOutputs()) {
+				for (Pin c : moduleIn.getOutputs()) {
 					// add MODIN's input-connectors to module:
 					// check if MODIN's outputs are connected
 					if (c.isConnected()) {
-						io.github.tanguygab.logicsim3.Pin newIn = new io.github.tanguygab.logicsim3.Pin(getX(), getY() + 10 + (c.number - numberOfInputs) * 10, this, c.number - numberOfInputs);
-						newIn.setIoType(io.github.tanguygab.logicsim3.Pin.INPUT);
-						newIn.levelType = io.github.tanguygab.logicsim3.Pin.NORMAL;
-						io.github.tanguygab.logicsim3.Pin in = moduleIn.getPin(c.number - numberOfInputs);
+						Pin newIn = new Pin(getX(), getY() + 10 + (c.number - numberOfInputs) * 10, this, c.number - numberOfInputs);
+						newIn.setIoType(Pin.INPUT);
+						newIn.levelType = Pin.NORMAL;
+						Pin in = moduleIn.getPin(c.number - numberOfInputs);
 						if (in.getProperty(TEXT) != null)
 							newIn.setProperty(TEXT, in.getProperty(TEXT));
 						pins.add(newIn);
@@ -85,19 +85,19 @@ public class Module extends io.github.tanguygab.logicsim3.Gate {
 				}
 			}
 		}
-		for (CircuitPart g : lsFile.circuit.parts) {
-			if (g instanceof io.github.tanguygab.logicsim3.MODOUT) {
+		for (CircuitPart g : lsFile.circuit.getParts()) {
+			if (g instanceof MODOUT) {
 				moduleOut = (MODOUT) g;
 				int numberOfInputs = moduleOut.getInputs().size();
 				// add MODOUT's output-connectors to module:
 				// check if MODOUT's inputs have a wire
-				for (io.github.tanguygab.logicsim3.Pin c : moduleOut.getInputs()) {
+				for (Pin c : moduleOut.getInputs()) {
 					if (c.isConnected()) {
-						io.github.tanguygab.logicsim3.Pin newOut = new io.github.tanguygab.logicsim3.Pin(getX() + getWidth(), getY() + 10 + c.number * 10, this, c.number + numberOfInputs);
-						newOut.setIoType(io.github.tanguygab.logicsim3.Pin.OUTPUT);
-						newOut.paintDirection = io.github.tanguygab.logicsim3.Pin.LEFT;
-						newOut.levelType = io.github.tanguygab.logicsim3.Pin.NORMAL;
-						io.github.tanguygab.logicsim3.Pin out = moduleOut.getPin(c.number + numberOfInputs);
+						Pin newOut = new Pin(getX() + getWidth(), getY() + 10 + c.number * 10, this, c.number + numberOfInputs);
+						newOut.setIoType(Pin.OUTPUT);
+						newOut.paintDirection = Pin.LEFT;
+						newOut.levelType = Pin.NORMAL;
+						Pin out = moduleOut.getPin(c.number + numberOfInputs);
 						if (out.getProperty(TEXT) != null)
 							newOut.setProperty(TEXT, out.getProperty(TEXT));
 						pins.add(newOut);
@@ -112,25 +112,25 @@ public class Module extends io.github.tanguygab.logicsim3.Gate {
 		int max = (numIn > numOut) ? numIn : numOut;
 		if (max > 5)
 			height = 10 * max + 10;
-		for (io.github.tanguygab.logicsim3.Pin c : getInputs()) {
-			c.setY(getY() + getConnectorPosition(c.number, numIn, io.github.tanguygab.logicsim3.Gate.VERTICAL));
+		for (Pin c : getInputs()) {
+			c.setY(getY() + getConnectorPosition(c.number, numIn, Gate.VERTICAL));
 		}
-		for (io.github.tanguygab.logicsim3.Pin c : getOutputs()) {
+		for (Pin c : getOutputs()) {
 			c.setY(getY() + getConnectorPosition(c.number - modoutNumOut, numOut, Gate.VERTICAL));
 		}
 
 		if (moduleIn == null || moduleOut == null) {
-			JOptionPane.showMessageDialog(null, io.github.tanguygab.logicsim3.I18N.tr(io.github.tanguygab.logicsim3.Lang.NOMODULE));
+			JOptionPane.showMessageDialog(null, I18N.tr(Lang.NOMODULE));
 			throw new RuntimeException("no module - does not contain both moduleio components: " + type);
 		}
 
 		if (embedded) {
 			// remove all wires which are connected to MODIN-Inputs
 			// and remove all wires which are connected to MODOUT-Outputs
-			for (io.github.tanguygab.logicsim3.Pin p : moduleIn.getInputs()) {
+			for (Pin p : moduleIn.getInputs()) {
 				p.disconnect();
 			}
-			for (io.github.tanguygab.logicsim3.Pin p : moduleOut.getOutputs()) {
+			for (Pin p : moduleOut.getOutputs()) {
 				p.disconnect();
 				p.addLevelListener(this);
 			}
@@ -140,18 +140,18 @@ public class Module extends io.github.tanguygab.logicsim3.Gate {
 	}
 
 	@Override
-	public void changedLevel(io.github.tanguygab.logicsim3.LSLevelEvent e) {
-		io.github.tanguygab.logicsim3.Pin p = (io.github.tanguygab.logicsim3.Pin) e.source;
+	public void changedLevel(LSLevelEvent e) {
+		Pin p = (Pin) e.source;
 		int num = p.number;
 		if (p.isInput()) {
 			// source is one of the module's inputs
 			// forward to MODIN-output
-			moduleIn.getPin(num).changedLevel(new io.github.tanguygab.logicsim3.LSLevelEvent(new Wire(null, null), e.level));
+			moduleIn.getPin(num).changedLevel(new LSLevelEvent(new Wire(null, null), e.level));
 		} else {
 			// is output from MODOUT
 			// forward to module's output
 			int target = p.number;
-			io.github.tanguygab.logicsim3.LSLevelEvent evt = new LSLevelEvent(this, p.getLevel());
+			LSLevelEvent evt = new LSLevelEvent(this, p.getLevel());
 			getPin(target).changedLevel(evt);
 		}
 	}
@@ -160,7 +160,7 @@ public class Module extends io.github.tanguygab.logicsim3.Gate {
 	public void simulate() {
 		super.simulate();
 
-		for (io.github.tanguygab.logicsim3.Pin c : getInputs()) {
+		for (Pin c : getInputs()) {
 			moduleIn.getPin(c.number).setLevel(c.getLevel());
 		}
 
@@ -188,7 +188,7 @@ public class Module extends io.github.tanguygab.logicsim3.Gate {
 			}
 			else g2.setFont(newFont);
 		}
-		io.github.tanguygab.logicsim3.WidgetHelper.drawStringRotated(g2, type, getX() + width / 2, getY() + height / 2, WidgetHelper.ALIGN_CENTER, ang);
+		WidgetHelper.drawStringRotated(g2, type, getX() + width / 2, getY() + height / 2, WidgetHelper.ALIGN_CENTER, ang);
 	}
 
 	@Override

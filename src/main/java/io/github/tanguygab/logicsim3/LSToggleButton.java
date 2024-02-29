@@ -12,7 +12,7 @@ public class LSToggleButton extends JToggleButton {
 	public LSToggleButton(String iconName, Lang toolTip) {
 		this.setDoubleBuffered(true);
 		this.setIcon(getIcon(iconName));
-		this.setToolTipText(io.github.tanguygab.logicsim3.I18N.tr(toolTip));
+		this.setToolTipText(I18N.tr(toolTip));
 		this.id = I18N.langToStr(toolTip);
 		// this.setBorderPainted(true);
 		// this.setBorder(BorderFactory.createLineBorder(Color.black));

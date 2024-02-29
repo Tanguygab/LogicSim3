@@ -6,7 +6,7 @@ import java.awt.event.MouseEvent;
 public class LSMouseEvent extends MouseEvent {
 
 	public int lsAction;
-	public io.github.tanguygab.logicsim3.CircuitPart[] activeParts;
+	public CircuitPart[] activeParts;
 
 	private static final long serialVersionUID = -5200375901758197955L;
 
