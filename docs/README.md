@@ -1,4 +1,4 @@
-![](../src/logicsim/images/about.jpg?raw=true)
+![](../src/io/.github/.tanguygab/.logicsim3/logicsim/images/about.jpg?raw=true)
 
 ## Introduction
 

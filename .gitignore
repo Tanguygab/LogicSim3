@@ -12,3 +12,5 @@ logicsim.cfg
 *.out
 *.upa
 *.upb
+/modules/
+/circuits/

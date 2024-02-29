@@ -3,7 +3,7 @@
 	<tstamp />
 
 	<property name="version" value="3.4-${DSTAMP}" />
-	<property name="main-class" value="logicsim.App" />
+	<property name="main-class" value="io.github.tanguygab.logicsim3.logicsim.App" />
 
 	<property name="release.dir" value="release" />
 	<property name="dist.dir" value="dist" />
