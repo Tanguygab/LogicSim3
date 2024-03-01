@@ -41,7 +41,7 @@ public class App {
 		if (frameSize.height > screenSize.height) frameSize.height = screenSize.height;
 		if (frameSize.width > screenSize.width) frameSize.width = screenSize.width;
 
-        LSFrame lsframe = new LSFrame(APP_TITLE);
+        LSFrame lsframe = new LSFrame();
 		lsframe.setSize(frameSize);
 		lsframe.setLocation((screenSize.width - frameSize.width) / 2,
 							(screenSize.height - frameSize.height) / 2);

@@ -57,7 +57,7 @@ public class Gate extends CircuitPart {
 	 * mirroring in both axes
 	 */
 	public int mirror = 0;
-	protected Vector<Pin> pins = new Vector<Pin>();
+	protected Vector<Pin> pins = new Vector<>();
 
 	/**
 	 * rotate in 90 degree steps clockwise (0-3).

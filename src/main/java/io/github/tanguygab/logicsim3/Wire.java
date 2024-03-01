@@ -106,6 +106,7 @@ public class Wire extends CircuitPart implements Cloneable {
 	private Path2D convertPointsToPath() {
 		Path2D path = new Path2D.Float();
 		WirePoint first = getPointFrom();
+		if (first == null) return path;
 		path.moveTo(first.getX(), first.getY());
 
 		for (int i = 0; i < points.size(); i++) {
@@ -261,8 +262,8 @@ public class Wire extends CircuitPart implements Cloneable {
 	}
 
 	WirePoint getPointFrom() {
-		WirePoint wp = new WirePoint(getFrom().getX(), getFrom().getY(), false);
-		return wp;
+		CircuitPart from = getFrom();
+        return from == null ? null : new WirePoint(from.getX(), from.getY(), false);
 	}
 
 	private WirePoint getPointTo() {

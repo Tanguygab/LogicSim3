@@ -6,53 +6,51 @@
 
 package io.github.tanguygab.logicsim3;
 
+import javax.swing.*;
 import java.awt.AWTEvent;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.MouseEvent;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 import java.io.File;
 
 /**
  *
  * @author atetzl
  */
-public class HTMLHelp extends javax.swing.JFrame implements java.awt.event.ActionListener {
+public class HTMLHelp extends JFrame implements ActionListener {
 	private static final long serialVersionUID = 4292051858178374722L;
 	private javax.swing.JButton jButton_ok;
 	private javax.swing.JScrollPane jScrollPane1;
 	private javax.swing.JTextPane jTextPane1;
 
-	Toolkit toolkit = Toolkit.getDefaultToolkit();
 
 	/** Creates new form HTMLHelp */
 	public HTMLHelp() {
-		String language = LSProperties.getInstance().getProperty("language", "de");
+		String language = LSProperties.getInstance().getProperty("language", "en");
 		Dimension scrSize;
 		int width = 800, height = 600;
 
 		getContentPane().setLayout(new BorderLayout(0, 0));
 		initComponents();
-		this.enableEvents(AWTEvent.MOUSE_EVENT_MASK);
+		enableEvents(AWTEvent.MOUSE_EVENT_MASK);
 
-		scrSize = toolkit.getScreenSize();
+		scrSize = Toolkit.getDefaultToolkit().getScreenSize();
 		setLocation((scrSize.width / 2) - (width / 2), (scrSize.height / 2) - (height / 2));
 		setSize(width, height);
-		this.setTitle("LogicSim " + I18N.tr(Lang.HELP));
+		setTitle("LogicSim " + I18N.tr(Lang.HELP));
 
 		try {
-			String url = null;
-			File f = new File("docs");
-			File[] files = f.listFiles();
-			url = new File("docs/en.html").getAbsolutePath();
+			File docs = new File("docs");
+			File[] files = docs.listFiles();
+			assert files != null;
+			String url = new File("docs/en.html").getAbsolutePath();
 			// Anleitung in der eingestellten Sprache finden
-			for (int i = 0; i < files.length; i++) {
-				if (files[i].getName().startsWith(language) && files[i].getName().endsWith(".html")) {
-					url = files[i].getAbsolutePath();
-				}
-			}
+            for (File file : files) {
+                if (file.getName().startsWith(language) && file.getName().endsWith(".html")) {
+                    url = file.getAbsolutePath();
+                }
+            }
 
 			url = url.replaceAll("\\\\", "/");
 			url = "file:///" + url;
@@ -60,30 +58,33 @@ public class HTMLHelp extends javax.swing.JFrame implements java.awt.event.Actio
 			jTextPane1.setPage(url);
 		} catch (Exception ex) {
 			ex.printStackTrace();
-			this.setVisible(false);
-			this.dispose();
+			setVisible(false);
+			dispose();
 		}
-		this.setVisible(true);
+		setVisible(true);
 	}
 
-	protected void processMouseEvent(MouseEvent e) {
+	@Override
+	public void processMouseEvent(MouseEvent e) {
 		super.processMouseEvent(e);
-		int id = e.getID();
-		if (id == MouseEvent.MOUSE_CLICKED) {
-			this.setVisible(false);
-			this.dispose();
+		if (e.getID() == MouseEvent.MOUSE_CLICKED) {
+			setVisible(false);
+			dispose();
 		}
 	}
 
-	protected void processWindowEvent(WindowEvent e) {
+	@Override
+	public void processWindowEvent(WindowEvent e) {
 		// super.processWindowEvent(e);
 		if (e.getID() == WindowEvent.WINDOW_CLOSING) {
-			this.dispose();
+			dispose();
 		}
 	}
 
-	public void actionPerformed(ActionEvent e) {
-	}
+
+
+	@Override
+	public void actionPerformed(ActionEvent e) {}
 
 	/**
 	 * This method is called from within the constructor to initialize the form.
@@ -99,10 +100,9 @@ public class HTMLHelp extends javax.swing.JFrame implements java.awt.event.Actio
 		jTextPane1.setContentType("text/html;charset=UTF-8");
 		
 		jButton_ok.setText("OK");
-		jButton_ok.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				jButton_okActionPerformed(evt);
-			}
+		jButton_ok.addActionListener(evt -> {
+			dispose();
+			setVisible(false);
 		});
 
 		getContentPane().add(jButton_ok, java.awt.BorderLayout.SOUTH);
@@ -116,9 +116,5 @@ public class HTMLHelp extends javax.swing.JFrame implements java.awt.event.Actio
 		pack();
 	}
 
-	private void jButton_okActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_jButton_okActionPerformed
-		this.dispose();
-		this.setVisible(false);
-	}
 
 }
