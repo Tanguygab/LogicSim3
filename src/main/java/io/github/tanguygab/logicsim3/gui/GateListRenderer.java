@@ -1,4 +1,8 @@
-package io.github.tanguygab.logicsim3;
+package io.github.tanguygab.logicsim3.gui;
+
+import io.github.tanguygab.logicsim3.I18N;
+import io.github.tanguygab.logicsim3.parts.Gate;
+import io.github.tanguygab.logicsim3.parts.Module;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -9,12 +13,11 @@ import javax.swing.ListCellRenderer;
 import javax.swing.SwingConstants;
 
 public class GateListRenderer extends JLabel implements ListCellRenderer<Object> {
+
 	private static final long serialVersionUID = -361281475843085219L;
 
 	@Override
-	public Component getListCellRendererComponent(JList<? extends Object> list, Object value, int index,
-			boolean isSelected, boolean cellHasFocus) {
-
+	public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
 		setFont(list.getFont());
 		setOpaque(true);
 		if (value instanceof Gate) {
@@ -26,9 +29,8 @@ public class GateListRenderer extends JLabel implements ListCellRenderer<Object>
 				setForeground(list.getForeground());
 				setBackground(list.getBackground());
 			}
-			if (value instanceof Module) {
-				setText(gate.type);
-			} else {
+			if (value instanceof Module) setText(gate.type);
+			else {
 				String s = gate.type;
 				if (I18N.hasString("gate." + s + ".title"))
 					s = I18N.getString(s, "title");
@@ -36,15 +38,16 @@ public class GateListRenderer extends JLabel implements ListCellRenderer<Object>
 			}
 			setHorizontalAlignment(SwingConstants.LEFT);
 			return this;
-		} else if (value instanceof String) {
+		}
+		if (value instanceof String) {
 			String s = (String) value;
 			setText(I18N.tr(s));
 			setBackground(Color.LIGHT_GRAY);
 			setForeground(Color.WHITE);
 			setHorizontalAlignment(SwingConstants.CENTER);
 			return this;
-		} else
-			throw new RuntimeException("unknown format of object in getcelllistrenderer");
+		}
+		throw new RuntimeException("unknown format of object in getcelllistrenderer");
 	}
 
 }

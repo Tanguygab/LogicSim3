@@ -1,5 +1,8 @@
 package io.github.tanguygab.logicsim3;
 
+import io.github.tanguygab.logicsim3.parts.Gate;
+import io.github.tanguygab.logicsim3.parts.Module;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;

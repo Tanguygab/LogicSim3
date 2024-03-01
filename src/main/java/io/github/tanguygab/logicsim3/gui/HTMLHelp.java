@@ -4,7 +4,11 @@
  * Created on 19. Januar 2006, 17:54
  */
 
-package io.github.tanguygab.logicsim3;
+package io.github.tanguygab.logicsim3.gui;
+
+import io.github.tanguygab.logicsim3.I18N;
+import io.github.tanguygab.logicsim3.LSProperties;
+import io.github.tanguygab.logicsim3.Lang;
 
 import javax.swing.*;
 import java.awt.AWTEvent;
@@ -19,11 +23,9 @@ import java.io.File;
  * @author atetzl
  */
 public class HTMLHelp extends JFrame implements ActionListener {
-	private static final long serialVersionUID = 4292051858178374722L;
-	private javax.swing.JButton jButton_ok;
-	private javax.swing.JScrollPane jScrollPane1;
-	private javax.swing.JTextPane jTextPane1;
 
+	private static final long serialVersionUID = 4292051858178374722L;
+    private JTextPane jTextPane1;
 
 	/** Creates new form HTMLHelp */
 	public HTMLHelp() {
@@ -41,27 +43,29 @@ public class HTMLHelp extends JFrame implements ActionListener {
 		setTitle("LogicSim " + I18N.tr(Lang.HELP));
 
 		try {
-			File docs = new File("docs");
-			File[] files = docs.listFiles();
-			assert files != null;
-			String url = new File("docs/en.html").getAbsolutePath();
-			// Anleitung in der eingestellten Sprache finden
-            for (File file : files) {
-                if (file.getName().startsWith(language) && file.getName().endsWith(".html")) {
-                    url = file.getAbsolutePath();
-                }
-            }
-
-			url = url.replaceAll("\\\\", "/");
-			url = "file:///" + url;
-			url = url.replaceAll(" ", "%20");
-			jTextPane1.setPage(url);
-		} catch (Exception ex) {
-			ex.printStackTrace();
+			jTextPane1.setPage(getUrl(language));
+		} catch (Exception e) {
+			e.printStackTrace();
 			setVisible(false);
 			dispose();
 		}
 		setVisible(true);
+	}
+
+	private static String getUrl(String language) {
+		File docs = new File("docs");
+		File[] files = docs.listFiles();
+		assert files != null;
+		String url = new File("docs/en.html").getAbsolutePath();
+		// Anleitung in der eingestellten Sprache finden
+		for (File file : files) {
+			if (file.getName().startsWith(language) && file.getName().endsWith(".html")) {
+				url = file.getAbsolutePath();
+			}
+		}
+
+		url = "file:///" + url.replaceAll("\\\\", "/");
+		return url.replaceAll(" ", "%20");
 	}
 
 	@Override
@@ -81,8 +85,6 @@ public class HTMLHelp extends JFrame implements ActionListener {
 		}
 	}
 
-
-
 	@Override
 	public void actionPerformed(ActionEvent e) {}
 
@@ -94,8 +96,8 @@ public class HTMLHelp extends JFrame implements ActionListener {
 	// <editor-fold defaultstate="collapsed" desc=" Generated Code
 	// ">//GEN-BEGIN:initComponents
 	private void initComponents() {
-		jButton_ok = new javax.swing.JButton();
-		jScrollPane1 = new javax.swing.JScrollPane();
+        JButton jButton_ok = new JButton();
+        JScrollPane jScrollPane1 = new JScrollPane();
 		jTextPane1 = new javax.swing.JTextPane();
 		jTextPane1.setContentType("text/html;charset=UTF-8");
 		

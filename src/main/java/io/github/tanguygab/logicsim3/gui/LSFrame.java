@@ -1,13 +1,13 @@
-package io.github.tanguygab.logicsim3;
+package io.github.tanguygab.logicsim3.gui;
+
+import io.github.tanguygab.logicsim3.*;
+import io.github.tanguygab.logicsim3.parts.*;
 
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 import javax.imageio.ImageIO;
 import javax.swing.AbstractButton;
@@ -41,23 +41,23 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 
 	private static final long serialVersionUID = -5281157929385660575L;
 
-	LogicSimFile lsFile;
+	private LogicSimFile lsFile;
 
-	JMenuBar mnuBar;
-	JToolBar btnBar;
+	private JMenuBar mnuBar;
+	private JToolBar btnBar;
 
-	DefaultListModel<Object> partListModel = new DefaultListModel<>();
-	JList<Object> lstParts = new JList<>(partListModel);
-	JComboBox<String> cbNumInputs = null;
-	LSPanel lspanel = new LSPanel();
+	private final DefaultListModel<Object> partListModel = new DefaultListModel<>();
+	private final JList<Object> lstParts = new JList<>(partListModel);
+	private JComboBox<String> cbNumInputs = null;
+	private final LSPanel lspanel = new LSPanel();
 
-	JLabel sbText = new JLabel();
-	JLabel sbCoordinates = new JLabel();
+	private final JLabel sbText = new JLabel();
+	private final JLabel sbCoordinates = new JLabel();
 
-	int popupGateIdx;
-	JPopupMenu popup;
-	JMenuItem menuItem_remove;
-	JMenuItem menuItem_properties;
+	private int popupGateIdx;
+	private JPopupMenu popup;
+	private JMenuItem menuItem_remove;
+	private JMenuItem menuItem_properties;
 
 	public LSFrame() {
 		enableEvents(AWTEvent.WINDOW_EVENT_MASK);
@@ -79,7 +79,7 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 	@Override
 	protected void processWindowEvent(WindowEvent e) {
 		if (e.getID() == WindowEvent.WINDOW_CLOSING) {
-			if (!showDiscardDialog(I18N.tr(Lang.EXIT))) return;
+			if (!showDiscardDialog()) return;
 			System.exit(0);
 		}
 	}
@@ -154,8 +154,7 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 
 		m = createMenuItem(Lang.EXIT, KeyEvent.VK_X, false);
 		m.addActionListener(e -> {
-            if (showDiscardDialog(I18N.tr(Lang.EXIT)))
-                System.exit(0);
+            if (showDiscardDialog()) System.exit(0);
         });
 		mnu.add(m);
 
@@ -189,7 +188,7 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 		mnu.addSeparator();
 
 		m = createMenuItem(Lang.WIRENEW, KeyEvent.VK_W, false);
-		m.addActionListener(e -> getButtonWidget(Lang.WIRENEW).doClick());
+		m.addActionListener(e -> getButtonWidget().doClick());
 		m.setEnabled(LSProperties.MODE_EXPERT.equals(mode));
 		mnu.add(m);
 
@@ -423,7 +422,7 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 
 		btnLS = new LSButton("zoomout", Lang.ZOOMOUT);
 		btnLS.addActionListener(e -> {
-            lspanel.zoomOut();
+            lspanel.zoom(-0.5f);
             lspanel.requestFocusInWindow();
         });
 		btnBar.add(btnLS, null);
@@ -437,7 +436,7 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 
 		btnLS = new LSButton("zoomin", Lang.ZOOMIN);
 		btnLS.addActionListener(e -> {
-            lspanel.zoomIn();
+            lspanel.zoom(0.5f);
             lspanel.requestFocusInWindow();
         });
 		btnBar.add(btnLS, null);
@@ -510,7 +509,8 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 		btnBar.add(getMenuGap());
 
 		btnLS = new LSButton("newwire", Lang.WIRENEW);
-		btnLS.setEnabled(getMenuWidget(Lang.WIRENEW).isEnabled());
+		if (getMenuWidget() != null)
+			btnLS.setEnabled(getMenuWidget().isEnabled());
 		btnLS.addActionListener(e -> {
             lspanel.setAction(LSPanel.ACTION_ADDWIRE);
             setStatusText(I18N.tr(Lang.WIRENEW_HELP));
@@ -635,12 +635,10 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 		}
 	}
 
-	boolean showDiscardDialog(String title) {
-		if (lsFile.changed) {
-			int result = Dialogs.confirmDiscardDialog(this);
-			return (result == JOptionPane.YES_OPTION);
-		}
-		return true;
+	boolean showDiscardDialog() {
+		if (!lsFile.changed) return true;
+		int result = Dialogs.confirmDiscardDialog(this);
+		return result == JOptionPane.YES_OPTION;
 	}
 
 	/**
@@ -648,7 +646,7 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 	 *
      */
 	void actionNew(ActionEvent e) {
-		if (!showDiscardDialog(I18N.tr(Lang.NEW))) return;
+		if (!showDiscardDialog()) return;
 		lsFile = new LogicSimFile(defaultCircuitFileName());
 		lsFile.circuit.setRepaintListener(lspanel);
 		setAppTitle();
@@ -660,17 +658,15 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 	 *
      */
 	void actionOpen(ActionEvent e) {
-		if (Simulation.getInstance().isRunning())
-			Simulation.getInstance().stop();
+		if (Simulation.getInstance().isRunning()) Simulation.getInstance().stop();
 
-		if (!showDiscardDialog(I18N.tr(Lang.OPEN))) return;
+		if (!showDiscardDialog()) return;
 
 		File file = new File(lsFile.fileName);
 		JFileChooser chooser = new JFileChooser(file.getParent());
 		chooser.setFileFilter(setupFilter());
-		if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-			lsFile.fileName = chooser.getSelectedFile().getAbsolutePath();
-		} else return;
+		if (chooser.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) return;
+		lsFile.fileName = chooser.getSelectedFile().getAbsolutePath();
 
 		try {
 			lsFile = XMLLoader.loadXmlFile(lsFile.fileName);
@@ -715,11 +711,8 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 	 */
 	void actionSave(boolean saveAs) {
 		String fileName = lsFile.fileName;
-		boolean unnamed = false;
-		if (lsFile.extractFileName().equals(I18N.tr(Lang.UNNAMED))) {
-			unnamed = true;
-		}
 		boolean showDialog = fileName == null || fileName.isEmpty();
+		boolean unnamed = lsFile.extractFileName().equals(I18N.tr(Lang.UNNAMED));
 		showDialog = showDialog || unnamed;
 		showDialog = showDialog || saveAs;
 
@@ -750,25 +743,20 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 		chooser.setDialogTitle(I18N.tr(Lang.SAVECIRCUIT));
 
 		String s = "LogicSim Files (" + "." + App.CIRCUIT_FILE_SUFFIX + ", " + "." + App.MODULE_FILE_SUFFIX + ")";
-		FileNameExtensionFilter filter = new FileNameExtensionFilter(s, App.CIRCUIT_FILE_SUFFIX,
-				App.MODULE_FILE_SUFFIX);
+		FileNameExtensionFilter filter = new FileNameExtensionFilter(s, App.CIRCUIT_FILE_SUFFIX, App.MODULE_FILE_SUFFIX);
 		chooser.setFileFilter(filter);
 
-		if (chooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
-			lsFile.fileName = chooser.getSelectedFile().getAbsolutePath();
-			// check fileName
-			int lastSeparator = lsFile.fileName.lastIndexOf(File.separatorChar);
-			int lastDot = lsFile.fileName.lastIndexOf(".");
-			if (lastDot < lastSeparator) {
-				// ending is missing
-				if (lsFile.circuit.isModule())
-					lsFile.fileName += "." + App.MODULE_FILE_SUFFIX;
-				else
-					lsFile.fileName += "." + App.CIRCUIT_FILE_SUFFIX;
-			}
-			return true;
+		if (chooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) return false;
+
+		lsFile.fileName = chooser.getSelectedFile().getAbsolutePath();
+		// check fileName
+		int lastSeparator = lsFile.fileName.lastIndexOf(File.separatorChar);
+		int lastDot = lsFile.fileName.lastIndexOf(".");
+		if (lastDot < lastSeparator) {
+			// ending is missing
+			lsFile.fileName += "." + (lsFile.circuit.isModule() ? App.MODULE_FILE_SUFFIX : App.CIRCUIT_FILE_SUFFIX);
 		}
-		return false;
+		return true;
 	}
 
 	/**
@@ -793,8 +781,7 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 			lsFile.circuit.setRepaintListener(lspanel);
 		}
 
-		if (!FileInfoDialog.showFileInfo(this, lsFile))
-			return;
+		if (!FileInfoDialog.showFileInfo(this, lsFile)) return;
 
 		setAppTitle();
 
@@ -816,9 +803,7 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 	 */
 	void exportImage() {
 		JFileChooser chooser = new JFileChooser();
-		LogicSimFileFilter filter = new LogicSimFileFilter();
-		filter.addExtension(".png");
-		filter.setDescription("Portable Network Graphics");
+		LogicSimFileFilter filter = new LogicSimFileFilter(".png","Portable Network Graphics");
 		chooser.setFileFilter(filter);
 
 		chooser.setDialogTitle(I18N.tr(Lang.SAVECIRCUIT));
@@ -860,7 +845,7 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 		
 		int sel = lstParts.getSelectedIndex();
 		if (sel < 0) return;
-		int numInputs = Integer.parseInt(cbNumInputs.getSelectedItem().toString().substring(0, 1));
+		int numInputs = Integer.parseInt(String.valueOf(cbNumInputs.getSelectedItem()).substring(0, 1));
 
 		Object o = lstParts.getSelectedValue();
 		if (!(o instanceof Gate)) return;
@@ -896,22 +881,13 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 	 * handles gate design (IEC/ISO)
 	 *
      */
-	void actionGateDesign(ActionEvent e) {
-		String gatedesign;
+	private void actionGateDesign(ActionEvent e) {
 		JRadioButtonMenuItem src = (JRadioButtonMenuItem) e.getSource();
-		if (src.getText().equals(I18N.tr(Lang.GATEDESIGN_IEC))) {
-			if (src.isSelected())
-				gatedesign = LSProperties.GATEDESIGN_IEC;
-			else
-				gatedesign = LSProperties.GATEDESIGN_ANSI;
-		} else {
-			if (src.isSelected())
-				gatedesign = LSProperties.GATEDESIGN_ANSI;
-			else
-				gatedesign = LSProperties.GATEDESIGN_IEC;
-		}
-		LSProperties.getInstance().setProperty(LSProperties.GATEDESIGN, gatedesign);
-		this.lspanel.repaint();
+		String gateDesign = src.getText().equals(I18N.tr(Lang.GATEDESIGN_IEC)) == src.isSelected()
+				? LSProperties.GATEDESIGN_IEC
+				: LSProperties.GATEDESIGN_ANSI;
+		LSProperties.getInstance().setProperty(LSProperties.GATEDESIGN, gateDesign);
+		lspanel.repaint();
 	}
 
 	/**
@@ -919,68 +895,45 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 	 *
      */
 	private void actionColorMode(ActionEvent e) {
-		String mode;
 		JRadioButtonMenuItem src = (JRadioButtonMenuItem) e.getSource();
-		if (src.getText().equals(I18N.tr(Lang.COLORMODE_ON))) {
-			if (src.isSelected())
-				mode = LSProperties.COLORMODE_ON;
-			else
-				mode = LSProperties.COLORMODE_OFF;
-		} else {
-			// the expert item is clicked
-			if (src.isSelected()) {
-				mode = LSProperties.COLORMODE_OFF;
-			} else {
-				mode = LSProperties.COLORMODE_ON;
-			}
-		}
+		String mode = src.getText().equals(I18N.tr(Lang.COLORMODE_ON)) == src.isSelected()
+				? LSProperties.COLORMODE_ON
+				: LSProperties.COLORMODE_OFF;
 		LSProperties.getInstance().setProperty(LSProperties.COLORMODE, mode);
-
 		Wire.setColorMode();
-
-		this.lspanel.repaint();
+		lspanel.repaint();
 	}
 
 	/**
 	 * handles mode (normal/expert)
-	 * 
-	 * @param e
-	 */
+	 *
+     */
 	void actionMode(ActionEvent e) {
-		String mode;
 		JRadioButtonMenuItem src = (JRadioButtonMenuItem) e.getSource();
-		if (src.getText().equals(I18N.tr(Lang.NORMAL))) {
-			if (src.isSelected())
-				mode = LSProperties.MODE_NORMAL;
-			else
-				mode = LSProperties.MODE_EXPERT;
-		} else {
-			// the expert item is clicked
-			if (src.isSelected()) {
-				mode = LSProperties.MODE_EXPERT;
-			} else {
-				mode = LSProperties.MODE_NORMAL;
-			}
-		}
+		String mode = src.getText().equals(I18N.tr(Lang.NORMAL)) == src.isSelected()
+				? LSProperties.MODE_NORMAL
+				: LSProperties.MODE_EXPERT;
 		LSProperties.getInstance().setProperty(LSProperties.MODE, mode);
 
 		// activate widgets
-		getMenuWidget(Lang.WIRENEW).setEnabled(LSProperties.MODE_EXPERT.equals(mode));
-		getButtonWidget(Lang.WIRENEW).setEnabled(LSProperties.MODE_EXPERT.equals(mode));
+		if (getMenuWidget() != null)
+			getMenuWidget().setEnabled(LSProperties.MODE_EXPERT.equals(mode));
+		if (getButtonWidget() != null)
+			getButtonWidget().setEnabled(LSProperties.MODE_EXPERT.equals(mode));
 
-		this.lspanel.repaint();
+		lspanel.repaint();
 	}
 
 	/**
-	 * helper method to get a certain menu component
+	 * helper method to get a certain menu component,
 	 * so we don't have to set every item as member variable
 	 *
      */
-	private AbstractButton getMenuWidget(Lang lang) {
+	private AbstractButton getMenuWidget() {
 		for (int i = 0; i < mnuBar.getMenuCount(); i++) {
 			JMenu mnu = mnuBar.getMenu(i);
 			for (Component c : mnu.getMenuComponents()) {
-				if (lang.toString().equals(c.getName()))
+				if (Lang.WIRENEW.toString().equals(c.getName()))
 					return (AbstractButton) c;
 			}
 		}
@@ -988,13 +941,13 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 	}
 
 	/**
-	 * helper method to get a certain button component
+	 * helper method to get a certain button component,
 	 * so we don't have to set every button as member variable
 	 *
      */
-	private AbstractButton getButtonWidget(Lang lang) {
+	private AbstractButton getButtonWidget() {
 		for (Component c : btnBar.getComponents()) {
-			if (lang.toString().equals(c.getName()))
+			if (Lang.WIRENEW.toString().equals(c.getName()))
 				return (AbstractButton) c;
 		}
 		return null;
@@ -1005,15 +958,13 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 	 *
      */
 	void createLanguageMenu(JMenu menu, String currentLanguage) {
-		List<String> langs = I18N.getLanguages();
 		ButtonGroup btnGroup = new ButtonGroup();
-		for (String lang : langs) {
+		for (String lang : I18N.getLanguages()) {
 			JMenuItem item = new JRadioButtonMenuItem(lang);
 			if (lang.equals(currentLanguage))
 				item.setSelected(true);
 			item.addActionListener(e -> {
-                LSProperties.getInstance().setProperty(LSProperties.LANGUAGE,
-                        ((JMenuItem) e.getSource()).getText());
+                LSProperties.getInstance().setProperty(LSProperties.LANGUAGE, ((JMenuItem) e.getSource()).getText());
                 Dialogs.messageDialog(LSFrame.this, I18N.tr(Lang.LSRESTART));
             });
 			btnGroup.add(item);
@@ -1049,22 +1000,20 @@ public class LSFrame extends JFrame implements ActionListener, CircuitChangedLis
 			}
 			setStatusText(I18N.tr(Lang.ABORTED));
 			repaint();
-		} else
-			setStatusText(text);
+		} else setStatusText(text);
 	}
 
 	@Override
 	public void changedZoomPos(double zoom, Point pos) {
-		sbCoordinates.setText(
-				"X: " + pos.x / 10 * 10 + ", Y: " + pos.y / 10 * 10 + "   Zoom: " + Math.round(zoom * 100) + "%");
+		sbCoordinates.setText("X: " + pos.x / 10 * 10
+				+ ", Y: " + pos.y / 10 * 10
+				+ "   Zoom: " + Math.round(zoom * 100) + "%");
 	}
 
 	@Override
-	public void setAction(int action) {
-	}
+	public void setAction(int action) {}
 
 	@Override
-	public void needsRepaint(CircuitPart circuitPart) {
-	}
+	public void needsRepaint(CircuitPart circuitPart) {}
 
 }

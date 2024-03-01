@@ -1,4 +1,6 @@
-package io.github.tanguygab.logicsim3;
+package io.github.tanguygab.logicsim3.parts;
+
+import io.github.tanguygab.logicsim3.LSRepaintListener;
 
 import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
@@ -152,7 +154,7 @@ public class Circuit implements LSRepaintListener, Serializable {
 				removeGate(g);
 			} else if (part instanceof Wire) {
 				Wire w = (Wire) part;
-				w.disconnect(null);
+				w.disconnect();
 				this.parts.remove(part);
 			}
 		}
@@ -222,13 +224,6 @@ public class Circuit implements LSRepaintListener, Serializable {
         removeGate(g);
     }
 
-	public Gate findGateById(String fromGateId) {
-		for (CircuitPart p : parts)
-			if (p.getId().equals(fromGateId))
-				return (Gate) p;
-		return null;
-	}
-
 	@Override
 	public void needsRepaint(CircuitPart circuitPart) {
 		// forward
@@ -241,7 +236,7 @@ public class Circuit implements LSRepaintListener, Serializable {
 			addGate(gate);
 			gate.setRepaintListener(this);
 		}
-		fireRepaint(null);
+		fireRepaint();
 	}
 
 	public void setWires(Vector<Wire> wires) {
@@ -249,7 +244,7 @@ public class Circuit implements LSRepaintListener, Serializable {
 
 		// checkWires();
 
-		fireRepaint(null);
+		fireRepaint();
 	}
 
 	/**
@@ -287,9 +282,9 @@ public class Circuit implements LSRepaintListener, Serializable {
 //		this.needsRepaint(null);
 //	}
 
-	private void fireRepaint(CircuitPart source) {
+	private void fireRepaint() {
 		if (repaintListener != null)
-			repaintListener.needsRepaint(source);
+			repaintListener.needsRepaint(null);
 	}
 
 	@Override

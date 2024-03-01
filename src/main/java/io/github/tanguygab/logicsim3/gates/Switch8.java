@@ -4,7 +4,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 
 import io.github.tanguygab.logicsim3.ColorFactory;
-import io.github.tanguygab.logicsim3.Gate;
+import io.github.tanguygab.logicsim3.parts.Gate;
 import io.github.tanguygab.logicsim3.I18N;
 import io.github.tanguygab.logicsim3.LSLevelEvent;
 import io.github.tanguygab.logicsim3.LSMouseEvent;
@@ -97,7 +97,7 @@ public class Switch8 extends Gate {
 	}
 
 	@Override
-	protected void loadProperties() {
+	public void loadProperties() {
 		color = ColorFactory.web(getPropertyWithDefault(COLOR, DEFAULT_COLOR));
 	}
 

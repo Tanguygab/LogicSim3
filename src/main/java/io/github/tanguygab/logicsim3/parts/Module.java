@@ -1,4 +1,6 @@
-package io.github.tanguygab.logicsim3;
+package io.github.tanguygab.logicsim3.parts;
+
+import io.github.tanguygab.logicsim3.*;
 
 import java.awt.Component;
 import java.awt.Font;
@@ -16,11 +18,11 @@ import javax.swing.JOptionPane;
  *
  */
 public class Module extends Gate {
-	static final long serialVersionUID = 3938879095465005332L;
+	private static final long serialVersionUID = 3938879095465005332L;
 
 	private MODIN moduleIn = null;
 	private MODOUT moduleOut = null;
-	LogicSimFile lsFile = new LogicSimFile(null);
+	public LogicSimFile lsFile = new LogicSimFile(null);
 
 	private boolean embedded = true;
 

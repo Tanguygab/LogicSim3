@@ -1,4 +1,8 @@
-package io.github.tanguygab.logicsim3;
+package io.github.tanguygab.logicsim3.parts;
+
+import io.github.tanguygab.logicsim3.LSLevelEvent;
+import io.github.tanguygab.logicsim3.LSMouseEvent;
+import io.github.tanguygab.logicsim3.WidgetHelper;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -9,6 +13,7 @@ import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
+import java.io.Serializable;
 import java.util.Vector;
 
 /**
@@ -19,7 +24,7 @@ import java.util.Vector;
  * @author Matthew Lister
  * @version 2.0
  */
-public class Gate extends CircuitPart {
+public class Gate extends CircuitPart implements Serializable {
 
 	public static final int BOTH_AXES = 3;
 
@@ -28,7 +33,7 @@ public class Gate extends CircuitPart {
 	public static final int HORIZONTAL = 0;
 	public static final int NORMAL = 0;
 
-	static final long serialVersionUID = -6775454761569297690L;
+	private static final long serialVersionUID = -6775454761569297690L;
 	public static final int VERTICAL = 1;
 	public static final int XAXIS = 1;
 	public static final int YAXIS = 2;
@@ -57,7 +62,7 @@ public class Gate extends CircuitPart {
 	 * mirroring in both axes
 	 */
 	public int mirror = 0;
-	protected Vector<Pin> pins = new Vector<>();
+	public Vector<Pin> pins = new Vector<>();
 
 	/**
 	 * rotate in 90 degree steps clockwise (0-3).
@@ -67,7 +72,7 @@ public class Gate extends CircuitPart {
 	 */
 	public int rotate90 = 0;
 
-	protected String type;
+	public String type;
 
 	protected boolean variableInputCountSupported = false;
 
@@ -341,7 +346,7 @@ public class Gate extends CircuitPart {
 	}
 
 	public Vector<Pin> getOutputs() {
-		Vector<Pin> cs = new Vector<Pin>();
+		Vector<Pin> cs = new Vector<>();
 		for (Pin c : pins) {
 			if (c.isOutput())
 				cs.add(c);
@@ -404,21 +409,6 @@ public class Gate extends CircuitPart {
 	}
 
 	/**
-	 * True zurückgeben, wenn Gatter Einstellungen hat. Wird benutzt, damit bei
-	 * Gattern ohne Einstellungen der Punkt "Properties" im Context-Menü
-	 * ausgeblendet wird
-	 */
-
-	/**
-	 * true, wenn Koordinaten mx,my innerhalb der gate Area liegen
-	 */
-	public final boolean insideArea(int mx, int my) {
-		// setup tolerance
-		int t = 1;
-		return new Rectangle(getX() - t, getY() - t, getWidth() + 2 * t + 1, getHeight() + 2 * t + 1).contains(mx, my);
-	}
-
-	/**
 	 * true, wenn Koordinaten mx,my innerhalb des Gatters liegen
 	 */
 	public boolean insideFrame(int mx, int my) {
@@ -462,11 +452,7 @@ public class Gate extends CircuitPart {
 		}
 	}
 
-	@Override
-	public void loadLanguage() {
-	}
-
-	@Override
+    @Override
 	public void mouseDragged(MouseEvent e) {
 		super.mouseDragged(e);
 
@@ -488,25 +474,8 @@ public class Gate extends CircuitPart {
 		}
 	}
 
-	/**
-	 * wird aufgerufen, wenn auf das Gatter geklickt wird
-	 */
-	@Override
-	public void mousePressed(LSMouseEvent e) {
-		super.mousePressed(e);
-		/*
-		 * notifyMessage(I18N.getString(type, I18N.TITLE));
-		 * 
-		 * if (Simulation.getInstance().isRunning()) mousePressedSim(e); else {
-		 * select(); notifyRepaint(); }
-		 */
-	}
 
-	@Override
-	public void mousePressedSim(LSMouseEvent e) {
-	}
-
-	@Override
+    @Override
 	public void moveBy(int dx, int dy) {
 		if (xc == -1) {
 			xc = getX() + width / 2;
@@ -599,11 +568,10 @@ public class Gate extends CircuitPart {
 
 	@Override
 	public String toString() {
-		String s = getId();
-		for (Pin c : pins) {
-			s += "\n" + indent(c.toString(), 3);
-		}
-		return s;
+		StringBuilder s = new StringBuilder(getId());
+		for (Pin c : pins)
+			s.append("\n").append(indent(c.toString(), 3));
+		return s.toString();
 	}
 
 	@Override

@@ -1,4 +1,6 @@
-package io.github.tanguygab.logicsim3;
+package io.github.tanguygab.logicsim3.gui;
+
+import io.github.tanguygab.logicsim3.App;
 
 import java.awt.AWTEvent;
 import java.awt.BorderLayout;
@@ -12,7 +14,6 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.RenderingHints;
-import java.awt.Toolkit;
 import java.awt.event.MouseEvent;
 
 import javax.swing.ImageIcon;
@@ -22,9 +23,7 @@ import javax.swing.JWindow;
 public class LSFrame_AboutBox extends JWindow {
 
 	private static final long serialVersionUID = -3193728228853983319L;
-	Toolkit toolkit = Toolkit.getDefaultToolkit();
-	Image imgSplash;
-	SplashPanel splashPanel = new SplashPanel();
+	private final Image imgSplash;
 
 	public LSFrame_AboutBox(Frame parent) {
 		super(parent);
@@ -32,7 +31,7 @@ public class LSFrame_AboutBox extends JWindow {
 		Point pL;
 		int imgWidth, imgHeight;
 
-		this.imgSplash = new ImageIcon(LSFrame.class.getResource("images/about.jpg")).getImage();
+		imgSplash = new ImageIcon(getClass().getClassLoader().getResource("images/about.jpg")).getImage();
 
 		imgWidth = imgSplash.getWidth(this);
 		imgHeight = imgSplash.getHeight(this) + 155;
@@ -41,18 +40,17 @@ public class LSFrame_AboutBox extends JWindow {
 		setLocation(pL.x + pS.width / 2 - imgWidth / 2, pL.y + pS.height / 2 - imgHeight / 2);
 		setSize(imgWidth, imgHeight);
 		getContentPane().setLayout(new BorderLayout(0, 0));
-		getContentPane().add(splashPanel, "Center");
-		this.enableEvents(AWTEvent.MOUSE_EVENT_MASK);
+		getContentPane().add(new SplashPanel(), "Center");
+		enableEvents(AWTEvent.MOUSE_EVENT_MASK);
 
-		this.setVisible(true);
+		setVisible(true);
 	}
 
 	protected void processMouseEvent(MouseEvent e) {
 		super.processMouseEvent(e);
-		int id = e.getID();
-		if (id == MouseEvent.MOUSE_CLICKED) {
-			this.setVisible(false);
-			this.dispose();
+		if (e.getID() == MouseEvent.MOUSE_CLICKED) {
+			setVisible(false);
+			dispose();
 		}
 	}
 

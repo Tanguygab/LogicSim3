@@ -1,8 +1,8 @@
 
 package io.github.tanguygab.logicsim3.gates;
 
-import io.github.tanguygab.logicsim3.Pin;
-import io.github.tanguygab.logicsim3.Gate;
+import io.github.tanguygab.logicsim3.parts.Pin;
+import io.github.tanguygab.logicsim3.parts.Gate;
 import io.github.tanguygab.logicsim3.I18N;
 import io.github.tanguygab.logicsim3.LSLevelEvent;
 

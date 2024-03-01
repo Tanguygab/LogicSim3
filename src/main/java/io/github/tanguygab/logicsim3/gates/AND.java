@@ -4,11 +4,11 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.Path2D;
 
-import io.github.tanguygab.logicsim3.Gate;
+import io.github.tanguygab.logicsim3.parts.Gate;
 import io.github.tanguygab.logicsim3.I18N;
 import io.github.tanguygab.logicsim3.LSLevelEvent;
 import io.github.tanguygab.logicsim3.LSProperties;
-import io.github.tanguygab.logicsim3.Pin;
+import io.github.tanguygab.logicsim3.parts.Pin;
 
 /**
  * AND Gate for LogicSim

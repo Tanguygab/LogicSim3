@@ -9,12 +9,12 @@ import java.util.Date;
 
 import javax.swing.JOptionPane;
 
-import io.github.tanguygab.logicsim3.Gate;
+import io.github.tanguygab.logicsim3.parts.Gate;
 import io.github.tanguygab.logicsim3.I18N;
 import io.github.tanguygab.logicsim3.LSLevelEvent;
 import io.github.tanguygab.logicsim3.LSMouseEvent;
 import io.github.tanguygab.logicsim3.Lang;
-import io.github.tanguygab.logicsim3.Pin;
+import io.github.tanguygab.logicsim3.parts.Pin;
 import io.github.tanguygab.logicsim3.Simulation;
 import io.github.tanguygab.logicsim3.WidgetHelper;
 
@@ -79,7 +79,7 @@ public class CLK extends Gate implements Runnable {
 	}
 
 	@Override
-	protected void loadProperties() {
+	public void loadProperties() {
 		highTime = Integer.parseInt(getPropertyWithDefault(HT, HT_DEFAULT));
 		lowTime = Integer.parseInt(getPropertyWithDefault(LT, LT_DEFAULT));
 	}

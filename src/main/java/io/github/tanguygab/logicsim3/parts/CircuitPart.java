@@ -1,4 +1,7 @@
-package io.github.tanguygab.logicsim3;
+package io.github.tanguygab.logicsim3.parts;
+
+import io.github.tanguygab.logicsim3.*;
+import io.github.tanguygab.logicsim3.gui.CircuitChangedListener;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -52,7 +55,7 @@ public abstract class CircuitPart implements LSLevelListener {
 	/**
 	 * if part is currently being edited
 	 */
-	protected boolean selected = false;
+	public boolean selected = false;
 
 	private int x;
 
@@ -76,12 +79,8 @@ public abstract class CircuitPart implements LSLevelListener {
 		return properties;
 	}
 
-	protected String getProperty(String string) {
+	public String getProperty(String string) {
 		return properties.getProperty(string);
-	}
-
-	protected int getPropertyInt(String string) {
-		return Integer.parseInt(getProperty(string));
 	}
 
 	protected int getPropertyIntWithDefault(String string, int iDefault) {
@@ -99,7 +98,7 @@ public abstract class CircuitPart implements LSLevelListener {
 		return s;
 	}
 
-	protected void loadProperties() {
+	public void loadProperties() {
 		text = getPropertyWithDefault(TEXT, TEXT_DEFAULT);
 	}
 
@@ -248,8 +247,7 @@ public abstract class CircuitPart implements LSLevelListener {
 		}
 	}
 
-	public void mousePressedSim(LSMouseEvent e) {
-	}
+	public void mousePressedSim(LSMouseEvent e) {}
 
 	/**
 	 * wird aufgerufen, wenn über dem Teil die Maus losgelassen wird
@@ -272,9 +270,9 @@ public abstract class CircuitPart implements LSLevelListener {
 		this.y = y;
 	}
 
-	protected void notifyAction(int action) {
+	protected void notifyAction() {
 		if (changeListener != null)
-			changeListener.setAction(action);
+			changeListener.setAction(0);
 	}
 
 	protected void notifyChanged() {
@@ -287,7 +285,7 @@ public abstract class CircuitPart implements LSLevelListener {
 			changeListener.changedStatusText(msg);
 	}
 
-	protected void notifyRepaint() {
+	public void notifyRepaint() {
 		if (changeListener != null)
 			changeListener.needsRepaint(this);
 	}
@@ -312,7 +310,7 @@ public abstract class CircuitPart implements LSLevelListener {
 	}
 
 	@Override
-	public void changedLevel(io.github.tanguygab.logicsim3.LSLevelEvent e) {
+	public void changedLevel(LSLevelEvent e) {
 	}
 
 	public void connect(CircuitPart part) {
@@ -320,24 +318,15 @@ public abstract class CircuitPart implements LSLevelListener {
 		part.addLevelListener(this);
 	}
 
-	protected void fireChangedLevel(LSLevelEvent e) {
+	public void fireChangedLevel(LSLevelEvent e) {
 		// Log.getInstance().print("fireChangedLevel " + e);
 		// the event can have a different source (not itself)
 		// if so, just forward the event to the others except to the origin
-		if (!this.equals(e.source)) {
-			for (LSLevelListener l : getListeners()) {
-				if (e.source != l) {
-					LSLevelEvent evtL = new LSLevelEvent(this, e.level, e.force, l);
-					Simulation.getInstance().putEvent(evtL);
-					// l.changedLevel(evt);
-				}
-			}
-		} else {
-			for (LSLevelListener l : getListeners()) {
-				LSLevelEvent evtL = new LSLevelEvent(this, e.level, e.force, l);
-				Simulation.getInstance().putEvent(evtL);
-				// l.changedLevel(e);
-			}
+		for (LSLevelListener l : getListeners()) {
+			if (!equals(e.source) || e.source == l) continue;
+			LSLevelEvent evtL = new LSLevelEvent(this, e.level, e.force, l);
+			Simulation.getInstance().putEvent(evtL);
+			// l.changedLevel(e);
 		}
 	}
 
@@ -365,10 +354,6 @@ public abstract class CircuitPart implements LSLevelListener {
 		}
 		s.append("-----------------------------\n");
 		return s.toString();
-	}
-
-	protected void clearListeners() {
-		listeners.clear();
 	}
 
 	public boolean getLevel() {

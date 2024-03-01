@@ -1,4 +1,6 @@
-package io.github.tanguygab.logicsim3;
+package io.github.tanguygab.logicsim3.parts;
+
+import io.github.tanguygab.logicsim3.*;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -30,7 +32,7 @@ public class Pin extends CircuitPart {
 
 	public int number;
 
-	protected boolean level = false;
+	public boolean level = false;
 	public int paintDirection = RIGHT;
 
 	private int ioType = INPUT;
@@ -51,7 +53,7 @@ public class Pin extends CircuitPart {
 	/**
 	 * type can be HIGH, LOW, INVERTED or NORMAL
 	 */
-	int levelType = NORMAL;
+	public int levelType = NORMAL;
 
 	public Pin(int x, int y, Gate gate, int number) {
 		super(x, y);
@@ -423,7 +425,7 @@ public class Pin extends CircuitPart {
 			LSLevelListener l = ((ArrayList<LSLevelListener>) getListeners()).get(i);
 			if (l instanceof Wire) {
 				Wire w = (Wire) l;
-				w.disconnect(null);
+				w.disconnect();
 				w = null;
 				i--;
 			}

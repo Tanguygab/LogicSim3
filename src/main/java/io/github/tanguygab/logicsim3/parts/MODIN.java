@@ -1,4 +1,9 @@
-package io.github.tanguygab.logicsim3;
+package io.github.tanguygab.logicsim3.parts;
+
+import io.github.tanguygab.logicsim3.I18N;
+import io.github.tanguygab.logicsim3.LSLevelEvent;
+import io.github.tanguygab.logicsim3.Lang;
+import io.github.tanguygab.logicsim3.WidgetHelper;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -74,7 +79,7 @@ public class MODIN extends Gate {
 	}
 
 	@Override
-	protected void loadProperties() {
+	public void loadProperties() {
 		pincount = getPropertyIntWithDefault(PINCOUNT, PINCOUNT_DEFAULT);
 		int inputcount = getInputs().size();
 		if (pincount != inputcount) {
