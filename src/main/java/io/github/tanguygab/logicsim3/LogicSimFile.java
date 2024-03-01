@@ -1,20 +1,16 @@
 package io.github.tanguygab.logicsim3;
 
-import io.github.tanguygab.logicsim3.parts.Circuit;
-import io.github.tanguygab.logicsim3.parts.Gate;
-import io.github.tanguygab.logicsim3.parts.Wire;
-
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
 public class LogicSimFile {
-	public Circuit circuit = new Circuit();
-	Map<String, String> info = new HashMap<>();
-	public String fileName;
+	Circuit circuit = new Circuit();
+	Map<String, String> info = new HashMap<String, String>();
+	String fileName;
 	public boolean changed = false;
-	private final Vector<String> errors = new Vector<>();
+	private Vector<String> errors = new Vector<String>();
 
 	public LogicSimFile(String fileName) {
 		this.fileName = fileName;
@@ -22,8 +18,10 @@ public class LogicSimFile {
 
 	/**
 	 * extract the pure file name from an absolute path
-	 *
-     */
+	 * 
+	 * @param fileName
+	 * @return
+	 */
 	public String extractFileName() {
 		File f = new File(fileName);
 		String name = f.getName();
@@ -49,7 +47,7 @@ public class LogicSimFile {
 	}
 
 	private String getKey(String key) {
-		return info.getOrDefault(key, null);
+		return info.containsKey(key) ? info.get(key) : null;
 	}
 
 	public void setLabel(String value) {

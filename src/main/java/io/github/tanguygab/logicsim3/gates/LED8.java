@@ -7,7 +7,7 @@ import java.awt.Graphics2D;
 import javax.swing.JColorChooser;
 
 import io.github.tanguygab.logicsim3.ColorFactory;
-import io.github.tanguygab.logicsim3.parts.Gate;
+import io.github.tanguygab.logicsim3.Gate;
 import io.github.tanguygab.logicsim3.I18N;
 import io.github.tanguygab.logicsim3.LSLevelEvent;
 import io.github.tanguygab.logicsim3.Lang;
@@ -45,7 +45,7 @@ public class LED8 extends Gate {
 	}
 
 	@Override
-	public void loadProperties() {
+	protected void loadProperties() {
 		color = ColorFactory.web(getPropertyWithDefault(COLOR, DEFAULT_COLOR));
 	}
 

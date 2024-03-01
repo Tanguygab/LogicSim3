@@ -5,16 +5,15 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics2D;
 import java.awt.geom.Path2D;
-import java.util.Arrays;
 
 import javax.swing.JOptionPane;
 
-import io.github.tanguygab.logicsim3.parts.Gate;
+import io.github.tanguygab.logicsim3.Gate;
 import io.github.tanguygab.logicsim3.I18N;
 import io.github.tanguygab.logicsim3.LSLevelEvent;
 import io.github.tanguygab.logicsim3.LSMouseEvent;
 import io.github.tanguygab.logicsim3.Lang;
-import io.github.tanguygab.logicsim3.parts.Pin;
+import io.github.tanguygab.logicsim3.Pin;
 
 /**
  * 128bit Memory
@@ -140,14 +139,16 @@ public class Memory128 extends Gate {
 	}
 
 	@Override
-	public void loadProperties() {
+	protected void loadProperties() {
 		for (int i = 0; i < mem.length; i++) {
 			mem[i] = (byte) getPropertyIntWithDefault(STATE + i, 0);
 		}
 	}
 
 	private void clearMemory() {
-        Arrays.fill(mem, (byte) 0);
+		for (int i = 0; i < mem.length; i++) {
+			mem[i] = 0;
+		}
 	}
 
 	private void set(int cell, int instruction) {

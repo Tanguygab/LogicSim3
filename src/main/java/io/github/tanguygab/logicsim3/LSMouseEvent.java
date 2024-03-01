@@ -1,7 +1,5 @@
 package io.github.tanguygab.logicsim3;
 
-import io.github.tanguygab.logicsim3.parts.CircuitPart;
-
 import java.awt.Component;
 import java.awt.event.MouseEvent;
 

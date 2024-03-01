@@ -1,7 +1,5 @@
 package io.github.tanguygab.logicsim3;
 
-import io.github.tanguygab.logicsim3.parts.CircuitPart;
-
 public class LSLevelEvent {
 	public CircuitPart source;
 	public LSLevelListener target;

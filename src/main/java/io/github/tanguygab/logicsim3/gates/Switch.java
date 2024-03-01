@@ -21,12 +21,12 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 
 import io.github.tanguygab.logicsim3.ColorFactory;
-import io.github.tanguygab.logicsim3.parts.Gate;
+import io.github.tanguygab.logicsim3.Gate;
 import io.github.tanguygab.logicsim3.I18N;
 import io.github.tanguygab.logicsim3.LSLevelEvent;
 import io.github.tanguygab.logicsim3.LSMouseEvent;
 import io.github.tanguygab.logicsim3.Lang;
-import io.github.tanguygab.logicsim3.parts.Pin;
+import io.github.tanguygab.logicsim3.Pin;
 
 /**
  * Switch Component for LogicSim
@@ -68,9 +68,9 @@ public class Switch extends Gate {
 	}
 
 	@Override
-	public void loadProperties() {
+	protected void loadProperties() {
 		color = ColorFactory.web(getPropertyWithDefault(COLOR, DEFAULT_COLOR));
-		switchTypeMomentary = !getPropertyWithDefault(SWITCH_TYPE, DEFAULT_SWITCH_TYPE).equals(TOGGLE);
+		switchTypeMomentary = getPropertyWithDefault(SWITCH_TYPE, DEFAULT_SWITCH_TYPE).equals(TOGGLE) ? false : true;
 		int state = getPropertyIntWithDefault(STATE, 0);
 		if (state == 1) {
 			getPin(0).changedLevel(new LSLevelEvent(this, HIGH));

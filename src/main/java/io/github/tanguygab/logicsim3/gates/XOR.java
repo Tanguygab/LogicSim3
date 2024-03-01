@@ -7,7 +7,7 @@ import java.awt.geom.Path2D;
 import io.github.tanguygab.logicsim3.I18N;
 import io.github.tanguygab.logicsim3.LSLevelEvent;
 import io.github.tanguygab.logicsim3.LSProperties;
-import io.github.tanguygab.logicsim3.parts.Pin;
+import io.github.tanguygab.logicsim3.Pin;
 
 /**
  * XOR gate for LogicSim

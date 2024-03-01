@@ -1,4 +1,4 @@
-package io.github.tanguygab.logicsim3.parts;
+package io.github.tanguygab.logicsim3;
 
 /**
  * Wire represention
@@ -8,12 +8,6 @@ package io.github.tanguygab.logicsim3.parts;
  * @version 2.0
  */
 
-import io.github.tanguygab.logicsim3.LSLevelEvent;
-import io.github.tanguygab.logicsim3.LSMouseEvent;
-import io.github.tanguygab.logicsim3.LSProperties;
-import io.github.tanguygab.logicsim3.Simulation;
-import io.github.tanguygab.logicsim3.gui.LSPanel;
-
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -22,14 +16,15 @@ import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
-import java.io.Serializable;
 import java.util.Iterator;
 import java.util.Vector;
 
-public class Wire extends CircuitPart implements Cloneable, Serializable {
-	private static final long serialVersionUID = -7554728800898882892L;
+public class Wire extends CircuitPart implements Cloneable {
+	static final long serialVersionUID = -7554728800898882892L;
 
 	public static float SEL_WIDTH = 3f;
+
+	public static float WIDTH = 1.0f;
 
 	private static Color LOW_COLOR = Color.black;
 
@@ -46,7 +41,7 @@ public class Wire extends CircuitPart implements Cloneable, Serializable {
 	/**
 	 * data structure to hold the wire points
 	 */
-	private Vector<WirePoint> points = new Vector<>();
+	private Vector<WirePoint> points = new Vector<WirePoint>();
 
 	private Point tempPoint = null;
 
@@ -59,6 +54,9 @@ public class Wire extends CircuitPart implements Cloneable, Serializable {
 
 	/**
 	 * constructor specifying the origin and the end
+	 * 
+	 * @param fromPart
+	 * @param toPart
 	 */
 	public Wire(CircuitPart fromPart, CircuitPart toPart) {
 		this(0, 0);
@@ -70,8 +68,10 @@ public class Wire extends CircuitPart implements Cloneable, Serializable {
 	}
 
 	private void checkFromTo() {
-		if (getFrom() instanceof WirePoint) ((WirePoint) getFrom()).show = true;
-		if (getTo() instanceof WirePoint) ((WirePoint) getTo()).show = true;
+		if (getFrom() instanceof WirePoint)
+			((WirePoint) getFrom()).show = true;
+		if (getTo() instanceof WirePoint)
+			((WirePoint) getTo()).show = true;
 	}
 
 	public Wire(int x, int y) {
@@ -79,7 +79,12 @@ public class Wire extends CircuitPart implements Cloneable, Serializable {
 		loadProperties();
 	}
 
-    public void addPoint(int x, int y) {
+	@Override
+	protected void loadProperties() {
+		text = getPropertyWithDefault(TEXT, TEXT_DEFAULT);
+	}
+
+	public void addPoint(int x, int y) {
 		WirePoint wp = new WirePoint(x, y);
 		addPoint(wp);
 	}
@@ -104,8 +109,10 @@ public class Wire extends CircuitPart implements Cloneable, Serializable {
 		if (first == null) return path;
 		path.moveTo(first.getX(), first.getY());
 
-        for (WirePoint point : points)
+		for (int i = 0; i < points.size(); i++) {
+			WirePoint point = points.get(i);
 			path.lineTo(point.getX(), point.getY());
+		}
 
 		if (getTo() != null) {
 			path.lineTo(getTo().getX(), getTo().getY());
@@ -126,7 +133,7 @@ public class Wire extends CircuitPart implements Cloneable, Serializable {
 	@Override
 	public void draw(Graphics2D g2) {
 		super.draw(g2);
-		float width;
+		float width = 0;
 		if (getLevel()) {
 			g2.setColor(HIGH_COLOR);
 			width = HIGH_WIDTH;
@@ -144,7 +151,7 @@ public class Wire extends CircuitPart implements Cloneable, Serializable {
 		g2.draw(convertPointsToPath());
 
 		// draw points
-		if (!points.isEmpty()) {
+		if (points.size() > 0) {
 			for (WirePoint point : points) {
 				//point.show || 
 				if (selected || point.isSelected() || point.getListeners().size() > 1) {
@@ -152,8 +159,10 @@ public class Wire extends CircuitPart implements Cloneable, Serializable {
 				}
 			}
 		}
-		if (getTo() instanceof WirePoint) getTo().draw(g2);
-		if (getFrom() instanceof WirePoint) getFrom().draw(g2);
+		if (getTo() instanceof WirePoint)
+			getTo().draw(g2);
+		if (getFrom() instanceof WirePoint)
+			getFrom().draw(g2);
 
 		if (getTo() == null && tempPoint != null) {
 			// add a small red circle
@@ -163,18 +172,16 @@ public class Wire extends CircuitPart implements Cloneable, Serializable {
 
 		g2.setColor(Color.black);
 
-		if (!points.isEmpty()) {
-			g2.drawString(text, (getFrom().getX() + points.get(0).getX()) / 2, (getFrom().getY() + points.get(0).getY()) / 2);
-			return;
+		if (points.size() > 0) {
+			g2.drawString(text, (getFrom().getX() + points.get(0).getX()) / 2,
+					(getFrom().getY() + points.get(0).getY()) / 2);
+		} else {
+			if (getFrom() != null && getTo() == null && tempPoint != null) {
+				g2.drawString(text, (getFrom().getX() + tempPoint.x) / 2, (getFrom().getY() + tempPoint.y) / 2);
+			} else if (getFrom() != null && getTo() != null) {
+				g2.drawString(text, (getFrom().getX() + getTo().getX()) / 2, (getFrom().getY() + getTo().getY()) / 2);
+			}
 		}
-		if (getFrom() != null && getTo() == null && tempPoint != null) {
-			g2.drawString(text, (getFrom().getX() + tempPoint.x) / 2, (getFrom().getY() + tempPoint.y) / 2);
-			return;
-		}
-		if (getFrom() != null && getTo() != null) {
-			g2.drawString(text, (getFrom().getX() + getTo().getX()) / 2, (getFrom().getY() + getTo().getY()) / 2);
-		}
-
 	}
 
 	public CircuitPart findPartAt(int x, int y) {
@@ -194,9 +201,10 @@ public class Wire extends CircuitPart implements Cloneable, Serializable {
 			// set current and next wirepoint
 			WirePoint c = ps.get(i);
 			WirePoint n = ps.get(i + 1);
-			if (n.isAt(rx, ry)) return n;
+			if (n.isAt(rx, ry))
+				return n;
 			Line2D l = new Line2D.Float((float) c.getX(), (float) c.getY(), (float) n.getX(), (float) n.getY());
-			double dist = l.ptSegDist(x, y);
+			double dist = l.ptSegDist((double) x, (double) y);
 			if (dist < 4.5f)
 				return this;
 		}
@@ -215,14 +223,18 @@ public class Wire extends CircuitPart implements Cloneable, Serializable {
 	@Override
 	public Rectangle getBoundingBox() {
 		Path2D path = convertPointsToPath();
-        return path.getBounds();
+		Rectangle rect = path.getBounds();
+		return rect;
 	}
 
-	public WirePoint getLastPoint() {
-		if (getTo() != null) return getPointTo();
-		if (!points.isEmpty()) return points.get(points.size() - 1);
-		if (getFrom() != null) return getPointFrom();
-
+	WirePoint getLastPoint() {
+		if (getTo() != null) {
+			return getPointTo();
+		} else if (points.size() > 0) {
+			return points.get(points.size() - 1);
+		} else if (getFrom() != null) {
+			return getPointFrom();
+		}
 		throw new RuntimeException("Wire is empty!");
 	}
 
@@ -233,10 +245,13 @@ public class Wire extends CircuitPart implements Cloneable, Serializable {
 	/**
 	 * checks if given point is near polygon node, except first and last
 	 * 
+	 * @param mx
+	 * @param my
 	 * @return -1 if no point is near to given position, else number of node
 	 */
 	public int getNodeIndexAt(int mx, int my) {
-		if (points.isEmpty()) return -1;
+		if (points.size() == 0)
+			return -1;
 
 		for (int i = 0; i < points.size(); i++) {
 			WirePoint p = points.get(i);
@@ -252,7 +267,8 @@ public class Wire extends CircuitPart implements Cloneable, Serializable {
 	}
 
 	private WirePoint getPointTo() {
-        return new WirePoint(getTo().getX(), getTo().getY(), false);
+		WirePoint wp = new WirePoint(getTo().getX(), getTo().getY(), false);
+		return wp;
 	}
 
 	public void insertPointAfter(int n, int mx, int my) {
@@ -268,10 +284,12 @@ public class Wire extends CircuitPart implements Cloneable, Serializable {
 
 	/**
 	 * check if the wire is near given coordinates
-	 * <p>
+	 * 
 	 * if the distance between the clicked point and the wire is small enough the
 	 * point number is returned
-	 *
+	 * 
+	 * @param x
+	 * @param y
 	 * @return the number of the point from which the line segment is starting
 	 */
 	public int isAt(int x, int y) {
@@ -281,7 +299,7 @@ public class Wire extends CircuitPart implements Cloneable, Serializable {
 			WirePoint c = ps.get(i);
 			WirePoint n = ps.get(i + 1);
 			Line2D l = new Line2D.Float((float) c.getX(), (float) c.getY(), (float) n.getX(), (float) n.getY());
-			if (l.ptSegDist(x, y) < 4.0f)
+			if (l.ptSegDist((double) x, (double) y) < 4.0f)
 				return i;
 		}
 		return -1;
@@ -330,7 +348,7 @@ public class Wire extends CircuitPart implements Cloneable, Serializable {
 				notifyChanged();
 			}
 			notifyMessage("");
-			notifyAction();
+			notifyAction(0);
 		} else if (e.lsAction == LSPanel.ACTION_DELPOINT) {
 			if (removePointAt(e.getX(), e.getY())) {
 				select();
@@ -387,7 +405,7 @@ public class Wire extends CircuitPart implements Cloneable, Serializable {
 			setTo(null);
 			// points + first point
 			return points.size() + 1;
-		} else if (points.isEmpty()) {
+		} else if (points.size() == 0) {
 			if (getFrom() == null)
 				throw new RuntimeException("wire is completely empty, may not be");
 			getFrom().removeLevelListener(this);
@@ -401,7 +419,9 @@ public class Wire extends CircuitPart implements Cloneable, Serializable {
 	}
 
 	public WirePoint removePoint(int n) {
-		return points.isEmpty() ? null : points.remove(n);
+		if (points.size() == 0)
+			return null;
+		return points.remove(n);
 	}
 
 	public boolean removePointAt(int x, int y) {
@@ -426,13 +446,14 @@ public class Wire extends CircuitPart implements Cloneable, Serializable {
 
 	@Override
 	public String toString() {
-        //		if (getListeners().size() > 0) {
+		String s = getId();
+//		if (getListeners().size() > 0) {
 //			s += "\n send updates to\n";
 //			for (LSLevelListener l : getListeners())
 //				s += indent(((CircuitPart) l).getId(), 3) + "\n";
 //		}
 //		s += "-----------------";
-		return getId();
+		return s;
 	}
 
 	/**
@@ -443,26 +464,27 @@ public class Wire extends CircuitPart implements Cloneable, Serializable {
 		if (p > 0) {
 			setNodeIsDrawn(p);
 			return true;
-		}
-		return false;
+		} else
+			return false;
 	}
 
 	/**
 	 * disconnect wire from CircuitParts
-	 * <p>
+	 * 
 	 * if this method is called from a connector, the calling connector has to be
 	 * given as parameter and must remove the wire from itself.
-	 *
-     */
-	public void disconnect() {
+	 * 
+	 * @param connector
+	 */
+	public void disconnect(Pin connector) {
 		if (getTo() != null) {
 			getTo().removeLevelListener(this);
-			removeLevelListener(getTo());
+			this.removeLevelListener(getTo());
 			setTo(null);
 		}
 		if (getFrom() != null) {
 			getFrom().removeLevelListener(this);
-			removeLevelListener(getFrom());
+			this.removeLevelListener(getFrom());
 			setFrom(null);
 		}
 	}
@@ -471,20 +493,25 @@ public class Wire extends CircuitPart implements Cloneable, Serializable {
 	public void changedLevel(LSLevelEvent e) {
 		// System.out.println(getId() + ": got event " + e);
 		// a wire can get a level change from a pin or another wire
-		if (level == e.level && e.force) return;
-		level = e.level;
-		// forward to other listeners, event must not get back to the origin
-		fireRepaint();
-		LSLevelEvent evt = new LSLevelEvent(this, e.level, e.force);
-		fireChangedLevel(e);
-		for (WirePoint wp : points) wp.changedLevel(evt);
+		if (level != e.level || e.force) {
+			level = e.level;
+			// forward to other listeners, event must not get back to the origin
+			fireRepaint();
+			LSLevelEvent evt = new LSLevelEvent(this, e.level, e.force);
+			fireChangedLevel(e);
+			for (WirePoint wp : points) {
+				wp.changedLevel(evt);
+			}
+		}
 	}
 
 	@Override
 	public String getId() {
-        return (getFrom() != null ? getFrom().getId() : "")
-					+ "-"
-					+ (getTo() != null ? getTo().getId() : "");
+		String s = "";
+		s += (getFrom() != null ? getFrom().getId() : "");
+		s += "-";
+		s += (getTo() != null ? getTo().getId() : "");
+		return s;
 	}
 
 	public void addPointFitting(int x, int y) {
@@ -498,7 +525,7 @@ public class Wire extends CircuitPart implements Cloneable, Serializable {
 				return;
 			}
 			Line2D l = new Line2D.Float((float) c.getX(), (float) c.getY(), (float) n.getX(), (float) n.getY());
-			double dist = l.ptSegDist(x, y);
+			double dist = l.ptSegDist((double) x, (double) y);
 			if (dist < 4.5f) {
 				// so the point should be after "c"
 				insertPointAfter(i, x, y);
@@ -516,8 +543,9 @@ public class Wire extends CircuitPart implements Cloneable, Serializable {
 		if (getTo() instanceof WirePoint)
 			getTo().deselect();
 
-		for (WirePoint wp : points)
+		for (WirePoint wp : points) {
 			wp.deselect();
+		}
 	}
 
 	public void finish() {
@@ -528,14 +556,16 @@ public class Wire extends CircuitPart implements Cloneable, Serializable {
 		// check if the point is not present
 		int x = wp.getX();
 		int y = wp.getY();
-		if (getFrom() != null && getFrom().getX() == x && getFrom().getY() == y) return;
-		if (getTo() != null && getTo().getX() == x && getTo().getY() == y) return;
-
+		if (getFrom() != null && getFrom().getX() == x && getFrom().getY() == y)
+			return;
+		if (getTo() != null && getTo().getX() == x && getTo().getY() == y)
+			return;
 		int number = getNodeIndexAt(x, y);
 		if (number > -1) {
 			// delete every point from this node on
-            if (points.size() > number)
-                points.subList(number, points.size()).clear();
+			for (int i = points.size() - 1; i >= number; i--) {
+				points.remove(i);
+			}
 		}
 		wp.parent = this;
 		// wp.connect(this);
@@ -567,26 +597,36 @@ public class Wire extends CircuitPart implements Cloneable, Serializable {
 	@Override
 	public void reset() {
 		super.reset();
-		if (from == null) return;
-        if (from instanceof Wire || from instanceof Pin || from instanceof WirePoint) {
-			if (from instanceof WirePoint) from = from.parent;
-			if (from == null) return;
-            from.fireChangedLevel(new LSLevelEvent(from, from.getLevel()));
-        }
-    }
+		if (from != null) {
+			if (from instanceof Wire) {
+				Wire w = (Wire) from;
+				from.fireChangedLevel(new LSLevelEvent(from, w.getLevel()));
+			} else if (from instanceof Pin) {
+				Pin p = (Pin) from;
+				from.fireChangedLevel(new LSLevelEvent(from, p.getLevel()));
+			} else if (from instanceof WirePoint) {
+				WirePoint wp = (WirePoint) from;
+				if (wp.parent != null) {
+					Wire w = (Wire) wp.parent;
+					wp.parent.fireChangedLevel(new LSLevelEvent(wp.parent, w.getLevel()));
+				}
+			}
+		}
+	}
 
 	public static void setColorMode() {
-		String colorMode = LSProperties.getInstance().getProperty(LSProperties.COLORMODE, LSProperties.COLORMODE_ON);
-		if (LSProperties.COLORMODE_OFF.equals(colorMode)) {
+		String colmode = LSProperties.getInstance().getProperty(LSProperties.COLORMODE, LSProperties.COLORMODE_ON);
+		if (LSProperties.COLORMODE_OFF.equals(colmode)) {
 			HIGH_COLOR = Color.black;
 			LOW_COLOR = Color.black;
 			LOW_WIDTH = 1f;
 			HIGH_WIDTH = 3f;
-			return;
+		} else {
+			HIGH_COLOR = Color.red;
+			LOW_COLOR = Color.black;
+			LOW_WIDTH = 1f;
+			HIGH_WIDTH = 1f;
 		}
-		HIGH_COLOR = Color.red;
-		LOW_COLOR = Color.black;
-		LOW_WIDTH = 1f;
-		HIGH_WIDTH = 1f;
+
 	}
 }

@@ -15,12 +15,12 @@ import javax.swing.JRadioButton;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 
-import io.github.tanguygab.logicsim3.parts.Gate;
+import io.github.tanguygab.logicsim3.Gate;
 import io.github.tanguygab.logicsim3.I18N;
 import io.github.tanguygab.logicsim3.LSLevelEvent;
 import io.github.tanguygab.logicsim3.LSMouseEvent;
 import io.github.tanguygab.logicsim3.Lang;
-import io.github.tanguygab.logicsim3.parts.Pin;
+import io.github.tanguygab.logicsim3.Pin;
 
 /**
  * Binary Input Component for LogicSim
@@ -61,7 +61,7 @@ public class BinIn extends Gate {
 	}
 
 	@Override
-	public void loadProperties() {
+	protected void loadProperties() {
 		displayType = getPropertyWithDefault(DISPLAY_TYPE, DISPLAY_TYPE_DEFAULT);
 	}
 
@@ -193,9 +193,16 @@ public class BinIn extends Gate {
 		p.addPoint(x + rect.x, y + rect.y);
 		g.fill(p);
 		g.setPaint(Color.BLACK);
+		String sval = "";
 
-		String sval = dHex ? Integer.toHexString(value) : Integer.toString(value);
-        if (sval.length() == 1) sval = "0" + sval;
+		if (dHex)
+			sval = Integer.toHexString(value);
+		else
+			sval = Integer.toString(value);
+		if (sval.length() == 0)
+			sval = "00";
+		if (sval.length() == 1)
+			sval = "0" + sval;
 
 		sval = sval.toUpperCase();
 		g.setFont(bigFont);
@@ -253,7 +260,7 @@ public class BinIn extends Gate {
 		dlg.setResizable(true);
 		dlg.setSize(320, 180);
 		dlg.setVisible(true);
-		if (I18N.tr(Lang.OK).equals(pane.getValue())) {
+		if (I18N.tr(Lang.OK).equals((String) pane.getValue())) {
 			if (jRadioButton1.isSelected()) {
 				displayType = DISPLAY_TYPE_HEX;
 			} else if (jRadioButton2.isSelected()) {

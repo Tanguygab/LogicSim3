@@ -1,8 +1,4 @@
-package io.github.tanguygab.logicsim3.gui;
-
-import io.github.tanguygab.logicsim3.I18N;
-import io.github.tanguygab.logicsim3.LSProperties;
-import io.github.tanguygab.logicsim3.Lang;
+package io.github.tanguygab.logicsim3;
 
 import java.awt.Image;
 
@@ -14,10 +10,10 @@ public class LSToggleButton extends JToggleButton {
 	private static final long serialVersionUID = 4992541122998327288L;
 	public final String id;
 	public LSToggleButton(String iconName, Lang toolTip) {
-		setDoubleBuffered(true);
-		setIcon(getIcon(iconName));
-		setToolTipText(I18N.tr(toolTip));
-		id = I18N.langToStr(toolTip);
+		this.setDoubleBuffered(true);
+		this.setIcon(getIcon(iconName));
+		this.setToolTipText(I18N.tr(toolTip));
+		this.id = I18N.langToStr(toolTip);
 		// this.setBorderPainted(true);
 		// this.setBorder(BorderFactory.createLineBorder(Color.black));
 		// this.addMouseListener(this);
@@ -27,9 +23,8 @@ public class LSToggleButton extends JToggleButton {
 		String filename = "images/" + imgname + ".png";
 		int is = LSProperties.getInstance().getPropertyInteger("iconsize", 36);
 		// return new ImageIcon(LSFrame.class.getResource(filename));
-		return new ImageIcon(new ImageIcon(getClass().getClassLoader().getResource(filename))
-				.getImage()
-				.getScaledInstance(is, is, Image.SCALE_AREA_AVERAGING));
+		return new ImageIcon(new ImageIcon(getClass().getClassLoader().getResource(filename)).getImage().getScaledInstance(is, is,
+				Image.SCALE_AREA_AVERAGING));
 	}
 
 }

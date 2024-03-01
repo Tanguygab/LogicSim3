@@ -1,7 +1,4 @@
-package io.github.tanguygab.logicsim3.gui;
-
-import io.github.tanguygab.logicsim3.*;
-import io.github.tanguygab.logicsim3.parts.*;
+package io.github.tanguygab.logicsim3;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -88,7 +85,8 @@ public class LSPanel extends Viewer implements Printable, CircuitChangedListener
 				Point currentMouse = new Point(e.getX(), e.getY());
 				if (currentMouse.x < previousPoint.x || currentMouse.y < previousPoint.y)
 					selectRect.setFrameFromDiagonal(currentMouse, previousPoint);
-				else selectRect.setFrameFromDiagonal(previousPoint, currentMouse);
+				else
+					selectRect.setFrameFromDiagonal(previousPoint, currentMouse);
 				repaint();
 				return;
 			}
@@ -100,39 +98,52 @@ public class LSPanel extends Viewer implements Printable, CircuitChangedListener
 				int dy = e.getY() - previousPoint.y;
 				translate(dx, dy);
 				return;
-			}
-			// don't drag in simulation mode
-			if (Simulation.getInstance().isRunning()) return;
+			} else {
+				// don't drag in simulation mode
+				if (Simulation.getInstance().isRunning())
+					return;
 
-			// drag parts
-			notifyZoomPos(scaleX, new Point(e.getX(), e.getY()));
-			for (CircuitPart part : parts) {
-				part.mouseDragged(e);
-				// check if currentpart is a gate and if any output touches another part's input pin
-				if (!LSProperties.getInstance().getPropertyBoolean(LSProperties.AUTOWIRE, true) || !(part instanceof Gate)) continue;
-				Gate gate = (Gate) part;
-				for (Pin pin : gate.pins) {
-					// autowire unconnected pins only
-					if (pin.isConnected()) continue;
-					int x = pin.getX();
-					int y = pin.getY();
-					for (Gate g : circuit.getGates()) {
-						CircuitPart cp = g.findPartAt(x, y);
-						if (!(cp instanceof Pin) || pin.isInput() != pin.isOutput()) continue;
-						Pin p = (Pin) cp;
-						// put new wire between pin and p
-						Wire w = pin.isOutput() ? new Wire(pin, p) : new Wire(p, pin);
-						w.deselect();
-						if (circuit.addWire(w)) {
-							p.connect(w);
-							pin.connect(w);
+				// drag parts
+				notifyZoomPos(scaleX, new Point(e.getX(), e.getY()));
+				for (CircuitPart part : parts) {
+					part.mouseDragged(e);
+
+					if (LSProperties.getInstance().getPropertyBoolean(LSProperties.AUTOWIRE, true)) {
+						// check if currentpart is a gate and if any output touches another part's input
+						// pin
+						if (part instanceof Gate) {
+							Gate gate = (Gate) part;
+							for (Pin pin : gate.pins) {
+								// autowire unconnected pins only
+								if (!pin.isConnected()) {
+									int x = pin.getX();
+									int y = pin.getY();
+									for (Gate g : circuit.getGates()) {
+										CircuitPart cp = g.findPartAt(x, y);
+										if (cp instanceof Pin) {
+											Pin p = (Pin) cp;
+											if (pin.isInput() == p.isOutput()) {
+												// put new wire between pin and p
+												Wire w = null;
+												if (pin.isOutput())
+													w = new Wire(pin, p);
+												else
+													w = new Wire(p, pin);
+												w.deselect();
+												if (circuit.addWire(w)) {
+													p.connect(w);
+													pin.connect(w);
+												}
+											}
+										}
+									}
+								}
+							}
 						}
-
-
 					}
 				}
+				fireCircuitChanged();
 			}
-			fireCircuitChanged();
 		}
 
 		private void setPoint(int x, int y) {
@@ -155,11 +166,12 @@ public class LSPanel extends Viewer implements Printable, CircuitChangedListener
 					if (e.isShiftDown()) {
 						// pressed SHIFT while moving and drawing wire
 						WirePoint wp = wire.getLastPoint();
-						int lastX = wp.getX();
-						int lastY = wp.getY();
-						if (Math.abs(rx - lastX) < Math.abs(ry - lastY))
-							rx = lastX;
-						else ry = lastY;
+						int lastx = wp.getX();
+						int lasty = wp.getY();
+						if (Math.abs(rx - lastx) < Math.abs(ry - lasty))
+							rx = lastx;
+						else
+							ry = lasty;
 					}
 					// the selected wire is unfinished - force draw
 					wire.setTempPoint(new Point(rx, ry));
@@ -225,7 +237,7 @@ public class LSPanel extends Viewer implements Printable, CircuitChangedListener
 						p.connect(newWire);
 					}
 				}
-				if (newWire == null && wp != null) {
+				if (newWire == null) {
 					newWire = new Wire(wp, null);
 					if (circuit.addWire(newWire)) {
 						wp.connect(newWire);
@@ -233,7 +245,7 @@ public class LSPanel extends Viewer implements Printable, CircuitChangedListener
 				}
 				fireStatusText(I18N.tr(Lang.WIREEDIT));
 				circuit.deselectAll();
-				if (newWire != null) newWire.select();
+				newWire.select();
 				fireCircuitChanged();
 				currentAction = ACTION_EDITWIRE;
 				return;
@@ -317,25 +329,25 @@ public class LSPanel extends Viewer implements Printable, CircuitChangedListener
 				Pin pin = ((Pin) cp);
 				fireStatusText(I18N.tr(Lang.PIN) + " (" + cp.getId() + ")");
 				// modify input (inverted or high or low or revert to normal type)
-				if (pin.isInput()
-						&& (currentAction == Pin.HIGH
-						|| currentAction == Pin.LOW
-						|| currentAction == Pin.INVERTED
-						|| currentAction == Pin.NORMAL)) {
+				if (pin.isInput()) {
+					if (currentAction == Pin.HIGH || currentAction == Pin.LOW || currentAction == Pin.INVERTED
+							|| currentAction == Pin.NORMAL) {
 						// 1. if we clicked on an input modificator
-					pin.setLevelType(currentAction);
-					pin.changedLevel(new LSLevelEvent(new Wire(null, null), pin.level, true));
-					currentAction = ACTION_NONE;
-					fireStatusText(NOTHING);
-					fireCircuitChanged();
-					return;
+						pin.setLevelType(currentAction);
+						pin.changedLevel(new LSLevelEvent(new Wire(null, null), pin.level, true));
+						currentAction = ACTION_NONE;
+						fireStatusText(NOTHING);
+						fireCircuitChanged();
+						return;
+					}
 				}
 			}
 			if (cp instanceof Gate) {
 				String type = ((Gate) cp).type;
 				if (cp instanceof Module)
 					fireStatusText(I18N.tr(Lang.MODULE) + " (" + cp.getId() + ")");
-				else fireStatusText(I18N.getString(type, I18N.DESCRIPTION) + " (" + cp.getId() + ")");
+				else
+					fireStatusText(I18N.getString(type, I18N.DESCRIPTION) + " (" + cp.getId() + ")");
 
 				if (parts.length > 0 && !simRunning) {
 					// check if we clicked a new gate
@@ -402,7 +414,8 @@ public class LSPanel extends Viewer implements Printable, CircuitChangedListener
 				}
 			}
 			CircuitPart cp = circuit.findPartAt(e.getX(), e.getY());
-			if (cp != null) cp.mouseReleased(x, y);
+			if (cp != null)
+				cp.mouseReleased(x, y);
 		}
 
 		@Override
@@ -417,11 +430,12 @@ public class LSPanel extends Viewer implements Printable, CircuitChangedListener
 	static final short ACTION_ADDWIRE = 0x50;
 	static final short ACTION_EDITWIRE = 0x51;
 
-	public static final short ACTION_ADDPOINT = 0x52;
-	public static final short ACTION_DELPOINT = 0x53;
+	static final short ACTION_ADDPOINT = 0x52;
+	static final short ACTION_DELPOINT = 0x53;
 	static final short ACTION_SELECT = 1;
 
-	final static Stroke dashed = new BasicStroke(3, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10, new float[] { 10 }, 0);
+	final static Stroke dashed = new BasicStroke(3, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10,
+			new float[] { 10 }, 0);
 	public static final Color gridColor = Color.black;
 	private static final long serialVersionUID = -6414072156700139318L;
 
@@ -435,22 +449,23 @@ public class LSPanel extends Viewer implements Printable, CircuitChangedListener
 	// current mode
 	private int currentAction;
 
-    /**
+	private final Dimension panelSize = new Dimension(1280, 1024);
+
+	/**
 	 * used for track selection, is one endpoint of a rectangle
 	 */
 	private Rectangle2D selectRect;
 
 	private final List<CircuitPart> copiedParts = new ArrayList<>();
-	//private final List<CircuitPart> lastActions = new ArrayList<>();
+	private final List<CircuitPart> lastActions = new ArrayList<>();
 
 	public LSPanel() {
-        Dimension panelSize = new Dimension(1280, 1024);
-        this.setSize(panelSize);
+		this.setSize(panelSize);
 		this.setPreferredSize(panelSize);
 		this.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
 		circuit.setRepaintListener(this);
 
-		//setZoomingSpeed(0.02);
+		// setZoomingSpeed(0.02);
 		setPainter(new LogicSimPainterGraphics());
 
 		MouseControl mouseControl = new MouseControl();
@@ -480,7 +495,8 @@ public class LSPanel extends Viewer implements Printable, CircuitChangedListener
 	}
 
 	@Override
-	public void changedZoomPos(double zoom, Point pos) {}
+	public void changedZoomPos(double zoom, Point pos) {
+	}
 
 	public void clear() {
 		circuit.deselectAll();
@@ -624,9 +640,11 @@ public class LSPanel extends Viewer implements Printable, CircuitChangedListener
 					if (pointsOfWire == 0) {
 						currentAction = ACTION_NONE;
 						// delete wire
-						w.disconnect();
+						w.disconnect(null);
 						circuit.remove(w);
-                        circuit.deselectAll();
+						w = null;
+						parts = null;
+						circuit.deselectAll();
 						fireStatusText(MSG_ABORTED);
 					}
 				} else if (currentAction == ACTION_ADDPOINT || currentAction == ACTION_DELPOINT
@@ -743,30 +761,27 @@ public class LSPanel extends Viewer implements Printable, CircuitChangedListener
         repaint();
     }
 
-	@Override
 	public void setAction(int actionNumber) {
-		Lang lang = null;
 		switch (actionNumber) {
-			case ACTION_ADDPOINT:
-				lang = Lang.ADDPOINT;
-				break;
-			case ACTION_DELPOINT:
-				lang = Lang.REMOVEPOINT;
-				break;
-			case Pin.HIGH:
-				lang = Lang.INPUTHIGH;
-				break;
-			case Pin.LOW:
-				lang = Lang.INPUTLOW;
-				break;
-			case Pin.NORMAL:
-				lang = Lang.INPUTNORM;
-				break;
-			case Pin.INVERTED:
-				lang = Lang.INPUTINV;
-				break;
+		case ACTION_ADDPOINT:
+			fireStatusText(I18N.tr(Lang.ADDPOINT));
+			break;
+		case ACTION_DELPOINT:
+			fireStatusText(I18N.tr(Lang.REMOVEPOINT));
+			break;
+		case Pin.HIGH:
+			fireStatusText(I18N.tr(Lang.INPUTHIGH));
+			break;
+		case Pin.LOW:
+			fireStatusText(I18N.tr(Lang.INPUTLOW));
+			break;
+		case Pin.NORMAL:
+			fireStatusText(I18N.tr(Lang.INPUTNORM));
+			break;
+		case Pin.INVERTED:
+			fireStatusText(I18N.tr(Lang.INPUTINV));
+			break;
 		}
-		if (lang != null) fireStatusText(I18N.tr(lang));
 		currentAction = actionNumber;
 	}
 
@@ -774,11 +789,23 @@ public class LSPanel extends Viewer implements Printable, CircuitChangedListener
 		this.changeListener = changeListener;
 	}
 
+	/**
+	 * less zoom
+	 */
+	public void zoomOut() {
+		int x = (int) getTransformer().screenToWorldX(getWidth() / 2);
+		int y = (int) getTransformer().screenToWorldY(getHeight() / 2);
+		zoomBy(x, y, -0.5f);
+		notifyZoomPos(scaleX, new Point(x, y));
+	}
 
-	protected void zoom(float amount) {
-		int x = (int) getTransformer().screenToWorldX(getWidth() / 2.);
-		int y = (int) getTransformer().screenToWorldY(getHeight() / 2.);
-		zoomBy(x, y, amount);
+	/**
+	 * more zoom
+	 */
+	public void zoomIn() {
+		int x = (int) getTransformer().screenToWorldX(getWidth() / 2);
+		int y = (int) getTransformer().screenToWorldY(getHeight() / 2);
+		zoomBy(x, y, 0.5f);
 		notifyZoomPos(scaleX, new Point(x, y));
 	}
 
@@ -787,22 +814,22 @@ public class LSPanel extends Viewer implements Printable, CircuitChangedListener
 	 */
 	public void zoomAll() {
 		Rectangle r = circuit.getBoundingBox();
-		double zx = (double) getWidth() / r.width;
-		double zy = (double) getHeight() / r.height;
-		double zf = Math.min(zx, zy);
-		int cx = r.x + r.width / 2;
-		int cy = r.y + r.height / 2;
+		double zx = (double) this.getWidth() / (double) r.width;
+		double zy = (double) this.getHeight() / (double) r.height;
+		double zf = zx < zy ? zx : zy;
+		int cx = (int) (r.x + r.width / 2);
+		int cy = (int) (r.y + r.height / 2);
 
 		// calculate the circuit's center point
 		int x = (int) getTransformer().screenToWorldX(cx);
 		int y = (int) getTransformer().screenToWorldY(cy);
 
 		// calculate the current screen center point
-		int curX = (int) getTransformer().screenToWorldX(getWidth() / 2.);
-		int curY = (int) getTransformer().screenToWorldY(getHeight() / 2.);
+		int curx = (int) getTransformer().screenToWorldX(getWidth() / 2);
+		int cury = (int) getTransformer().screenToWorldY(getHeight() / 2);
 
-		int dx = curX - x;
-		int dy = curY - y;
+		int dx = curx - x;
+		int dy = cury - y;
 		translate(dx, dy);
 		zoomTo(x, y, zf);
 		notifyZoomPos(scaleX, new Point(x, y));

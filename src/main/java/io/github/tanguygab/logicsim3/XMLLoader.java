@@ -1,7 +1,5 @@
 package io.github.tanguygab.logicsim3;
 
-import io.github.tanguygab.logicsim3.parts.*;
-
 import java.util.ArrayList;
 import java.util.Properties;
 import java.util.Vector;

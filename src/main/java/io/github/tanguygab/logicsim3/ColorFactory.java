@@ -77,15 +77,33 @@ public final class ColorFactory {
 	public static Color hsb(double hue, double saturation, double brightness, double opacity) {
 		checkSB(saturation, brightness);
 		double[] rgb = HSBtoRGB(hue, saturation, brightness);
-        return new Color((float) rgb[0], (float) rgb[1], (float) rgb[2], (float) opacity);
+		Color result = new Color((float) rgb[0], (float) rgb[1], (float) rgb[2], (float) opacity);
+		return result;
+	}
+
+	/**
+	 * Creates an opaque {@code Color} based on the specified values in the HSB
+	 * color model.
+	 *
+	 * @param hue        the hue, in degrees
+	 * @param saturation the saturation, {@code 0.0 to 1.0}
+	 * @param brightness the brightness, {@code 0.0 to 1.0}
+	 * @return the {@code Color}
+	 * @throws IllegalArgumentException if {@code saturation} or {@code brightness}
+	 *                                  are out of range
+	 */
+	public static Color hsb(double hue, double saturation, double brightness) {
+		return hsb(hue, saturation, brightness, 1.0);
 	}
 
 	private static void checkSB(double saturation, double brightness) {
 		if (saturation < 0.0 || saturation > 1.0) {
-			throw new IllegalArgumentException("Color.hsb's saturation parameter (" + saturation + ") expects values 0.0-1.0");
+			throw new IllegalArgumentException(
+					"Color.hsb's saturation parameter (" + saturation + ") expects values 0.0-1.0");
 		}
 		if (brightness < 0.0 || brightness > 1.0) {
-			throw new IllegalArgumentException("Color.hsb's brightness parameter (" + brightness + ") expects values 0.0-1.0");
+			throw new IllegalArgumentException(
+					"Color.hsb's brightness parameter (" + brightness + ") expects values 0.0-1.0");
 		}
 	}
 
@@ -267,7 +285,8 @@ public final class ColorFactory {
 				a = Integer.parseInt(color.substring(6, 8), 16);
 				return new Color(r, g, b, (float) (opacity * a / 255.0));
 			}
-		} catch (NumberFormatException ignored) {}
+		} catch (NumberFormatException nfe) {
+		}
 
 		throw new IllegalArgumentException("Invalid color specification");
 	}
@@ -287,7 +306,8 @@ public final class ColorFactory {
 				}
 				return new Color((float) r, (float) g, (float) b, (float) a);
 			}
-		} catch (NumberFormatException ignored) {}
+		} catch (NumberFormatException nfe) {
+		}
 
 		throw new IllegalArgumentException("Invalid color specification");
 	}
@@ -307,7 +327,8 @@ public final class ColorFactory {
 				}
 				return hsb(h, s, l, a);
 			}
-		} catch (NumberFormatException ignored) {}
+		} catch (NumberFormatException nfe) {
+		}
 
 		throw new IllegalArgumentException("Invalid color specification");
 	}
@@ -331,7 +352,7 @@ public final class ColorFactory {
 		double c = ((type == PARSE_COMPONENT) ? Integer.parseInt(color) : Double.parseDouble(color));
 		switch (type) {
 		case PARSE_ALPHA:
-			return (c < 0.0) ? 0.0 : (Math.min(c, 1.0));
+			return (c < 0.0) ? 0.0 : ((c > 1.0) ? 1.0 : c);
 		case PARSE_PERCENT:
 			return (c <= 0.0) ? 0.0 : ((c >= 100.0) ? 1.0 : (c / 100.0));
 		case PARSE_COMPONENT:
@@ -1597,7 +1618,7 @@ public final class ColorFactory {
 		}
 
 		private static Map<String, Color> createNamedColors() {
-			Map<String, Color> colors = new HashMap<>(256);
+			Map<String, Color> colors = new HashMap<String, Color>(256);
 
 			colors.put("aliceblue", ALICEBLUE);
 			colors.put("antiquewhite", ANTIQUEWHITE);
@@ -1806,4 +1827,41 @@ public final class ColorFactory {
 		return f;
 	}
 
+	public static double[] RGBtoHSB(double r, double g, double b) {
+		double hue, saturation, brightness;
+		double[] hsbvals = new double[3];
+		double cmax = (r > g) ? r : g;
+		if (b > cmax)
+			cmax = b;
+		double cmin = (r < g) ? r : g;
+		if (b < cmin)
+			cmin = b;
+
+		brightness = cmax;
+		if (cmax != 0)
+			saturation = (double) (cmax - cmin) / cmax;
+		else
+			saturation = 0;
+
+		if (saturation == 0) {
+			hue = 0;
+		} else {
+			double redc = (cmax - r) / (cmax - cmin);
+			double greenc = (cmax - g) / (cmax - cmin);
+			double bluec = (cmax - b) / (cmax - cmin);
+			if (r == cmax)
+				hue = bluec - greenc;
+			else if (g == cmax)
+				hue = 2.0 + redc - bluec;
+			else
+				hue = 4.0 + greenc - redc;
+			hue = hue / 6.0;
+			if (hue < 0)
+				hue = hue + 1.0;
+		}
+		hsbvals[0] = hue * 360;
+		hsbvals[1] = saturation;
+		hsbvals[2] = brightness;
+		return hsbvals;
+	}
 }

@@ -6,7 +6,7 @@ import java.awt.geom.Path2D;
 
 import javax.swing.JOptionPane;
 
-import io.github.tanguygab.logicsim3.parts.Gate;
+import io.github.tanguygab.logicsim3.Gate;
 import io.github.tanguygab.logicsim3.I18N;
 import io.github.tanguygab.logicsim3.LSLevelEvent;
 import io.github.tanguygab.logicsim3.Lang;
@@ -36,7 +36,7 @@ public class OnDelay extends Gate implements Runnable {
 	}
 
 	@Override
-	public void loadProperties() {
+	protected void loadProperties() {
 		delayTime = Integer.parseInt(getPropertyWithDefault(DELAY, DELAY_DEFAULT));
 	}
 

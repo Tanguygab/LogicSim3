@@ -1,6 +1,4 @@
-package io.github.tanguygab.logicsim3.gui;
-
-import io.github.tanguygab.logicsim3.parts.CircuitPart;
+package io.github.tanguygab.logicsim3;
 
 import java.awt.Point;
 

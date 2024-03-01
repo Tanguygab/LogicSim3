@@ -3,10 +3,10 @@ package io.github.tanguygab.logicsim3.gates;
 import java.awt.Color;
 import java.awt.Graphics2D;
 
-import io.github.tanguygab.logicsim3.parts.Gate;
+import io.github.tanguygab.logicsim3.Gate;
 import io.github.tanguygab.logicsim3.I18N;
 import io.github.tanguygab.logicsim3.LSLevelEvent;
-import io.github.tanguygab.logicsim3.parts.Pin;
+import io.github.tanguygab.logicsim3.Pin;
 
 /**
  * D-Flipflop with Set and Reset

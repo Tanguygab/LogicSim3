@@ -1,4 +1,4 @@
-package io.github.tanguygab.logicsim3.gui;
+package io.github.tanguygab.logicsim3;
 
 import java.awt.Color;
 import java.awt.Graphics;
