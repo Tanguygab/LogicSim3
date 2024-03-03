@@ -594,6 +594,7 @@ public class LSPanel extends Viewer implements Printable, CircuitChangedListener
 
 						Wire wire = (Wire) part;
 						Wire newWire = new Wire(wire.getX()+20,wire.getY()+20);
+						circuit.addWire(newWire);
 
 						Pin from = wire.getFrom() instanceof Pin ? (Pin) wire.getFrom() : null;
 						Pin to = wire.getTo() instanceof Pin ? (Pin) wire.getTo() : null;
@@ -606,21 +607,20 @@ public class LSPanel extends Viewer implements Printable, CircuitChangedListener
 						gates.forEach((gate,newGate)->{
 							if (gate.getPins().contains(from)) {
 								Pin pin = newGate.getPin(gate.getPins().indexOf(from));
-								pin.connect(newGate);
 								newWire.setFrom(pin);
+								pin.connect(newWire);
 							}
 							if (gate.getPins().contains(to)) {
 								Pin pin = newGate.getPin(gate.getPins().indexOf(to));
-								pin.connect(newGate);
 								newWire.setTo(pin);
+								pin.connect(newWire);
 							}
 
 						});
-						circuit.addWire(newWire);
 					});
 					currentAction = ACTION_NONE;
 					fireStatusText("MSG_PASTE_SELECTION");
-					repaint();
+					fireCircuitChanged();
 					return;
 				case KeyEvent.VK_Z:
 					System.out.println("Undo");
