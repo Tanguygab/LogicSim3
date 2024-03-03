@@ -1,4 +1,6 @@
-package io.github.tanguygab.logicsim3;
+package io.github.tanguygab.logicsim3.parts;
+
+import io.github.tanguygab.logicsim3.LSRepaintListener;
 
 import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;

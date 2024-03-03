@@ -1,5 +1,8 @@
 package io.github.tanguygab.logicsim3;
 
+import io.github.tanguygab.logicsim3.gui.LSFrame;
+import io.github.tanguygab.logicsim3.parts.*;
+
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.io.File;

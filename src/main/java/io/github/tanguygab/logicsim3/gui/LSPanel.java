@@ -1,4 +1,7 @@
-package io.github.tanguygab.logicsim3;
+package io.github.tanguygab.logicsim3.gui;
+
+import io.github.tanguygab.logicsim3.*;
+import io.github.tanguygab.logicsim3.parts.*;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -113,7 +116,7 @@ public class LSPanel extends Viewer implements Printable, CircuitChangedListener
 						// pin
 						if (part instanceof Gate) {
 							Gate gate = (Gate) part;
-							for (Pin pin : gate.pins) {
+							for (Pin pin : gate.getPins()) {
 								// autowire unconnected pins only
 								if (!pin.isConnected()) {
 									int x = pin.getX();
@@ -430,9 +433,9 @@ public class LSPanel extends Viewer implements Printable, CircuitChangedListener
 	static final short ACTION_ADDWIRE = 0x50;
 	static final short ACTION_EDITWIRE = 0x51;
 
-	static final short ACTION_ADDPOINT = 0x52;
-	static final short ACTION_DELPOINT = 0x53;
-	static final short ACTION_SELECT = 1;
+	public static final short ACTION_ADDPOINT = 0x52;
+	public static final short ACTION_DELPOINT = 0x53;
+	public static final short ACTION_SELECT = 1;
 
 	final static Stroke dashed = new BasicStroke(3, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10,
 			new float[] { 10 }, 0);

@@ -1,4 +1,4 @@
-package io.github.tanguygab.logicsim3;
+package io.github.tanguygab.logicsim3.parts;
 
 /**
  * Wire represention
@@ -8,6 +8,12 @@ package io.github.tanguygab.logicsim3;
  * @version 2.0
  */
 
+import io.github.tanguygab.logicsim3.LSLevelEvent;
+import io.github.tanguygab.logicsim3.LSMouseEvent;
+import io.github.tanguygab.logicsim3.LSProperties;
+import io.github.tanguygab.logicsim3.Simulation;
+import io.github.tanguygab.logicsim3.gui.LSPanel;
+
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -16,11 +22,13 @@ import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.Vector;
 
-public class Wire extends CircuitPart implements Cloneable {
-	static final long serialVersionUID = -7554728800898882892L;
+public class Wire extends CircuitPart implements Cloneable, Serializable {
+
+	private static final long serialVersionUID = -7554728800898882892L;
 
 	public static float SEL_WIDTH = 3f;
 
@@ -79,12 +87,7 @@ public class Wire extends CircuitPart implements Cloneable {
 		loadProperties();
 	}
 
-	@Override
-	protected void loadProperties() {
-		text = getPropertyWithDefault(TEXT, TEXT_DEFAULT);
-	}
-
-	public void addPoint(int x, int y) {
+    public void addPoint(int x, int y) {
 		WirePoint wp = new WirePoint(x, y);
 		addPoint(wp);
 	}
@@ -227,7 +230,7 @@ public class Wire extends CircuitPart implements Cloneable {
 		return rect;
 	}
 
-	WirePoint getLastPoint() {
+	public WirePoint getLastPoint() {
 		if (getTo() != null) {
 			return getPointTo();
 		} else if (points.size() > 0) {

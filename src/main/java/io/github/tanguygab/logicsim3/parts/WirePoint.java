@@ -1,4 +1,7 @@
-package io.github.tanguygab.logicsim3;
+package io.github.tanguygab.logicsim3.parts;
+
+import io.github.tanguygab.logicsim3.LSLevelEvent;
+import io.github.tanguygab.logicsim3.LSMouseEvent;
 
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
@@ -16,7 +19,7 @@ public class WirePoint extends CircuitPart {
 
 	public static final int POINT_SIZE = 7;
 
-	protected boolean show = false;
+	public boolean show = false;
 
 	private boolean level = false;
 

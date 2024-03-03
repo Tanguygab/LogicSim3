@@ -1,4 +1,8 @@
-package io.github.tanguygab.logicsim3;
+package io.github.tanguygab.logicsim3.gui;
+
+import io.github.tanguygab.logicsim3.parts.Gate;
+import io.github.tanguygab.logicsim3.I18N;
+import io.github.tanguygab.logicsim3.parts.Module;
 
 import java.awt.Color;
 import java.awt.Component;

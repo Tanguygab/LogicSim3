@@ -1,4 +1,8 @@
-package io.github.tanguygab.logicsim3;
+package io.github.tanguygab.logicsim3.parts;
+
+import io.github.tanguygab.logicsim3.LSLevelEvent;
+import io.github.tanguygab.logicsim3.LSMouseEvent;
+import io.github.tanguygab.logicsim3.WidgetHelper;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -9,6 +13,7 @@ import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
+import java.io.Serializable;
 import java.util.Vector;
 
 /**
@@ -19,7 +24,7 @@ import java.util.Vector;
  * @author Matthew Lister
  * @version 2.0
  */
-public class Gate extends CircuitPart {
+public class Gate extends CircuitPart implements Serializable {
 
 	public static final int BOTH_AXES = 3;
 
@@ -28,7 +33,7 @@ public class Gate extends CircuitPart {
 	public static final int HORIZONTAL = 0;
 	public static final int NORMAL = 0;
 
-	static final long serialVersionUID = -6775454761569297690L;
+	private static final long serialVersionUID = -6775454761569297690L;
 	public static final int VERTICAL = 1;
 	public static final int XAXIS = 1;
 	public static final int YAXIS = 2;
@@ -67,7 +72,7 @@ public class Gate extends CircuitPart {
 	 */
 	public int rotate90 = 0;
 
-	protected String type;
+	public String type;
 
 	protected boolean variableInputCountSupported = false;
 

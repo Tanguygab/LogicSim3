@@ -3,11 +3,11 @@ package io.github.tanguygab.logicsim3.gates;
 import java.awt.Color;
 import java.awt.Graphics2D;
 
-import io.github.tanguygab.logicsim3.Gate;
+import io.github.tanguygab.logicsim3.parts.Gate;
 import io.github.tanguygab.logicsim3.I18N;
 import io.github.tanguygab.logicsim3.LSLevelEvent;
 import io.github.tanguygab.logicsim3.LSMouseEvent;
-import io.github.tanguygab.logicsim3.Pin;
+import io.github.tanguygab.logicsim3.parts.Pin;
 
 /**
  * 4bit Register
@@ -81,7 +81,7 @@ public class Register4 extends Gate {
 	}
 
 	@Override
-	protected void loadProperties() {
+	public void loadProperties() {
 		content = getPropertyIntWithDefault(STATE, 0);
 		updateInternalOutputs();
 	}

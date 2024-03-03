@@ -4,7 +4,11 @@
  * Created on 19. Januar 2006, 17:54
  */
 
-package io.github.tanguygab.logicsim3;
+package io.github.tanguygab.logicsim3.gui;
+
+import io.github.tanguygab.logicsim3.I18N;
+import io.github.tanguygab.logicsim3.LSProperties;
+import io.github.tanguygab.logicsim3.Lang;
 
 import javax.swing.*;
 import java.awt.AWTEvent;

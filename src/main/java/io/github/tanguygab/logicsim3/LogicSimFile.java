@@ -1,14 +1,18 @@
 package io.github.tanguygab.logicsim3;
 
+import io.github.tanguygab.logicsim3.parts.Circuit;
+import io.github.tanguygab.logicsim3.parts.Gate;
+import io.github.tanguygab.logicsim3.parts.Wire;
+
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
 public class LogicSimFile {
-	Circuit circuit = new Circuit();
+	public Circuit circuit = new Circuit();
 	Map<String, String> info = new HashMap<String, String>();
-	String fileName;
+	public String fileName;
 	public boolean changed = false;
 	private Vector<String> errors = new Vector<String>();
 

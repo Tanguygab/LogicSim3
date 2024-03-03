@@ -1,5 +1,10 @@
 package io.github.tanguygab.logicsim3;
 
+import io.github.tanguygab.logicsim3.parts.Gate;
+import io.github.tanguygab.logicsim3.parts.Pin;
+import io.github.tanguygab.logicsim3.parts.Wire;
+import io.github.tanguygab.logicsim3.parts.WirePoint;
+
 import java.util.Vector;
 
 /**

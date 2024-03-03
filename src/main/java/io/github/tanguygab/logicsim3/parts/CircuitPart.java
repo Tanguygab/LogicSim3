@@ -1,4 +1,7 @@
-package io.github.tanguygab.logicsim3;
+package io.github.tanguygab.logicsim3.parts;
+
+import io.github.tanguygab.logicsim3.*;
+import io.github.tanguygab.logicsim3.gui.CircuitChangedListener;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -52,7 +55,7 @@ public abstract class CircuitPart implements LSLevelListener {
 	/**
 	 * if part is currently being edited
 	 */
-	protected boolean selected = false;
+	public boolean selected = false;
 
 	private int x;
 
@@ -76,7 +79,7 @@ public abstract class CircuitPart implements LSLevelListener {
 		return properties;
 	}
 
-	protected String getProperty(String string) {
+	public String getProperty(String string) {
 		return properties.getProperty(string);
 	}
 
@@ -99,7 +102,7 @@ public abstract class CircuitPart implements LSLevelListener {
 		return s;
 	}
 
-	protected void loadProperties() {
+	public void loadProperties() {
 		text = getPropertyWithDefault(TEXT, TEXT_DEFAULT);
 	}
 

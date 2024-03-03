@@ -1,5 +1,7 @@
 package io.github.tanguygab.logicsim3;
 
+import io.github.tanguygab.logicsim3.parts.Gate;
+
 import java.util.ArrayList;
 import java.util.List;
 

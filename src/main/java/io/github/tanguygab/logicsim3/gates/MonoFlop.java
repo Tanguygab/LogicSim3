@@ -7,7 +7,7 @@ import java.awt.geom.Path2D;
 
 import javax.swing.JOptionPane;
 
-import io.github.tanguygab.logicsim3.Gate;
+import io.github.tanguygab.logicsim3.parts.Gate;
 import io.github.tanguygab.logicsim3.I18N;
 import io.github.tanguygab.logicsim3.LSLevelEvent;
 import io.github.tanguygab.logicsim3.Lang;
@@ -41,7 +41,7 @@ public class MonoFlop extends Gate implements Runnable {
 	}
 
 	@Override
-	protected void loadProperties() {
+	public void loadProperties() {
 		highTime = Integer.parseInt(getPropertyWithDefault(HT, HT_DEFAULT));
 	}
 
