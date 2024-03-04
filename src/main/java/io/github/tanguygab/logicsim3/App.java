@@ -2,6 +2,7 @@ package io.github.tanguygab.logicsim3;
 
 import io.github.tanguygab.logicsim3.gui.LSFrame;
 import io.github.tanguygab.logicsim3.parts.*;
+import lombok.Getter;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
@@ -23,6 +24,7 @@ public class App {
 	public static boolean Running_From_Jar = false;
 	public static List<Category> cats = new ArrayList<>();
 
+	@Getter private static App instance;
 	/**
 	 * Main method
 	 */
@@ -30,8 +32,8 @@ public class App {
 		new App();
 	}
 
-
 	public App() {
+		instance = this;
 		URL url = getClass().getResource("");
 		if (url != null && "jar".equals(url.getProtocol()))
 			Running_From_Jar = true;
@@ -51,6 +53,10 @@ public class App {
 		lsframe.setVisible(true);
 		
 		Wire.setColorMode();
+	}
+
+	public URL getResource(String file) {
+		return getClass().getClassLoader().getResource(file);
 	}
 
 	private static void addToCategory(Gate g) {

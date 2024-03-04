@@ -23,10 +23,9 @@ import java.io.File;
  * @author atetzl
  */
 public class HTMLHelp extends JFrame implements ActionListener {
+
 	private static final long serialVersionUID = 4292051858178374722L;
-	private javax.swing.JButton jButton_ok;
-	private javax.swing.JScrollPane jScrollPane1;
-	private javax.swing.JTextPane jTextPane1;
+    private JTextPane jTextPane1;
 
 
 	/** Creates new form HTMLHelp */
@@ -45,27 +44,30 @@ public class HTMLHelp extends JFrame implements ActionListener {
 		setTitle("LogicSim " + I18N.tr(Lang.HELP));
 
 		try {
-			File docs = new File("docs");
-			File[] files = docs.listFiles();
-			assert files != null;
-			String url = new File("docs/en.html").getAbsolutePath();
-			// Anleitung in der eingestellten Sprache finden
-            for (File file : files) {
-                if (file.getName().startsWith(language) && file.getName().endsWith(".html")) {
-                    url = file.getAbsolutePath();
-                }
-            }
-
-			url = url.replaceAll("\\\\", "/");
-			url = "file:///" + url;
-			url = url.replaceAll(" ", "%20");
-			jTextPane1.setPage(url);
-		} catch (Exception ex) {
-			ex.printStackTrace();
+			jTextPane1.setPage(getUrl(language));
+		} catch (Exception e) {
+			e.printStackTrace();
 			setVisible(false);
 			dispose();
 		}
 		setVisible(true);
+	}
+
+	private static String getUrl(String language) {
+		File docs = new File("docs");
+		File[] files = docs.listFiles();
+		assert files != null;
+		String url = new File("docs/en.html").getAbsolutePath();
+		// Anleitung in der eingestellten Sprache finden
+		for (File file : files) {
+			if (file.getName().startsWith(language) && file.getName().endsWith(".html")) {
+				url = file.getAbsolutePath();
+			}
+		}
+
+		return  "file:///" + url
+				.replaceAll("\\\\", "/")
+				.replaceAll(" ", "%20");
 	}
 
 	@Override
@@ -98,8 +100,8 @@ public class HTMLHelp extends JFrame implements ActionListener {
 	// <editor-fold defaultstate="collapsed" desc=" Generated Code
 	// ">//GEN-BEGIN:initComponents
 	private void initComponents() {
-		jButton_ok = new javax.swing.JButton();
-		jScrollPane1 = new javax.swing.JScrollPane();
+        JButton jButton_ok = new JButton();
+        JScrollPane jScrollPane1 = new JScrollPane();
 		jTextPane1 = new javax.swing.JTextPane();
 		jTextPane1.setContentType("text/html;charset=UTF-8");
 		
@@ -109,13 +111,13 @@ public class HTMLHelp extends JFrame implements ActionListener {
 			setVisible(false);
 		});
 
-		getContentPane().add(jButton_ok, java.awt.BorderLayout.SOUTH);
+		getContentPane().add(jButton_ok, BorderLayout.SOUTH);
 
 		jTextPane1.setEditable(false);
 		jTextPane1.setMinimumSize(new java.awt.Dimension(400, 300));
 		jScrollPane1.setViewportView(jTextPane1);
 
-		getContentPane().add(jScrollPane1, java.awt.BorderLayout.CENTER);
+		getContentPane().add(jScrollPane1, BorderLayout.CENTER);
 
 		pack();
 	}

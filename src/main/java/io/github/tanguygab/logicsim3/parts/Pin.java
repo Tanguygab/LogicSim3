@@ -428,7 +428,7 @@ public class Pin extends CircuitPart {
 			LSLevelListener l = ((ArrayList<LSLevelListener>) getListeners()).get(i);
 			if (l instanceof Wire) {
 				Wire w = (Wire) l;
-				w.disconnect(null);
+				w.disconnect();
 				w = null;
 				i--;
 			}

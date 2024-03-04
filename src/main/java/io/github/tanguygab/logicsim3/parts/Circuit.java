@@ -1,6 +1,8 @@
 package io.github.tanguygab.logicsim3.parts;
 
 import io.github.tanguygab.logicsim3.LSRepaintListener;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
@@ -18,9 +20,9 @@ import java.util.Vector;
 public class Circuit implements LSRepaintListener, Serializable {
 
 	private static final long serialVersionUID = 3458986578856078326L;
-	private final Vector<CircuitPart> parts = new Vector<>();
-	private LSRepaintListener repaintListener;
 
+	@Getter private final Vector<CircuitPart> parts = new Vector<>();
+	@Setter private LSRepaintListener repaintListener;
 
 	public void clear() {
 		parts.clear();
@@ -66,10 +68,6 @@ public class Circuit implements LSRepaintListener, Serializable {
 //		return findParts.toArray(new CircuitPart[findParts.size()]);
 //	}
 
-	public Vector<CircuitPart> getParts() {
-		return parts;
-	}
-
 	public Vector<Gate> getGates() {
 		Vector<Gate> gates = new Vector<>();
 		for (CircuitPart part : parts)
@@ -88,10 +86,6 @@ public class Circuit implements LSRepaintListener, Serializable {
 
 	// what is this even used for?
 	public void simulate() {
-	}
-
-	public void setRepaintListener(LSRepaintListener listener) {
-		this.repaintListener = listener;
 	}
 
 	public void selectAll() {
@@ -124,25 +118,20 @@ public class Circuit implements LSRepaintListener, Serializable {
 	}
 
 	public CircuitPart[] getSelected() {
-		Vector<CircuitPart> selParts = new Vector<>();
-		for (Gate g : getGates()) {
-			if (g.selected && !selParts.contains(g))
-				selParts.add(g);
-		}
+		Vector<CircuitPart> parts = new Vector<>();
+		for (Gate g : getGates()) addPart(parts,g);
+
 		for (Wire w : getWires()) {
-			if (w.selected && !selParts.contains(w))
-				selParts.add(w);
-			if (w.getFrom() instanceof WirePoint)
-				if (w.getFrom().isSelected() && !selParts.contains(w.getFrom()))
-					selParts.add(w.getFrom());
-			if (w.getTo() instanceof WirePoint)
-				if (w.getTo().isSelected() && !selParts.contains(w.getTo()))
-					selParts.add(w.getTo());
-			for (WirePoint wp : w.getPoints())
-				if (wp.isSelected() && !selParts.contains(wp))
-					selParts.add(wp);
+			addPart(parts,w);
+			if (w.getFrom() instanceof WirePoint) addPart(parts,w.getFrom());
+			if (w.getTo() instanceof WirePoint) addPart(parts,w.getTo());
+			for (WirePoint wp : w.getPoints()) addPart(parts,wp);
 		}
-		return selParts.toArray(new CircuitPart[0]);
+		return parts.toArray(new CircuitPart[0]);
+	}
+	private void addPart(Vector<CircuitPart> parts, CircuitPart part) {
+		if (part.isSelected() && !parts.contains(part))
+			parts.add(part);
 	}
 
 	public boolean remove(CircuitPart[] parts) {
@@ -154,7 +143,7 @@ public class Circuit implements LSRepaintListener, Serializable {
 				removeGate(g);
 			} else if (part instanceof Wire) {
 				Wire w = (Wire) part;
-				w.disconnect(null);
+				w.disconnect();
 				this.parts.remove(part);
 			}
 		}
@@ -163,7 +152,7 @@ public class Circuit implements LSRepaintListener, Serializable {
 
 	public void removeGate(Gate g) {
 		if (g == null) throw new RuntimeException("cannot remove a non-gate gate is null");
-		if (g.type.equals("modin") || g.type.equals("modout")) return;
+		if (g instanceof MODIN || g instanceof MODOUT) return;
 		// 1. check all wires if they are connected to that gate
 //		for (Pin p : g.pins) {
 //			if (p.isConnected()) {
@@ -189,47 +178,35 @@ public class Circuit implements LSRepaintListener, Serializable {
 //		}
 		for (CircuitPart part : parts) {
 			if (!(part instanceof Wire)) continue;
-			Wire w = (Wire) part;
-			if (w.getTo() != null && w.getTo() instanceof Pin) {
-				Pin p = (Pin) w.getTo();
-				if (p.parent == g) {
-					w.removeLevelListener(p);
-					p.removeLevelListener(w);
-					// w.disconnect(null);
-					// iter.remove();
-					WirePoint wp = new WirePoint(p.getX(), p.getY());
-					w.setTo(wp);
-					w.connect(wp);
-				}
-			}
-			if (w.getFrom() != null && w.getFrom() instanceof Pin) {
-				Pin p = (Pin) w.getFrom();
-				if (p.parent == g) {
-					w.removeLevelListener(p);
-					p.removeLevelListener(w);
-					// w.disconnect(null);
-					// iter.remove();
-					WirePoint wp = new WirePoint(p.getX(), p.getY());
-					w.setFrom(wp);
-					w.connect(wp);
-				}
-			}
+			Wire wire = (Wire) part;
+			removeGate(g,wire.getTo(),wire);
+			removeGate(g,wire.getFrom(),wire);
 		}
 		// checkWires();
 		parts.remove(g);
     }
+	private void removeGate(Gate gate, CircuitPart part, Wire wire) {
+		if (!(part instanceof Pin)) return;
+		Pin pin = (Pin) part;
+		if (pin.parent != gate) return;
+		wire.removeLevelListener(pin);
+		pin.removeLevelListener(wire);
+		WirePoint wp = new WirePoint(pin.getX(), pin.getY());
+		wire.setFrom(wp);
+		wire.connect(wp);
+	}
 
 	public void removeGateIdx(int idx) {
 		Gate g = (Gate) parts.get(idx);
         removeGate(g);
     }
 
-	public Gate findGateById(String fromGateId) {
-		for (CircuitPart p : parts)
-			if (p.getId().equals(fromGateId))
-				return (Gate) p;
-		return null;
-	}
+//	public Gate findGateById(String fromGateId) {
+//		for (CircuitPart p : parts)
+//			if (p.getId().equals(fromGateId))
+//				return (Gate) p;
+//		return null;
+//	}
 
 	@Override
 	public void needsRepaint(CircuitPart circuitPart) {
@@ -243,15 +220,13 @@ public class Circuit implements LSRepaintListener, Serializable {
 			addGate(gate);
 			gate.setRepaintListener(this);
 		}
-		fireRepaint(null);
+		fireRepaint();
 	}
 
 	public void setWires(Vector<Wire> wires) {
 		for (Wire wire : wires) addWire(wire);
-
 		// checkWires();
-
-		fireRepaint(null);
+		fireRepaint();
 	}
 
 	/**
@@ -289,9 +264,9 @@ public class Circuit implements LSRepaintListener, Serializable {
 //		this.needsRepaint(null);
 //	}
 
-	private void fireRepaint(CircuitPart source) {
+	private void fireRepaint() {
 		if (repaintListener != null)
-			repaintListener.needsRepaint(source);
+			repaintListener.needsRepaint(null);
 	}
 
 	@Override
@@ -305,7 +280,6 @@ public class Circuit implements LSRepaintListener, Serializable {
 
 	public CircuitPart[] findParts(Rectangle2D selectRect) {
 		Vector<CircuitPart> findParts = new Vector<>();
-		System.out.println(selectRect);
 		for (CircuitPart p : parts) {
 			Rectangle2D r = p.getBoundingBox();
 			double height = r.getHeight();
@@ -366,7 +340,6 @@ public class Circuit implements LSRepaintListener, Serializable {
 				return;
 			}
 		}
-
 	}
 
 	public boolean isEmpty() {

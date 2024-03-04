@@ -1,11 +1,13 @@
 package io.github.tanguygab.logicsim3.gui;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Point2D;
 
 import javax.swing.JPanel;
 
@@ -25,7 +27,7 @@ public class Viewer extends JPanel {
 	/**
 	 * Interface for all classes that may perform painting operations. Instances of
 	 * classes implementing this interface may be passed to the
-	 * {@link Viewer#addPainter(Painter)} method.
+	 * {@link Viewer#setPainter(Painter)} method.
 	 */
 	public interface Painter {
 		/**
@@ -54,7 +56,7 @@ public class Viewer extends JPanel {
 		 * @param x The world coordinate
 		 * @return The screen screen
 		 */
-		double worldToScreenX(double x);
+		//double worldToScreenX(double x);
 
 		/**
 		 * Convert the given world coordinate into a screen coordinate
@@ -62,7 +64,7 @@ public class Viewer extends JPanel {
 		 * @param y The world coordinate
 		 * @return The screen screen
 		 */
-		double worldToScreenY(double y);
+		//double worldToScreenY(double y);
 
 		/**
 		 * Convert the given screen coordinate into a world coordinate
@@ -89,7 +91,7 @@ public class Viewer extends JPanel {
 		 * @param pDst The destination point
 		 * @return The destination point
 		 */
-		Point2D screenToWorld(Point2D pSrc, Point2D pDst);
+		//Point2D screenToWorld(Point2D pSrc, Point2D pDst);
 
 		/**
 		 * Convert the given point from world coordinates to screen coordinates. If the
@@ -100,7 +102,7 @@ public class Viewer extends JPanel {
 		 * @param pDst The destination point
 		 * @return The destination point
 		 */
-		Point2D worldToScreen(Point2D pSrc, Point2D pDst);
+		//Point2D worldToScreen(Point2D pSrc, Point2D pDst);
 	}
 
 	/**
@@ -110,7 +112,12 @@ public class Viewer extends JPanel {
 
 	/**
 	 * The current zooming speed
-	 */
+	 * -- SETTER --
+	 *  Set the zooming speed of this viewer, which will affect the change of the
+	 *  scaling depending on the mouse wheel rotation
+	 *
+     */
+	@Setter
 	protected double zoomingSpeed = 0.05;
 
 	/**
@@ -142,22 +149,29 @@ public class Viewer extends JPanel {
 
 	/**
 	 * The {@link Transformer} instance of this Viewer
-	 */
+	 * -- GETTER --
+	 *  Return the
+	 *  that offers coordinate transformations for
+	 *  this Viewer
+	 *
+     */
+	@Getter
 	private final Transformer transformer;
 
 	/**
 	 * Simple implementation of a {@link Transformer}
 	 */
 	class SimpleTransformer implements Transformer {
-		@Override
-		public double worldToScreenX(double x) {
-			return (x + offsetX) * scaleX;
-		}
 
-		@Override
-		public double worldToScreenY(double y) {
-			return (y + offsetY) * scaleY;
-		}
+//		@Override
+//		public double worldToScreenX(double x) {
+//			return (x + offsetX) * scaleX;
+//		}
+//
+//		@Override
+//		public double worldToScreenY(double y) {
+//			return (y + offsetY) * scaleY;
+//		}
 
 		@Override
 		public double screenToWorldX(double x) {
@@ -169,31 +183,25 @@ public class Viewer extends JPanel {
 			return y / scaleY - offsetY;
 		}
 
-		@Override
-		public Point2D screenToWorld(Point2D pSrc, Point2D pDst) {
-			double x = screenToWorldX(pSrc.getX());
-			double y = screenToWorldY(pSrc.getY());
-			if (pDst == null) {
-				pDst = new Point2D.Double(x, y);
-			} else {
-				pDst.setLocation(x, y);
-			}
-			return pDst;
-		}
+//		@Override
+//		public Point2D screenToWorld(Point2D pSrc, Point2D pDst) {
+//			double x = screenToWorldX(pSrc.getX());
+//			double y = screenToWorldY(pSrc.getY());
+//			if (pDst == null) pDst = new Point2D.Double(x, y);
+//			else pDst.setLocation(x, y);
+//			return pDst;
+//		}
+//
+//		@Override
+//		public Point2D worldToScreen(Point2D pSrc, Point2D pDst) {
+//			double x = worldToScreenX(pSrc.getX());
+//			double y = worldToScreenY(pSrc.getY());
+//			if (pDst == null) pDst = new Point2D.Double(x, y);
+//			else pDst.setLocation(x, y);
+//			return pDst;
+//		}
 
-		@Override
-		public Point2D worldToScreen(Point2D pSrc, Point2D pDst) {
-			double x = worldToScreenX(pSrc.getX());
-			double y = worldToScreenY(pSrc.getY());
-			if (pDst == null) {
-				pDst = new Point2D.Double(x, y);
-			} else {
-				pDst.setLocation(x, y);
-			}
-			return pDst;
-		}
-
-	};
+	}
 
 	/**
 	 * Creates a new Viewer.
@@ -207,16 +215,6 @@ public class Viewer extends JPanel {
 	}
 
 	/**
-	 * Set the zooming speed of this viewer, which will affect the change of the
-	 * scaling depending on the mouse wheel rotation
-	 * 
-	 * @param zoomingSpeed The zooming speed
-	 */
-	public void setZoomingSpeed(double zoomingSpeed) {
-		this.zoomingSpeed = zoomingSpeed;
-	}
-
-	/**
 	 * Add the given {@link Painter}, which will perform painting operations in the
 	 * {@link #paintComponent(Graphics)} method.
 	 * 
@@ -225,16 +223,6 @@ public class Viewer extends JPanel {
 	public void setPainter(Painter painter) {
 		this.painter = painter;
 		repaint();
-	}
-
-	/**
-	 * Return the {@link Transformer} that offers coordinate transformations for
-	 * this Viewer
-	 * 
-	 * @return The {@link Transformer} for this Viewer
-	 */
-	public Transformer getTransformer() {
-		return transformer;
 	}
 
 	@Override
@@ -249,11 +237,11 @@ public class Viewer extends JPanel {
 		painter.paint(g2, at, getWidth(), getHeight());
 	}
 
-	protected void resetZoom() {
-		scaleX = 1f;
-		scaleY = 1f;
-		repaint();
-	}
+//	protected void resetZoom() {
+//		scaleX = 1f;
+//		scaleY = 1f;
+//		repaint();
+//	}
 
 	/**
 	 * Zoom about the specified point (in screen coordinates) by the given amount
@@ -267,10 +255,8 @@ public class Viewer extends JPanel {
 		double testX = scaleX + amount * scaleX;
 		double testY = scaleY + amount * scaleY;
 
-		if (testX > maxZoom)
-			return;
-		if (testX < minZoom)
-			return;
+		if (testX > maxZoom) return;
+		if (testX < minZoom) return;
 
 		offsetX -= x / scaleX;
 		offsetY -= y / scaleY;
@@ -285,10 +271,8 @@ public class Viewer extends JPanel {
 	protected void zoomTo(int x, int y, double amount) {
 		// check if scaleX and Y would be outside bounds
 
-		if (amount > maxZoom)
-			return;
-		if (amount < minZoom)
-			return;
+		if (amount > maxZoom) return;
+		if (amount < minZoom) return;
 
 		offsetX -= x / scaleX;
 		offsetY -= y / scaleY;
@@ -309,10 +293,8 @@ public class Viewer extends JPanel {
 	protected void translate(int dx, int dy) {
 		offsetX += dx / scaleX;
 		offsetY += dy / scaleY;
-//		if (offsetX > 0)
-//			offsetX = 0;
-//		if (offsetY > 0)
-//			offsetY = 0;
+//		if (offsetX > 0) offsetX = 0;
+//		if (offsetY > 0) offsetY = 0;
 		repaint();
 	}
 

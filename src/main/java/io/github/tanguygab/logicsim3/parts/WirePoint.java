@@ -9,9 +9,9 @@ import java.awt.event.MouseEvent;
 
 /**
  * WirePoint substructure class for Wire Objects
- * 
- * taken from https://argonrain.wordpress.com/2009/10/27/000/
- * 
+ * <p>
+ * taken from <a href="https://argonrain.wordpress.com/2009/10/27/000/">https://argonrain.wordpress.com/2009/10/27/000/</a>
+ *
  * @author Peter Gabriel
  * @version 1.0
  */
@@ -20,7 +20,6 @@ public class WirePoint extends CircuitPart {
 	public static final int POINT_SIZE = 7;
 
 	public boolean show = false;
-
 	private boolean level = false;
 
 	public WirePoint(int x, int y) {
@@ -30,11 +29,6 @@ public class WirePoint extends CircuitPart {
 	public WirePoint(int x, int y, boolean show) {
 		this(x, y);
 		this.show = show;
-	}
-
-	@Override
-	public String toString() {
-		return "(" + getX() + "," + getY() + "-" + (show ? "w" : "f") + ")";
 	}
 
 	@Override
@@ -50,23 +44,21 @@ public class WirePoint extends CircuitPart {
 	}
 
 	public boolean isAt(int x, int y) {
-		if (x > getX() - 4 && x < getX() + 4 && y > getY() - 4 && y < getY() + 4)
-			return true;
-		return false;
-	}
+        return x > getX() - 4 && x < getX() + 4 && y > getY() - 4 && y < getY() + 4;
+    }
 
 	@Override
 	public void mousePressed(LSMouseEvent e) {
 		super.mousePressed(e);
 		notifyMessage("WIREPOINT_CLICKED");
-		// Auf Punkt eines Wires geklickt ?
-		if (!e.isShiftDown()) {
-			select();
-		} else {
-			select();
-			// Wire newWire = ((Wire) currentPart).clone();
-			// newWire.activate();
-		}
+		select();
+//		if (!e.isShiftDown()) {
+//			select();
+//		} else {
+//			select();
+//			// Wire newWire = ((Wire) currentPart).clone();
+//			// newWire.activate();
+//		}
 		notifyRepaint();
 	}
 
@@ -81,13 +73,11 @@ public class WirePoint extends CircuitPart {
 
 		if (dx != 0 || dy != 0) {
 			if (e.isShiftDown()) {
-				if (dx < dy)
-					dx = 0;
-				else
-					dy = 0;
+				if (dx < dy) dx = 0;
+				else dy = 0;
 			}
-			mousePos.x = mousePos.x + dx;
-			mousePos.y = mousePos.y + dy;
+			mousePos.x += dx;
+			mousePos.y += dy;
 			moveBy(dx, dy);
 		}
 	}
@@ -95,24 +85,27 @@ public class WirePoint extends CircuitPart {
 	@Override
 	public void changedLevel(LSLevelEvent e) {
 		super.changedLevel(e);
-		if (getLevel() != e.level || e.force) {
-			level = e.level;
-			fireChangedLevel(e);
-			if (parent != null && !e.source.equals(parent)) {
-				parent.changedLevel(e);
-			}
-		}
-	}
+		if (getLevel() == e.level && !e.force) return;
 
-	@Override
-	public String getId() {
-		if (parent == null)
-			return super.getId();
-		return super.getId() + "@" + parent.getId();
+		level = e.level;
+		fireChangedLevel(e);
+		if (parent != null && !e.source.equals(parent)) {
+			parent.changedLevel(e);
+		}
 	}
 
 	@Override
 	public boolean getLevel() {
 		return level;
+	}
+
+	@Override
+	public String getId() {
+		return super.getId() + (parent == null ? "" : "@" + parent.getId());
+	}
+
+	@Override
+	public String toString() {
+		return "(" + getX() + "," + getY() + "-" + (show ? "w" : "f") + ")";
 	}
 }
