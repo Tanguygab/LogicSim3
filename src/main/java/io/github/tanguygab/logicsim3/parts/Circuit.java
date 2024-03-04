@@ -305,8 +305,11 @@ public class Circuit implements LSRepaintListener, Serializable {
 
 	public CircuitPart[] findParts(Rectangle2D selectRect) {
 		Vector<CircuitPart> findParts = new Vector<>();
+		System.out.println(selectRect);
 		for (CircuitPart p : parts) {
-			if (selectRect.contains(p.getBoundingBox())) {
+			Rectangle2D r = p.getBoundingBox();
+			double height = r.getHeight();
+			if (selectRect.contains(r.getX(), r.getY(), r.getWidth(), height == 0 ? height+0.0001 : height)) {
 				p.select();
 				findParts.add(p);
 			}
