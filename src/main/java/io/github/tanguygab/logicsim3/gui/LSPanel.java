@@ -586,6 +586,7 @@ public class LSPanel extends Viewer implements Printable, CircuitChangedListener
 
 						Gate gate = GateLoaderHelper.create((Gate) part);
 						circuit.addGate(gate);
+						gate.setProperties(part.getProperties());
 						gate.select();
 
 						gate.moveTo(part.getX(),part.getY());
