@@ -191,13 +191,8 @@ public class App {
 		File file = new File("");
 		String fileName = file.getAbsolutePath() + "/" + path;
 		file = new File(fileName);
-		if (file.exists() && file.isDirectory())
-			return file.getAbsolutePath() + "/";
-
-		Dialogs.messageDialog(null, "Directory '"+path+"' not found.\nPlease run the program from its directory");
-		System.exit(0);
-
-		return "";
+		if (!file.exists() || !file.isDirectory()) file.mkdir();
+		return file.getAbsolutePath() + "/";
 	}
 
 	public static String getModulePath() {
