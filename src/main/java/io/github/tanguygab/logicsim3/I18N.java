@@ -10,11 +10,10 @@
 
 package io.github.tanguygab.logicsim3;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.*;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
 
 /**
  *
@@ -48,7 +47,7 @@ public class I18N {
 	public static Properties load(String lang) {
 		Properties properties = new Properties();
 		try {
-			properties.load(Files.newInputStream(Paths.get("languages/" + lang + ".txt")));
+			properties.load(App.getInstance().getResourceAsStream("languages/" + lang + ".txt"));
 			return properties;
 		} catch (Exception e) {
 			return null;
@@ -95,18 +94,7 @@ public class I18N {
 	}
 
 	public static List<String> getLanguages() {
-		File dir = new File("languages/");
-		String[] files = dir.list();
-        assert files != null;
-        Arrays.sort(files);
-		List<String> langs = new ArrayList<String>();
-        for (String file : files) {
-            if (file.endsWith(".txt")) {
-                String name = file.substring(0, file.length() - 4);
-                langs.add(name);
-            }
-        }
-		return langs;
+		return App.getInstance().getFiles("languages/","../../../resources/main/languages/",".txt");
 	}
 
 	public static void main(String[] args) {

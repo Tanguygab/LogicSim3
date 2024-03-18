@@ -7,12 +7,11 @@ import lombok.Getter;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.io.File;
+import java.io.InputStream;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 public class App {
 
@@ -57,6 +56,44 @@ public class App {
 
 	public URL getResource(String file) {
 		return getClass().getClassLoader().getResource(file);
+	}
+	public InputStream getResourceAsStream(String file) {
+		return getClass().getClassLoader().getResourceAsStream(file);
+	}
+
+	public List<String> getFiles(String jarPath, String idePath, String extension) {
+		try {
+			File directory = new File(App.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+			List<String> names = new ArrayList<>();
+
+			if (App.Running_From_Jar) {
+				final JarFile jar = new JarFile(directory.getPath());
+
+                final Enumeration<JarEntry> entries = jar.entries(); //gives ALL entries in jar
+				while (entries.hasMoreElements()) {
+					final String name = entries.nextElement().getName();
+					if (name.startsWith(jarPath) && !name.equals(jarPath) && name.endsWith(extension)) { //filter according to the path
+						names.add(name.substring(jarPath.length(),name.length()-extension.length()));
+					}
+				}
+				jar.close();
+			}
+			else {
+				directory = new File(directory, idePath);
+				String[] files = directory.list();
+				assert files != null;
+				for (String file : files) {
+					if (file.endsWith(extension)) {
+						String name = file.substring(0, file.length() - extension.length());
+						names.add(name);
+					}
+				}
+			}
+			Collections.sort(names);
+			return names;
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	private static void addToCategory(Gate g) {
